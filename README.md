@@ -1,4 +1,4 @@
-# Apex GP — Formula 1 Race Predictor
+# GridPred— Formula 1 Race Predictor
 
 A cinematic front-end for a Formula 1 race-prediction product. Explore the grid,
 read the circuits, and see *why* the model ranked the field the way it did.
