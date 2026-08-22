@@ -49,6 +49,26 @@ export const band = (v) => {
 
 export const cx = (...parts) => parts.filter(Boolean).join(' ');
 
+const ONES = ['zero','one','two','three','four','five','six','seven','eight','nine','ten',
+  'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty'];
+
+/**
+ * Spell a small number, for display headlines that read better as words.
+ * Used so counts like the size of the grid stay correct as the data changes,
+ * rather than being typed into copy and going stale.
+ */
+export const numberWord = (n) => {
+  if (n == null || n < 0 || n > 59) return String(n);
+  if (n < 20) return ONES[n];
+  const t = TENS[Math.floor(n / 10)];
+  const o = n % 10;
+  return o ? `${t}-${ONES[o]}` : t;
+};
+
+/** Same, capitalised for display type. */
+export const numberWordUpper = (n) => numberWord(n).toUpperCase();
+
 /** Mix a hex colour with black — used for accent washes on dark surfaces. */
 export const tint = (hex, alpha) => {
   const h = hex.replace('#', '');

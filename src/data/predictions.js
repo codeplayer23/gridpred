@@ -29,6 +29,9 @@ export const FACTORS = [
 
 export const defaultWeights = Object.fromEntries(FACTORS.map((f) => [f.key, f.weight]));
 
+/** Sprint scoring: the top eight only. */
+export const SPRINT_POINTS = { 1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1 };
+
 function hash(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i += 1) {
@@ -87,12 +90,15 @@ function weightedScore(vector, weights) {
  * @returns {{qualifying:object[], race:object[], confidence:number, byId:object}}
  */
 export function predictRace(race, opts = {}) {
-  const { weights = defaultWeights, rainChance = 0 } = opts;
+  // `grid` lets a caller predict the field that is actually entered this
+  // weekend — with stand-ins in place and absentees removed — rather than the
+  // contracted lineup the snapshot describes.
+  const { weights = defaultWeights, rainChance = 0, grid = drivers } = opts;
   if (!race) return { qualifying: [], race: [], byId: {}, confidence: 0, factors: FACTORS, fieldAverage: {} };
 
   const circuit = race.circuit ?? circuitById[race.circuitId];
 
-  const rows = drivers.map((driver) => {
+  const rows = grid.map((driver) => {
     const vector = featureVector(driver, race, rainChance);
     const team = getTeam(driver.team);
     const score = weightedScore(vector, weights);
@@ -156,6 +162,46 @@ export function predictRace(race, opts = {}) {
   const byId = Object.fromEntries(raceRows.map((x) => [x.driverId, x]));
   const qualifying = qualiOrder.map((x) => ({ ...byId[x.driver.id], position: x.position }));
 
+  /*
+   * Sprint.
+   *
+   * A sprint is about a third of a Grand Prix with no mandatory stop, so there
+   * is far less time to recover from a poor start slot and tyre management
+   * barely matters. The model reflects that by leaning much harder on grid
+   * position and damping the random element, which is why a sprint order is
+   * usually closer to the grid than the race order is.
+   */
+  const sprint = race.isSprint
+    ? (() => {
+        const rows = [...qualiOrder]
+          .map((x) => ({
+            ...x,
+            sScore:
+              x.score * 0.7 +
+              x.vector.racePace * 0.1 +
+              // grid weighs roughly twice what it does over a full race
+              (21 - x.position) * (1 - overtakeEase) * 1.7 +
+              (hash(`sprint:${race.id}:${x.driver.id}:${Math.round(rain * 8)}`) - 0.5) *
+                (chaos * 0.6),
+          }))
+          .sort((a, b) => b.sScore - a.sScore)
+          .map((x, i) => ({ ...x, sprintPosition: i + 1 }));
+
+        const sExps = rows.map((x) => Math.exp((x.sScore - rows[0].sScore) / (temp * 0.85)));
+        const sSum = sExps.reduce((acc, e) => acc + e, 0);
+
+        return rows.map((x, i) => ({
+          ...byId[x.driver.id],
+          position: x.sprintPosition,
+          gridPosition: qualiPos[x.driver.id],
+          delta: qualiPos[x.driver.id] - x.sprintPosition,
+          winProbability: Number(((sExps[i] / sSum) * 100).toFixed(1)),
+          /** Sprint scores the top eight only. */
+          points: SPRINT_POINTS[x.sprintPosition] ?? 0,
+        }));
+      })()
+    : null;
+
   const gap = raceOrder[0].rScore - raceOrder[1].rScore;
   const confidence = clamp(Math.round(61 + Math.min(gap, 6) * 3.4 + (1 - rain) * 15), 36, 94);
 
@@ -163,6 +209,8 @@ export function predictRace(race, opts = {}) {
     raceId: race.id,
     qualifying,
     race: raceRows,
+    sprint,
+    isSprint: Boolean(race.isSprint),
     byId,
     fieldAverage,
     confidence,

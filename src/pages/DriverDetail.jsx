@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, GitCompareArrows } from 'lucide-react';
 import DriverHeadshot from '@/components/drivers/DriverHeadshot';
-import DriverHelmet from '@/components/drivers/DriverHelmet';
+import TeamLogo from '@/components/teams/TeamLogo';
 import Reveal from '@/components/ui/Reveal';
 import Counter from '@/components/ui/Counter';
 import Button from '@/components/ui/Button';
@@ -17,21 +17,37 @@ import { usePointerParallax } from '@/hooks';
 import { driverById, fullName, predictionScore } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
 import { seasonStats, standings } from '@/data/results';
+import { useDriverStats, useGridDriver } from '@/hooks/useLiveSeason';
+import { useCurrentTeam } from '@/hooks/useDriverAssets';
 import { nextRace, SEASON } from '@/data/races';
 import { predictRace } from '@/data/predictions';
 import NotFound from './NotFound';
 
 export default function DriverDetail() {
   const { id } = useParams();
-  const driver = driverById[id];
+  // A reserve called up for this round has no snapshot entry, so fall back to
+  // the weekend grid before deciding the driver does not exist.
+  const gridDriver = useGridDriver(id);
+  const driver = driverById[id] ?? gridDriver;
   const race = nextRace();
   const prediction = useMemo(() => predictRace(race), [race]);
-  const { handlers, translateX, translateY } = usePointerParallax(16);
+  const { handlers } = usePointerParallax(16);
+  // Hooks must run before the not-found return, so this is keyed off the route
+  // param rather than the resolved driver.
+  const liveStats = useDriverStats(id);
+  const liveTeam = useCurrentTeam(driver);
 
   if (!driver) return <NotFound label="Driver not found" />;
 
-  const team = getTeam(driver.team);
-  const stats = seasonStats(driver.id);
+  const team = liveTeam ?? getTeam(driver.team);
+  // A reserve called up for this round has contested nothing yet, so there is
+  // no season record to read. Zeroes here are literal, not placeholders.
+  const stats = liveStats ??
+    seasonStats(driver.id) ?? {
+      position: null, points: 0, wins: 0, podiums: 0, poles: 0, fastestLaps: 0,
+      dnfs: 0, starts: 0, avgFinish: null, avgGrid: null, bestFinish: null,
+      finishRate: null,
+    };
   const accent = team.accent;
   const row = prediction.byId[driver.id];
 
@@ -107,11 +123,12 @@ export default function DriverDetail() {
               >
                 <Link
                   to={`/teams/${team.id}`}
-                  className="flex items-center gap-2.5 text-[0.95rem] font-medium transition-opacity hover:opacity-70"
-                  style={{ color: accent }}
+                  className="flex items-center gap-3 transition-opacity hover:opacity-70"
                 >
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: accent }} aria-hidden />
-                  {team.name}
+                  <TeamLogo team={team} size={26} />
+                  <span className="text-[0.95rem] font-medium" style={{ color: accent }}>
+                    {team.name}
+                  </span>
                 </Link>
                 <span className="text-[0.95rem] text-ink-dim">
                   {driver.flag} {driver.nationality}
@@ -145,12 +162,12 @@ export default function DriverDetail() {
                 <DriverHeadshot
                   driver={driver}
                   team={team}
-                  size={340}
+                  size={300}
+                  variant="full"
                   showNumber={false}
                   priority
                   className="max-w-full"
                 />
-                <DriverHelmet driver={driver} team={team} size={112} className="mb-4 hidden shrink-0 sm:block" />
               </div>
             </motion.div>
           </div>
@@ -158,17 +175,23 @@ export default function DriverDetail() {
           {/* headline season numbers */}
           <div className="mt-16 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-white/[0.07] pt-10 sm:grid-cols-4">
             {[
-              { label: 'Championship', value: stats.position, prefix: 'P' },
+              { label: 'Championship', value: stats.position, prefix: 'P', empty: '—' },
               { label: 'Points', value: stats.points },
-              { label: 'Avg finish', value: stats.avgFinish, decimals: 1 },
+              { label: 'Avg finish', value: stats.avgFinish, decimals: 1, empty: '—' },
               { label: 'Form score', value: predictionScore(driver) ?? 0, suffix: '' },
             ].map((s, i) => (
               <Reveal key={s.label} delay={i * 0.06}>
                 <p className="mono-label">{s.label}</p>
                 <p className="tabular mt-3 text-[clamp(1.9rem,4vw,3rem)] leading-none font-medium tracking-[-0.05em]">
-                  {s.prefix}
-                  <Counter value={s.value} decimals={s.decimals ?? 0} />
-                  {s.suffix && <span className="text-ink-mute">{s.suffix}</span>}
+                  {s.value == null ? (
+                    <span className="text-ink-faint">{s.empty ?? '—'}</span>
+                  ) : (
+                    <>
+                      {s.prefix}
+                      <Counter value={s.value} decimals={s.decimals ?? 0} />
+                      {s.suffix && <span className="text-ink-mute">{s.suffix}</span>}
+                    </>
+                  )}
                 </p>
               </Reveal>
             ))}
@@ -182,7 +205,11 @@ export default function DriverDetail() {
           <SectionHeader
             eyebrow="Driver performance"
             title="The season so far"
-            lede={`${stats.starts} rounds contested, ${stats.finishRate}% of them reaching the flag.`}
+            lede={
+              stats.starts
+                ? `${stats.starts} rounds contested, ${stats.finishRate}% of them reaching the flag.`
+                : 'No rounds contested this season yet — called up for this weekend.'
+            }
           />
 
           <div className="mt-14 grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
@@ -212,7 +239,9 @@ export default function DriverDetail() {
                 ))}
               </dl>
               <p className="mt-8 border-t border-white/[0.07] pt-6 text-[0.8rem] leading-relaxed text-ink-faint">
-                {ordinal(stats.position)} in the {SEASON} standings after {stats.starts} rounds.
+                {stats.position
+                  ? `${ordinal(stats.position)} in the ${SEASON} standings after ${stats.starts} rounds.`
+                  : `No ${SEASON} championship classification yet.`}{' '}
                 Every figure on this page is read from real session results.
               </p>
             </Reveal>

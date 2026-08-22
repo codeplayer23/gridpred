@@ -1,8 +1,9 @@
-import { memo, useId, useMemo, useState } from 'react';
+import { memo, useEffect, useId, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cx, tint } from '@/lib/format';
 import { easeOut, viewport } from '@/lib/motion';
 import { useCalmMotion } from '@/hooks';
+import { getTelemetry } from '@/services/telemetry';
 import CircuitCorner from './CircuitCorner';
 import DRSZone from './DRSZone';
 import TrackTelemetry from './TrackTelemetry';
@@ -39,6 +40,21 @@ function CircuitMap({
   const uid = useId().replace(/:/g, '');
   const [activeCorner, setActiveCorner] = useState(null);
   const [pointer, setPointer] = useState(null);
+  // Zone overlays live in the lazy telemetry payload, so they are fetched only
+  // when a caller actually asks to draw them.
+  const [zones, setZones] = useState(null);
+  const wantsZones = showBraking || showFullThrottle;
+
+  useEffect(() => {
+    if (!wantsZones || !circuit?.id || zones) return undefined;
+    let alive = true;
+    getTelemetry(circuit.id).then((t) => {
+      if (alive && t) setZones(t);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [wantsZones, circuit?.id, zones]);
 
   const layout = circuit?.layout ?? null;
   const resolvedAccent = accent === 'var(--color-signal)' ? '#e10600' : accent;
@@ -146,14 +162,16 @@ function CircuitMap({
           transition={{ duration: calm || !animated ? 0 : 2.4, ease: easeOut }}
         />
 
-        {showFullThrottle && (
-          <DRSZone zones={layout.fullThrottleZones} accent={resolvedAccent} kind="throttle" width={strokeWidth * 0.8} animated={!calm} />
+        {showFullThrottle && zones && (
+          <DRSZone zones={zones.fullThrottleZones} accent={resolvedAccent} kind="throttle" width={strokeWidth * 0.8} animated={!calm} />
         )}
-        {showBraking && (
-          <DRSZone zones={layout.brakingZones} accent={resolvedAccent} kind="braking" width={strokeWidth * 0.8} animated={!calm} />
+        {showBraking && zones && (
+          <DRSZone zones={zones.brakingZones} accent={resolvedAccent} kind="braking" width={strokeWidth * 0.8} animated={!calm} />
         )}
         {/* rendered only if a season actually has DRS; 2026 does not */}
-        <DRSZone zones={layout.drsZones} accent="#35d67f" kind="drs" width={strokeWidth * 0.8} animated={!calm} />
+        {zones && (
+          <DRSZone zones={zones.drsZones} accent="#35d67f" kind="drs" width={strokeWidth * 0.8} animated={!calm} />
+        )}
 
         {showTelemetry && (
           <TrackTelemetry circuit={circuit} accent={resolvedAccent} lapSeconds={lapSeconds} />

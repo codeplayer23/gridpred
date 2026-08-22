@@ -18,6 +18,8 @@ const Predict = lazy(() => import('@/pages/Predict'));
 const Analytics = lazy(() => import('@/pages/Analytics'));
 const Compare = lazy(() => import('@/pages/Compare'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
+// Development-only asset audit; not linked from the navigation.
+const AssetsDebug = lazy(() => import('@/pages/AssetsDebug'));
 
 export default function App() {
   return (
@@ -33,6 +35,7 @@ export default function App() {
         <Route path="predict" element={<Predict />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="compare" element={<Compare />} />
+        {import.meta.env.DEV && <Route path="assets-debug" element={<AssetsDebug />} />}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

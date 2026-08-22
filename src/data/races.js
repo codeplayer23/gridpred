@@ -8,6 +8,7 @@
 import calendar from './snapshot/calendar.json';
 import meta from './snapshot/meta.json';
 import { normalizeRace } from '@/services/normalize';
+import { parseUtc } from '@/lib/session';
 import { circuitById } from './circuits';
 
 export const SEASON = meta.season;
@@ -34,11 +35,11 @@ export const getRace = (id) => raceById[id] ?? null;
 
 /** The next race is derived from the schedule — never configured by hand. */
 export function nextRace(now = Date.now()) {
-  return races.find((r) => new Date(r.startsAt).getTime() > now) ?? races[races.length - 1];
+  return races.find((r) => parseUtc(r.startsAt) > now) ?? races[races.length - 1];
 }
 
 export function completedRaces(now = Date.now()) {
-  return races.filter((r) => new Date(r.startsAt).getTime() <= now);
+  return races.filter((r) => parseUtc(r.startsAt) <= now);
 }
 
 export const sessionsFor = (race) => race?.sessions ?? [];

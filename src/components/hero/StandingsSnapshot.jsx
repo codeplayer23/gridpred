@@ -3,17 +3,23 @@ import { motion } from 'framer-motion';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
 import PositionBadge from '@/components/ui/PositionBadge';
+import TeamLogo from '@/components/teams/TeamLogo';
 import { tint } from '@/lib/format';
 import { easeOut, viewport } from '@/lib/motion';
 import { driverById, fullName } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
-import { completedRounds, constructorStandings, standings } from '@/data/results';
+import { completedRounds } from '@/data/results';
+import { useDriverStandings, useConstructorStandings, useLiveSeason } from '@/hooks/useLiveSeason';
+import LiveIndicator from '@/components/ui/LiveIndicator';
 
 /** Championship snapshot — drivers and constructors side by side. */
 export default function StandingsSnapshot() {
-  const topDrivers = standings.slice(0, 6);
+  const { round } = useLiveSeason();
+  const allDrivers = useDriverStandings();
+  const allTeams = useConstructorStandings();
+  const topDrivers = allDrivers.slice(0, 6);
   const leadPoints = topDrivers[0]?.points || 1;
-  const topTeams = constructorStandings.slice(0, 6);
+  const topTeams = allTeams.slice(0, 6);
   const leadTeamPoints = topTeams[0]?.points || 1;
 
   return (
@@ -21,9 +27,14 @@ export default function StandingsSnapshot() {
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Standings"
-          title={`${completedRounds} rounds in.`}
+          title={`${round ?? completedRounds} rounds in.`}
           lede="The official championship as it stands, summed from every classification this season — sprint points included."
-          action={<Button to="/analytics" variant="ghost">Full analytics</Button>}
+          action={
+            <div className="flex flex-col items-start gap-3 md:items-end">
+              <LiveIndicator />
+              <Button to="/analytics" variant="ghost">Full analytics</Button>
+            </div>
+          }
         />
 
         <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:gap-16">
@@ -50,9 +61,13 @@ export default function StandingsSnapshot() {
                       />
                       <PositionBadge position={s.position} size="sm" className="relative" />
                       <span className="relative min-w-0 flex-1">
-                        <span className="block truncate text-[0.94rem] font-medium">{fullName(driver)}</span>
+                        <span className="flex items-baseline gap-2">
+                          <span className="truncate text-[0.94rem] font-medium">{fullName(driver)}</span>
+                          <span className="tabular shrink-0 text-[0.72rem] text-ink-faint">#{driver.number}</span>
+                        </span>
                         <span className="block truncate text-[0.74rem] text-ink-mute">{team.name}</span>
                       </span>
+                      <TeamLogo team={team} size={17} showFallbackLabel={false} className="relative" />
                       <span className="tabular relative shrink-0 text-[1.05rem] font-medium">{s.points}</span>
                     </Link>
                   </li>
@@ -82,6 +97,7 @@ export default function StandingsSnapshot() {
                         transition={{ duration: 1, delay: i * 0.07, ease: easeOut }}
                       />
                       <PositionBadge position={c.position} size="sm" className="relative" />
+                      <TeamLogo team={team} size={18} showFallbackLabel={false} className="relative" />
                       <span className="relative min-w-0 flex-1 truncate text-[0.94rem] font-medium">
                         {team.name}
                       </span>

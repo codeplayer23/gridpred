@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import DriverHeadshot from './DriverHeadshot';
+import TeamLogo from '@/components/teams/TeamLogo';
+import { useCurrentTeam } from '@/hooks/useDriverAssets';
 import { cx, tint } from '@/lib/format';
 import { spring } from '@/lib/motion';
 import { usePointerParallax } from '@/hooks';
@@ -14,14 +16,14 @@ import { predictionScore } from '@/data/drivers';
  * Driver card.
  *
  * Resting state is deliberately quiet — number, name, team. Hovering lifts the
- * card, drifts the helmet toward the pointer, washes the team colour in and
+ * card, drifts the portrait toward the pointer, washes the team colour in and
  * slides a stat panel up from the base. Everything moves on transform/opacity.
  */
 function DriverCard({ driver, index = 0, compact = false }) {
-  const team = getTeam(driver.team);
+  const team = useCurrentTeam(driver) ?? getTeam(driver.team);
   const stats = seasonStats(driver.id);
   const [hover, setHover] = useState(false);
-  const { handlers, translateX, translateY } = usePointerParallax(compact ? 6 : 12);
+  const { handlers } = usePointerParallax(compact ? 6 : 12);
 
   const metrics = [
     { label: 'Points', value: stats?.points ?? 0 },
@@ -116,7 +118,7 @@ function DriverCard({ driver, index = 0, compact = false }) {
               <p className="truncate font-display text-[1.55rem] leading-none font-medium tracking-[-0.04em]">
                 {driver.lastName}
               </p>
-              <p className="mt-2.5 flex items-center gap-2 text-[0.76rem] text-ink-mute">
+              <p className="mt-2 flex items-center gap-2 text-[0.76rem] text-ink-mute">
                 <span
                   className="h-2 w-2 shrink-0 rounded-full"
                   style={{ background: team.accent }}
@@ -124,6 +126,17 @@ function DriverCard({ driver, index = 0, compact = false }) {
                 />
                 <span className="truncate">{team.name}</span>
               </p>
+              <span className="mt-2.5 flex items-center gap-2">
+                <TeamLogo team={team} size={18} />
+                {driver.isSubstitute && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[0.45rem] font-semibold tracking-[0.14em] uppercase"
+                    style={{ background: team.accent, color: '#06070a' }}
+                  >
+                    Stand-in
+                  </span>
+                )}
+              </span>
             </div>
             <span
               className="tabular shrink-0 font-display text-[2.4rem] leading-none font-semibold tracking-[-0.06em]"

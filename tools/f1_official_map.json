@@ -1,0 +1,204 @@
+{
+ "drivers": {
+  "lewis-hamilton": {
+   "code": "lewham01",
+   "slug": "ferrari",
+   "number": 44,
+   "name": "Lewis Hamilton",
+   "teamId": "ferrari"
+  },
+  "george-russell": {
+   "code": "georus01",
+   "slug": "mercedes",
+   "number": 63,
+   "name": "George Russell",
+   "teamId": "mercedes"
+  },
+  "charles-leclerc": {
+   "code": "chalec01",
+   "slug": "ferrari",
+   "number": 16,
+   "name": "Charles Leclerc",
+   "teamId": "ferrari"
+  },
+  "lando-norris": {
+   "code": "lannor01",
+   "slug": "mclaren",
+   "number": 1,
+   "name": "Lando Norris",
+   "teamId": "mclaren"
+  },
+  "max-verstappen": {
+   "code": "maxver01",
+   "slug": "redbullracing",
+   "number": 3,
+   "name": "Max Verstappen",
+   "teamId": "red-bull-racing"
+  },
+  "oscar-piastri": {
+   "code": "oscpia01",
+   "slug": "mclaren",
+   "number": 81,
+   "name": "Oscar Piastri",
+   "teamId": "mclaren"
+  },
+  "isack-hadjar": {
+   "code": "isahad01",
+   "slug": "redbullracing",
+   "number": 6,
+   "name": "Isack Hadjar",
+   "teamId": "red-bull-racing"
+  },
+  "liam-lawson": {
+   "code": "lialaw01",
+   "slug": "racingbulls",
+   "number": 30,
+   "name": "Liam Lawson",
+   "teamId": "racing-bulls"
+  },
+  "pierre-gasly": {
+   "code": "piegas01",
+   "slug": "alpine",
+   "number": 10,
+   "name": "Pierre Gasly",
+   "teamId": "alpine"
+  },
+  "arvid-lindblad": {
+   "code": "arvlin01",
+   "slug": "racingbulls",
+   "number": 41,
+   "name": "Arvid Lindblad",
+   "teamId": "racing-bulls"
+  },
+  "franco-colapinto": {
+   "code": "fracol01",
+   "slug": "alpine",
+   "number": 43,
+   "name": "Franco Colapinto",
+   "teamId": "alpine"
+  },
+  "oliver-bearman": {
+   "code": "olibea01",
+   "slug": "haasf1team",
+   "number": 87,
+   "name": "Oliver Bearman",
+   "teamId": "haas-f1-team"
+  },
+  "gabriel-bortoleto": {
+   "code": "gabbor01",
+   "slug": "audi",
+   "number": 5,
+   "name": "Gabriel Bortoleto",
+   "teamId": "audi"
+  },
+  "carlos-sainz": {
+   "code": "carsai01",
+   "slug": "williams",
+   "number": 55,
+   "name": "Carlos Sainz",
+   "teamId": "williams"
+  },
+  "alexander-albon": {
+   "code": "alealb01",
+   "slug": "williams",
+   "number": 23,
+   "name": "Alexander Albon",
+   "teamId": "williams"
+  },
+  "esteban-ocon": {
+   "code": "estoco01",
+   "slug": "haasf1team",
+   "number": 31,
+   "name": "Esteban Ocon",
+   "teamId": "haas-f1-team"
+  },
+  "nico-hulkenberg": {
+   "code": "nichul01",
+   "slug": "audi",
+   "number": 27,
+   "name": "Nico Hulkenberg",
+   "teamId": "audi"
+  },
+  "fernando-alonso": {
+   "code": "feralo01",
+   "slug": "astonmartin",
+   "number": 14,
+   "name": "Fernando Alonso",
+   "teamId": "aston-martin"
+  },
+  "sergio-perez": {
+   "code": "serper01",
+   "slug": "cadillac",
+   "number": 11,
+   "name": "Sergio Perez",
+   "teamId": "cadillac"
+  },
+  "valtteri-bottas": {
+   "code": "valbot01",
+   "slug": "cadillac",
+   "number": 77,
+   "name": "Valtteri Bottas",
+   "teamId": "cadillac"
+  },
+  "lance-stroll": {
+   "code": "lanstr01",
+   "slug": "astonmartin",
+   "number": 18,
+   "name": "Lance Stroll",
+   "teamId": "aston-martin"
+  },
+  "kimi-antonelli": {
+   "code": "andant01",
+   "slug": "mercedes",
+   "number": 12,
+   "name": "Kimi Antonelli",
+   "teamId": "mercedes"
+  }
+ },
+ "teams": {
+  "mercedes": {
+   "slug": "mercedes",
+   "name": "Mercedes"
+  },
+  "ferrari": {
+   "slug": "ferrari",
+   "name": "Ferrari"
+  },
+  "mclaren": {
+   "slug": "mclaren",
+   "name": "McLaren"
+  },
+  "red-bull-racing": {
+   "slug": "redbullracing",
+   "name": "Red Bull Racing"
+  },
+  "racing-bulls": {
+   "slug": "racingbulls",
+   "name": "Racing Bulls"
+  },
+  "alpine": {
+   "slug": "alpine",
+   "name": "Alpine"
+  },
+  "haas-f1-team": {
+   "slug": "haasf1team",
+   "name": "Haas F1 Team"
+  },
+  "audi": {
+   "slug": "audi",
+   "name": "Audi"
+  },
+  "williams": {
+   "slug": "williams",
+   "name": "Williams"
+  },
+  "aston-martin": {
+   "slug": "astonmartin",
+   "name": "Aston Martin"
+  },
+  "cadillac": {
+   "slug": "cadillac",
+   "name": "Cadillac"
+  }
+ }
+}

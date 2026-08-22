@@ -16,22 +16,38 @@
 const API_BASE = import.meta.env?.VITE_GRIDPRED_API ?? '';
 export const MODE = API_BASE ? 'live' : 'snapshot';
 
-/** Resources the snapshot bundles. Kept small; telemetry is fetched per circuit. */
-const loaders = {
-  calendar: () => import('@/data/snapshot/calendar.json'),
-  circuits: () => import('@/data/snapshot/circuits.json'),
-  drivers: () => import('@/data/snapshot/drivers.json'),
-  teams: () => import('@/data/snapshot/teams.json'),
-  results: () => import('@/data/snapshot/results.json'),
-  standings: () => import('@/data/snapshot/standings.json'),
-  meta: () => import('@/data/snapshot/meta.json'),
+/**
+ * Snapshot resources.
+ *
+ * These are imported statically because the synchronous data layer in
+ * `@/data/*` reads the same files for first paint — importing them dynamically
+ * here as well would not split anything, it would only make the graph look
+ * lazier than it is. Telemetry is the genuinely deferred payload and is loaded
+ * per circuit by `requestTelemetry` below.
+ */
+import calendar from '@/data/snapshot/calendar.json';
+import circuits from '@/data/snapshot/circuits.json';
+import driversData from '@/data/snapshot/drivers.json';
+import teamsData from '@/data/snapshot/teams.json';
+import resultsData from '@/data/snapshot/results.json';
+import standingsData from '@/data/snapshot/standings.json';
+import metaData from '@/data/snapshot/meta.json';
+
+const snapshot = {
+  calendar,
+  circuits,
+  drivers: driversData,
+  teams: teamsData,
+  results: resultsData,
+  standings: standingsData,
+  meta: metaData,
 };
 
 const cache = new Map();
 
 /**
  * Fetch a resource.
- * @param {keyof loaders} resource
+ * @param {keyof snapshot} resource
  * @returns {Promise<any>}
  */
 export async function request(resource) {
@@ -45,8 +61,9 @@ export async function request(resource) {
       if (!res.ok) throw new Error(`GridPred API ${resource}: ${res.status}`);
       return res.json();
     }
-    const mod = await loaders[resource]();
-    return mod.default ?? mod;
+    const data = snapshot[resource];
+    if (!data) throw new Error(`Unknown GridPred resource: ${resource}`);
+    return data;
   })();
 
   cache.set(resource, promise);

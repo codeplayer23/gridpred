@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CalendarDays, CloudRain, Flag, MapPin, Thermometer, Wind } from 'lucide-react';
+import { CalendarDays, Flag, MapPin } from 'lucide-react';
 import Reveal from '@/components/ui/Reveal';
 import Counter from '@/components/ui/Counter';
 import CircuitMap from '@/components/circuits/CircuitMap';
@@ -7,6 +7,8 @@ import Button from '@/components/ui/Button';
 import { countdownParts, dateParts, pad2 } from '@/lib/format';
 import { useCountdown } from '@/hooks';
 import { nextRace } from '@/data/races';
+import SessionStatus from './SessionStatus';
+import LineupChanges from '@/components/drivers/LineupChanges';
 
 function CountdownUnit({ value, label, pulse = false }) {
   return (
@@ -99,12 +101,8 @@ export default function NextRaceSection() {
               </div>
 
               <div className="flex flex-wrap gap-x-8 gap-y-4">
-                {race.sessions.slice(0, 3).map((s) => (
-                  <span key={s.name} className="flex items-center gap-2.5 text-sm text-ink-dim">
-                    <CalendarDays size={15} className="text-ink-faint" aria-hidden />
-                    {s.name} · {dateParts(s.dateUtc).weekday} {dateParts(s.dateUtc).time}
-                  </span>
-                ))}
+                <SessionStatus race={race} />
+                <LineupChanges className="mt-2" />
               </div>
             </div>
 

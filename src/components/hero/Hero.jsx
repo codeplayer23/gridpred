@@ -5,6 +5,9 @@ import Button from '@/components/ui/Button';
 import CircuitMap from '@/components/circuits/CircuitMap';
 import { revealLine } from '@/lib/motion';
 import { useCalmMotion, useLiveValue } from '@/hooks';
+import { useNow } from '@/hooks/useNow';
+import { weekendState } from '@/lib/session';
+import LiveIndicator from '@/components/ui/LiveIndicator';
 import { nextRace, SEASON } from '@/data/races';
 
 const LINES = ['WHO WINS', 'NEXT?'];
@@ -26,6 +29,8 @@ function Readout({ label, base, spread, suffix, decimals = 0 }) {
 export default function Hero() {
   const race = nextRace();
   const m = race.circuit?.measurements;
+  const now = useNow(1000);
+  const { live: sessionLive } = weekendState(race, now);
   const ref = useRef(null);
   const calm = useCalmMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
@@ -68,17 +73,23 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.7 }}
         >
-          <span className="flex items-center gap-2 text-signal">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-signal animate-pulse-soft" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+          {sessionLive ? (
+            <span className="flex items-center gap-2 text-signal">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-signal animate-pulse-soft" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal" />
+              </span>
+              {sessionLive.name} live
             </span>
-            Season {SEASON}
-          </span>
+          ) : (
+            <span>Season {SEASON}</span>
+          )}
           <span className="hidden h-3 w-px bg-white/15 sm:block" />
           <span>Round {race.round}</span>
           <span className="hidden h-3 w-px bg-white/15 sm:block" />
           <span>{race.circuitName}</span>
+          <span className="hidden h-3 w-px bg-white/15 sm:block" />
+          <LiveIndicator compact />
         </motion.p>
 
         <h1 className="text-balance-tight font-display font-medium" aria-label="Who wins next?">

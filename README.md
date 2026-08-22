@@ -1,102 +1,227 @@
-# GridPred— Formula 1 Race Predictor
+# GridPred — Formula 1 Race Prediction
 
-A cinematic front-end for a Formula 1 race-prediction product. Explore the grid,
-read the circuits, and see *why* the model ranked the field the way it did.
-
-This is the **frontend phase**: no backend, no database, no auth, no API. Every
-figure comes from a simulated 2026 season that lives in `src/data/`.
+GridPred predicts the Formula 1 grid from real session data. Explore the 2026
+drivers, read circuits whose geometry was measured from car telemetry, and see
+exactly why the model made its call.
 
 ```bash
 npm install
 npm run dev      # http://localhost:5173
 npm run build
-npm run preview
 ```
 
-## Stack
+## This is built on real Formula 1 data
 
-React 19 · Vite 8 · Tailwind CSS v4 · Framer Motion · React Router 7 · Recharts · Lucide
+Everything the interface shows comes from actual 2026 sessions, pulled through
+[FastF1](https://github.com/theOehrly/Fast-F1) by the pipeline in `tools/` and
+written to `src/data/snapshot/`.
 
-## How the data actually works
-
-The interesting part of this build is that **nothing is hand-written twice**.
-Two files state facts; everything else is derived from them.
-
-| File | Owns |
+| Data | Source |
 | --- | --- |
-| `data/drivers.js` | Identity, career totals, nine 0–100 capability scores, and a championship *prior* (`seedPoints`) |
-| `data/teams.js` | Identity and car characteristics that no result can imply — pit-stop pace, reliability, development rate |
-| `data/races.js` | The 24-round calendar, circuit dimensions, weather, and a `shape` descriptor per venue |
-| `data/results.js` | **Derives** the entire season: every grid, classification, retirement, standings table and form strip |
-| `data/predictions.js` | The prediction engine — a weighted feature model over the same numbers |
+| 23-round calendar, session times, sprint formats | FastF1 event schedule |
+| Championship standings, results, grids, pit stops, tyres, weather | FastF1 session results and lap data |
+| Driver identity, racing number, team colour, headshot | FastF1 session results |
+| **Circuit outlines** | Position telemetry (X/Y) of a representative fast lap |
+| **Corner numbers and positions** | `session.get_circuit_info()` |
+| Full-throttle and braking zones | Throttle and brake telemetry channels |
+| Constructor entrant names, power units | 2026 published entry list |
+| Circuit length, official turn counts | Wikipedia circuit infoboxes (CC BY-SA) |
 
-`results.js` simulates all fifteen completed rounds from a seeded model
-(championship prior + capability + per-circuit team swing + reliability). Because
-the season is generated once and every surface reads from it, a driver's points
-on the standings table can never disagree with the sum of their race results.
-Season aggregates deliberately **do not** exist in `drivers.js` or `teams.js`.
+The driver standings this produces match the official 2026 table exactly,
+sprint points included — that agreement is the pipeline's correctness check.
 
-### Circuit outlines
+## Circuits are measured, not drawn
 
-Real track geometry isn't bundled. `lib/circuit.js` synthesises a stable outline
-per venue: a closed polygon whose vertices are filleted with tangent arcs, so
-each layout reads as *straights joined by corners of varying radius* rather than
-a smooth blob. Deterministic — the same circuit always draws the same shape.
+No circuit in GridPred is illustrated or generated. Each outline is the path a
+car actually took, reconstructed from the position telemetry of a real lap, and
+each corner marker sits at the coordinate FastF1 reports for that corner. Every
+layout records its provenance — which session, which driver, which lap time —
+and the race page shows it.
 
-To drop in real geometry later, set `path` on a circuit; `circuitPath()` returns
-the override and no component changes.
+**22 of 23 circuits have real geometry.** The one that does not is the Madring
+in Madrid: it is new for 2026, has never hosted a session, and is not yet mapped
+in OpenStreetMap. It is surfaced as unavailable rather than filled with an
+invented shape. Sepang, which hosts the relocated Bahrain Grand Prix and predates
+FastF1's telemetry era, uses an OpenStreetMap centreline (ODbL).
 
-### Driver visuals
+## Things the data says that you might not expect
 
-No photography ships with the app. `ui/DriverPortrait` renders a helmet from the
-team livery, with a stripe angle derived from the racing number. It scales to any
-size and costs nothing to load. Every call site passes only `driver` and `team`,
-so swapping in real imagery is a one-component change.
+* **There is no DRS in 2026.** The regulations replaced it with active
+  aerodynamics and an overtake boost, and the DRS telemetry channel reads zero
+  all season. GridPred therefore draws no DRS zones; it shows measured
+  full-throttle and braking zones instead. The `drsZones` field remains in the
+  schema so a season that has them renders with no code change.
+* **The Bahrain Grand Prix is in Malaysia.** It was relocated to Sepang after the
+  Saudi Arabian round was cancelled; the calendar reflects that.
+* **Not every rating exists for every driver.** Capability scores are arithmetic
+  over real classifications and each carries a sample count. Anything resting on
+  fewer than three races is hidden rather than shown as a confident number.
+* **One driver has no photograph.** The F1 media CDN answers with a generic
+  silhouette for Arvid Lindblad; the build detects that and the interface falls
+  back to a drawn helmet.
 
-## Wiring up a real model
-
-`predictRace(race, { weights, rainChance })` returns a ranked qualifying order, a
-ranked race order, per-driver factor contributions, win probabilities and a
-confidence figure. Replace its body with a `fetch` to a served model and keep the
-return shape — the Predict page, the home teaser and the driver pages all consume
-that contract and nothing else.
-
-The prediction page genuinely re-runs the model on every control change; the grid
-animates drivers between positions rather than redrawing the list.
-
-## Structure
+## Architecture
 
 ```
 src/
 ├── components/
-│   ├── navigation/   floating rail + mobile tab bar
-│   ├── hero/         landing sections
-│   ├── drivers/      carousel, cards, form strip, attribute profile
-│   ├── teams/        crest, head-to-head
-│   ├── races/        calendar row
+│   ├── circuits/     CircuitMap, CircuitCard, CircuitDetail, CircuitCorner,
+│   │                 DRSZone, TrackTelemetry
+│   ├── drivers/      headshot, helmet, cards, carousel, form, ratings
 │   ├── predictions/  ranked grid, factor dial, model reasoning
-│   ├── charts/       Recharts wrappers + shared theme
-│   ├── ui/           design-system primitives
-│   └── layout/       shell, backdrop, footer
-├── data/             the mock dataset (see above)
-├── hooks/            counters, countdown, parallax, live telemetry
-├── lib/              circuit generator, formatting, motion vocabulary
-└── pages/            one file per route
+│   ├── teams/ races/ charts/ hero/ navigation/ ui/ layout/ brand/
+├── data/             normalised access to the snapshot
+│   └── snapshot/     generated FastF1 data (+ telemetry/, loaded lazily)
+├── services/         fastf1 transport + per-domain accessors + normalisers
+├── hooks/ lib/ pages/
+└── tools/            the Python extraction pipeline
 ```
 
 Routes: `/` `/drivers` `/drivers/:id` `/teams` `/teams/:id` `/races` `/races/:id`
 `/predict` `/analytics` `/compare`
 
+### Connecting a live backend
+
+`src/services/fastf1.js` is the only module that knows where data comes from.
+Set `VITE_GRIDPRED_API` and it fetches from your API instead of the bundled
+snapshot; the shapes are identical because both pass through
+`src/services/normalize.js`. The intended path is:
+
+```
+GridPred UI → GridPred API → FastF1 → F1 session data → prediction model
+```
+
+`predictRace(race, { weights, rainChance })` returns a ranked qualifying order, a
+ranked race order, per-driver factor attributions and a confidence figure. On a
+sprint weekend it also returns a ranked **sprint** with the top-eight scoring
+applied; the Predict page grows a Sprint tab only for rounds that have one. The
+sprint model leans about twice as hard on grid position and damps the random
+element, because a sprint is a third of the distance with no mandatory stop —
+which is why its order sits closer to qualifying than the race order does.
+
+Replace the body of `predictRace` with a call to a served model and no component
+changes.
+
+Per-circuit telemetry (speed trace, racing line) is the one genuinely lazy path:
+it is fetched only when a circuit appears in telemetry mode, keeping ~300 KB out
+of the initial payload.
+
+## Staying current
+
+The bundled snapshot is generated at build time and goes stale the moment
+another Grand Prix runs. Two mechanisms keep a deployed GridPred honest.
+
+**Live championship sync.** On load — and every five minutes, and whenever the
+tab regains focus — GridPred asks a public, CORS-enabled mirror of the F1
+results API for the current standings, and upgrades points, positions and wins
+in place. If the network is unavailable the snapshot simply stands, and the
+freshness badge says so.
+
+**This weekend's entry.** Championship standings say who has *scored* what;
+they cannot say who is *driving*. A driver stood down through injury keeps their
+points and their standings place, and their stand-in has no standings row at
+all — so substitutions are invisible to a standings feed. GridPred therefore
+also reads the session entry list from the timing API and treats it as the
+authority on the field: absentees drop out of the grid, stand-ins move to the
+team they are actually driving for, and a reserve the snapshot has never seen is
+built from the entry and appears everywhere, right down to their own driver
+page. The championship table is deliberately left alone.
+
+The change is stated, not just applied: a *lineup change* panel on the next-race
+card and the prediction page names who is out, who has moved and who has come
+in, and stand-ins carry a badge on their card.
+
+**Permanent team moves heal themselves too.** The standings feed reports which
+constructor each driver is scoring for, so a move is picked up without a
+rebuild.
+Nothing stores a frozen image URL: `driverAssets.js` holds F1's driver code and
+`teamAssets.js` holds the team slug, and `useDriverAssets` builds the portrait
+from whichever team the driver is racing for *now* — F1 namespaces portraits by
+constructor, so the new team's photograph, colour and logo all follow. A driver
+the feed knows about but the snapshot has never seen is surfaced too. Where the
+new asset does not exist yet, the portrait degrades to the neutral placeholder
+rather than showing the old team's photograph.
+
+```
+src/services/live.js        the API client — every call fails soft
+src/context/LiveSeason.jsx  provider: snapshot first, live upgrade after
+src/hooks/useLiveSeason.js  useDriverStats / useDriverStandings / …
+```
+
+Responses are cached per tab for ten minutes: these are public, shared,
+rate-limited endpoints whose answers change a few times a day at most, and
+without it a series of page loads earns a 429 for no benefit.
+
+Point `VITE_LIVE_API` (standings) or `VITE_TIMING_API` (entry list) at your own
+mirrors to change source.
+
+**Real-time weekend state.** `src/lib/session.js` classifies every session of the
+next race against the clock, so the interface advances by itself: a session is
+marked live when it starts, the strip moves on when it ends, and the countdown
+targets whatever is genuinely next rather than a fixed race time. One shared
+clock (`useNow`) drives every countdown so they cannot drift apart.
+
+Session timestamps are stored with an explicit `Z`. They are UTC by definition,
+and a bare `2026-08-22T10:00:00` is parsed by JavaScript as *local* time — which
+silently shifts every session by the viewer's offset. `parseUtc()` enforces the
+marker at every read rather than trusting it.
+
 ## Motion and accessibility
 
-Motion is centralised in `lib/motion.js` so every surface uses the same physics.
-`useCalmMotion()` reads `prefers-reduced-motion` and components collapse to plain
-fades rather than merely running faster — the pace car stops circulating,
-telemetry stops drifting, counters land on their final value immediately.
+Motion is centralised in `src/lib/motion.js`. `useCalmMotion()` reads
+`prefers-reduced-motion` and components collapse to plain fades rather than
+merely running faster — the pace car stops circulating, telemetry stops
+drifting, circuits appear fully drawn, counters land on their final value.
 
-Navigation is keyboard reachable with visible focus rings, charts and meters
-carry ARIA roles and values, and there's a skip link to `#main`.
+Navigation is keyboard reachable with visible focus rings, corner markers are
+focusable buttons, charts and meters carry ARIA roles, and there is a skip link.
 
-## Notes
+## Assets and licensing
 
-All data is simulated and this project is not affiliated with Formula 1.
+Every image resolves through one registry. No component contains an image URL.
+
+```
+data/driverAssets.js   driver photographs
+data/teamAssets.js     constructor logos
+data/assetSources.js   provenance + licence for every asset
+```
+
+**Source: Formula 1's official 2026 media library.** All 22 driver portraits and
+all 11 team logos come from `media.formula1.com`, referenced by URL and **not
+copied into this repository** — there is no bundled imagery at all.
+
+The asset path encodes the season *and the driver's current constructor*:
+
+```
+common/f1/2026/redbullracing/isahad01/2026redbullracingisahad01right.webp
+common/f1/2026/cadillac/serper01/2026cadillacserper01right.webp
+```
+
+That namespacing is what makes these current. A driver who changes team resolves
+to a new path under the new team, so Hadjar appears in Red Bull kit and Pérez in
+Cadillac kit. The mapping in `tools/f1_official_map.json` is regenerated from
+F1's own driver index rather than guessed, and every image was inspected against
+its driver's 2026 constructor before being accepted.
+
+Team logos use F1's official **white** variants, supplied for dark backgrounds,
+so no recolouring is applied.
+
+**Fallbacks.** If any image fails to load, the interface shows a neutral
+GridPred placeholder — an anonymous silhouette for a driver, a plate carrying
+the team's own name and colour for a constructor. An outdated photograph or
+another team's logo is never substituted.
+
+**Rights.** These are Formula 1's copyrighted photographs and the constructors'
+trademarks, used here to identify the driver and team they depict. Confirm you
+hold the rights you need for your own deployment context.
+
+Run `/assets-debug` in development for a one-page audit of every driver's photo,
+helmet, number, team and logo. `validateDriverAssets()` reports missing numbers,
+unresolved teams and duplicate image URLs to the console on boot.
+
+GridPred is an independent project and is not affiliated with Formula 1.
+
+## Regenerating the data
+
+See `tools/README.md`. Scripts must run in the documented order;
+`build_snapshot.py` writes every file the app imports and must run last.

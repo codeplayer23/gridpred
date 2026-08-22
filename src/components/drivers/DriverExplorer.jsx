@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Button from '@/components/ui/Button';
-import { cx } from '@/lib/format';
+import { cx, numberWord } from '@/lib/format';
 import { springSnappy } from '@/lib/motion';
 import { drivers, predictionScore } from '@/data/drivers';
+import { useWeekendGrid } from '@/hooks/useLiveSeason';
 import { teams } from '@/data/teams';
 import { standingsById } from '@/data/results';
 import DriverCarousel from './DriverCarousel';
@@ -21,25 +22,32 @@ const SORTS = [
  * than blink.
  */
 export default function DriverExplorer() {
+  const { drivers: grid } = useWeekendGrid();
   const [team, setTeam] = useState('all');
   const [sort, setSort] = useState('championship');
 
   const visible = useMemo(() => {
-    const list = team === 'all' ? [...drivers] : drivers.filter((d) => d.team === team);
+    const list = team === 'all' ? [...grid] : grid.filter((d) => d.team === team);
     const by = {
       championship: (a, b) => (standingsById[a.id]?.position ?? 99) - (standingsById[b.id]?.position ?? 99),
       prediction: (a, b) => (predictionScore(b) ?? 0) - (predictionScore(a) ?? 0),
       pace: (a, b) => (b.ratings.racePace ?? 0) - (a.ratings.racePace ?? 0),
     };
     return list.sort(by[sort]);
-  }, [team, sort]);
+  }, [team, sort, grid]);
 
   return (
     <section className="relative pt-28 pb-14 md:pt-36 md:pb-18">
       <div className="mx-auto max-w-7xl px-6 md:px-10">
         <SectionHeader
           eyebrow="The grid"
-          title={<>Twenty drivers.<br />One set of numbers.</>}
+          title={
+            <>
+              {numberWord(drivers.length).replace(/^./, (c) => c.toUpperCase())} drivers.
+              <br />
+              One set of numbers.
+            </>
+          }
           lede="Every driver is scored across nine performance dimensions. Hover a card to read the season, open one to read the career."
           action={<Button to="/drivers" variant="ghost">All drivers</Button>}
         />

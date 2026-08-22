@@ -1,9 +1,13 @@
 /**
  * The 2026 driver grid.
  *
- * Identity, racing number, team, colour and headshot come straight from FastF1
- * session results. Championship figures are summed from real classifications,
- * sprint points included.
+ * Identity, racing number, team and colour come straight from FastF1 session
+ * results. Championship figures are summed from real classifications, sprint
+ * points included.
+ *
+ * Imagery does NOT come from here — it is resolved from data/driverAssets.js,
+ * the one registry that holds image URLs, so a driver's photograph is identical
+ * on every surface in the product.
  *
  * `ratings` are DERIVED from those same results (average grid slot, average
  * finish, spread of finishes, positions gained, stint counts) — they are not
@@ -12,13 +16,24 @@
  */
 import raw from './snapshot/drivers.json';
 import { normalizeDriver } from '@/services/normalize';
+import { getDriverAsset } from './driverAssets';
 
-export const drivers = raw.map((d) => ({
-  ...normalizeDriver(d),
-  ratingSamples: d.ratingSamples ?? {},
-  sprintPoints: d.sprintPoints ?? 0,
-  avgPositionsGained: d.avgPositionsGained ?? null,
-}));
+export const drivers = raw.map((d) => {
+  const assets = getDriverAsset(d.id);
+  return {
+    ...normalizeDriver(d),
+    ratingSamples: d.ratingSamples ?? {},
+    sprintPoints: d.sprintPoints ?? 0,
+    avgPositionsGained: d.avgPositionsGained ?? null,
+    /**
+     * Imagery ingredients only. The resolved URL depends on the team the driver
+     * is racing for right now, so components use `useDriverAssets(driver)`
+     * rather than reading a URL from here.
+     */
+    assetCode: assets.code,
+    assetSource: assets.source,
+  };
+});
 
 export const driverById = Object.fromEntries(drivers.map((d) => [d.id, d]));
 export const getDriver = (id) => driverById[id] ?? null;

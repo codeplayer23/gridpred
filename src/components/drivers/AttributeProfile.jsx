@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { cx, band, tint } from '@/lib/format';
 import { easeOut, viewport } from '@/lib/motion';
 import { useCalmMotion } from '@/hooks';
-import { ratingLabels, ratingBasis, drivers, hasRating, MIN_SAMPLES } from '@/data/drivers';
+import { ratingLabels, ratingBasis, drivers, hasRating } from '@/data/drivers';
 
 /**
  * Driver profile as a radial spoke diagram.

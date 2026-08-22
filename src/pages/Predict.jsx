@@ -13,11 +13,15 @@ import { cx, dateParts } from '@/lib/format';
 import { springSnappy } from '@/lib/motion';
 import { useLiveValue } from '@/hooks';
 import { races, nextRace } from '@/data/races';
+import { useWeekendGrid } from '@/hooks/useLiveSeason';
+import LineupChanges from '@/components/drivers/LineupChanges';
 import { FACTORS, defaultWeights, explain, predictRace } from '@/data/predictions';
 
+/** Sprint only appears on sprint weekends — there is nothing to predict otherwise. */
 const MODES = [
-  { id: 'race', label: 'Predicted race' },
-  { id: 'qualifying', label: 'Predicted qualifying' },
+  { id: 'qualifying', label: 'Qualifying' },
+  { id: 'sprint', label: 'Sprint', sprintOnly: true },
+  { id: 'race', label: 'Race' },
 ];
 
 /**
@@ -39,12 +43,24 @@ export default function Predict() {
   const race = races.find((r) => r.id === raceId) ?? upcoming;
   const rainChance = rain ?? 0;
 
+  // Predict the field that is actually entered, so a stand-in is ranked and an
+  // absent driver is not.
+  const { drivers: grid } = useWeekendGrid();
   const prediction = useMemo(
-    () => predictRace(race, { weights, rainChance }),
-    [race, weights, rainChance],
+    () => predictRace(race, { weights, rainChance, grid }),
+    [race, weights, rainChance, grid],
   );
 
-  const rows = mode === 'race' ? prediction.race : prediction.qualifying;
+  const modes = MODES.filter((m) => !m.sprintOnly || prediction.isSprint);
+  // Fall back to the race if the user was on the sprint tab and switched to a
+  // weekend that has none.
+  const activeMode = modes.some((m) => m.id === mode) ? mode : 'race';
+  const rows =
+    activeMode === 'race'
+      ? prediction.race
+      : activeMode === 'sprint'
+        ? (prediction.sprint ?? [])
+        : prediction.qualifying;
   const focusId = selected ?? prediction.race[0]?.driverId;
   const explanation = useMemo(() => explain(prediction, focusId), [prediction, focusId]);
   const accent = prediction.byId?.[focusId]?.team.accent ?? '#e10600';
@@ -90,7 +106,14 @@ export default function Predict() {
               <CircuitMap circuit={race.circuit} accent="#e10600" strokeWidth={11} showStartFinish={false} animated={false} />
             </div>
             <div>
-              <p className="mono-label mb-2">Round {race.round}</p>
+              <p className="mono-label mb-2 flex items-center gap-2.5">
+                Round {race.round}
+                {race.isSprint && (
+                  <span className="rounded-full bg-signal px-2 py-0.5 text-[0.5rem] font-semibold tracking-[0.14em] text-white uppercase">
+                    Sprint
+                  </span>
+                )}
+              </p>
               <h2 className="font-display text-[1.6rem] leading-tight font-medium tracking-[-0.035em] md:text-[2.1rem]">
                 {race.name}
               </h2>
@@ -121,17 +144,17 @@ export default function Predict() {
           <div>
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div className="flex rounded-full border border-white/[0.08] p-1">
-                {MODES.map((m) => (
+                {modes.map((m) => (
                   <button
                     key={m.id}
                     type="button"
                     onClick={() => setMode(m.id)}
                     className={cx(
                       'relative rounded-full px-4 py-2 text-[0.76rem] font-medium whitespace-nowrap transition-colors',
-                      mode === m.id ? 'text-void' : 'text-ink-mute hover:text-ink-dim',
+                      activeMode === m.id ? 'text-void' : 'text-ink-mute hover:text-ink-dim',
                     )}
                   >
-                    {mode === m.id && (
+                    {activeMode === m.id && (
                       <motion.span layoutId="predict-mode" className="absolute inset-0 rounded-full bg-ink" transition={springSnappy} />
                     )}
                     <span className="relative">{m.label}</span>
@@ -141,9 +164,11 @@ export default function Predict() {
               <p className="mono-label text-[0.55rem]">Select a driver to see the reasoning</p>
             </div>
 
+            <LineupChanges className="mb-5" compact />
+
             <PredictionGrid
               rows={rows}
-              mode={mode}
+              mode={activeMode}
               onSelect={(id) => setSelected(id === selected ? null : id)}
               selectedId={selected}
               limit={12}
@@ -171,8 +196,9 @@ export default function Predict() {
                 />
               </div>
               <p className="mt-5 border-t border-white/[0.06] pt-4 text-[0.8rem] leading-relaxed text-ink-mute">
-                Confidence falls as rain probability and tyre degradation rise —
-                both widen the range of plausible outcomes.
+                Confidence rises with the projected gap at the front and falls
+                as rain probability rises, because wet running widens the range
+                of plausible outcomes.
               </p>
             </div>
 

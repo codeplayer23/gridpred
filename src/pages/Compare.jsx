@@ -5,6 +5,7 @@ import { ArrowLeftRight } from 'lucide-react';
 import Reveal from '@/components/ui/Reveal';
 import Counter from '@/components/ui/Counter';
 import DriverHeadshot from '@/components/drivers/DriverHeadshot';
+import TeamLogo from '@/components/teams/TeamLogo';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { cx, tint } from '@/lib/format';
 import { easeOut, spring, viewport } from '@/lib/motion';
@@ -211,15 +212,27 @@ function DriverPicker({ value, onChange, exclude, driver, team, stats, side }) {
         background: `linear-gradient(${side === 'left' ? '110deg' : '250deg'}, ${tint(team.accent, 0.16)}, rgba(10,12,16,0.9) 62%)`,
       }}
     >
-      <div className={cx('flex items-center gap-6', side === 'right' && 'sm:flex-row-reverse')}>
-        <DriverHeadshot driver={driver} team={team} size={132} className="shrink-0" />
+      <div className={cx('flex items-center gap-5', side === 'right' && 'sm:flex-row-reverse')}>
+        <DriverHeadshot driver={driver} team={team} size={128} className="shrink-0" />
         <div className="min-w-0">
           <p className="truncate text-[0.85rem] text-ink-mute">{driver.firstName}</p>
           <p className="truncate font-display text-[clamp(1.6rem,3.4vw,2.4rem)] leading-none font-medium tracking-[-0.045em]">
             {driver.lastName}
           </p>
-          <p className="mt-3 flex items-center gap-2.5 text-[0.82rem]" style={{ color: team.accent }}>
-            <span className={cx('h-2 w-2 rounded-full', side === 'right' && 'sm:order-2')} style={{ background: team.accent }} aria-hidden />
+          <p
+            className="tabular mt-1 text-[1.6rem] leading-none font-semibold"
+            style={{ color: team.accent }}
+          >
+            {driver.number}
+          </p>
+          <p
+            className={cx(
+              'mt-3 flex items-center gap-2.5 text-[0.82rem]',
+              side === 'right' && 'sm:flex-row-reverse',
+            )}
+            style={{ color: team.accent }}
+          >
+            <TeamLogo team={team} size={20} showFallbackLabel={false} />
             <span className="truncate">{team.name}</span>
           </p>
           <p className="tabular mt-2 text-[0.78rem] text-ink-mute">

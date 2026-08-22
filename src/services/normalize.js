@@ -30,9 +30,11 @@ export function normalizeDriver(raw) {
     nationality: raw.nationality ?? null,
     countryCode: raw.countryCode ?? null,
     flag: raw.flag ?? null,
-    headshotUrl: raw.headshotUrl ?? null,
-    /** Responsive variants, or null when the CDN has no real photograph. */
-    headshot: raw.headshot ?? null,
+    /**
+     * Imagery is NOT taken from the snapshot. It is resolved from the canonical
+     * asset registry in data/driverAssets.js, which is the only place in the
+     * app that holds an image URL. See data/drivers.js.
+     */
     position: raw.position,
     points: raw.points,
     wins: raw.wins,
@@ -110,14 +112,16 @@ export function normalizeCircuit(raw) {
     raceDistance: raw.raceDistance ?? null,
     corners: g?.corners?.length ?? raw.cornerCount ?? null,
     /** Real geometry measured from car position telemetry, or null. */
+    /**
+     * Real geometry measured from car position telemetry, or null.
+     * Zone overlays (full throttle, braking, DRS) are NOT here — they ship with
+     * the lazily-loaded telemetry payload, see services/telemetry.js.
+     */
     layout: g
       ? {
           outline: g.outline,
           corners: g.corners,
           startFinish: g.startFinish,
-          drsZones: g.drsZones ?? [],
-          fullThrottleZones: g.fullThrottleZones ?? [],
-          brakingZones: g.brakingZones ?? [],
           rotation: g.rotation,
           source: g.geometrySource,
         }

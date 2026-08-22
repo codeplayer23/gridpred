@@ -5,6 +5,7 @@ import { ArrowUpRight, Check } from 'lucide-react';
 import CircuitMap from '@/components/circuits/CircuitMap';
 import Counter from '@/components/ui/Counter';
 import { dateParts } from '@/lib/format';
+import { parseUtc } from '@/lib/session';
 import { easeOut, spring } from '@/lib/motion';
 import { getResult } from '@/data/results';
 import { driverById } from '@/data/drivers';
@@ -21,7 +22,7 @@ export default function RaceRow({ race, isNext = false, index = 0 }) {
   const [hover, setHover] = useState(false);
   const [now] = useState(() => Date.now());
   const date = dateParts(race.startsAt);
-  const done = new Date(race.startsAt).getTime() < now;
+  const done = parseUtc(race.startsAt) < now;
   const result = done ? getResult(race.circuitId) : null;
   const winner = result ? driverById[result.winner] : null;
   const accent = winner ? getTeam(winner.team).accent : '#e10600';

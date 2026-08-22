@@ -79,7 +79,7 @@ function CircuitCard({ race, index = 0, isNext = false, accent = '#e10600' }) {
             <dl className="flex gap-5">
               {[
                 ['Laps', circuit?.laps],
-                ['Corners', circuit?.corners ?? circuit?.cornerCount],
+                ['Corners', circuit?.corners],
                 ['Km', circuit?.trackLength],
               ].map(([k, v]) => (
                 <div key={k}>

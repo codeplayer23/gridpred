@@ -6,12 +6,12 @@ import Reveal from '@/components/ui/Reveal';
 import Counter from '@/components/ui/Counter';
 import Meter from '@/components/ui/Meter';
 import Button from '@/components/ui/Button';
-import TeamCrest from '@/components/teams/TeamCrest';
+import TeamLogo from '@/components/teams/TeamLogo';
 import TeamComparison from '@/components/teams/TeamComparison';
 import { cx, tint } from '@/lib/format';
 import { easeOut, spring } from '@/lib/motion';
 import { getTeam } from '@/data/teams';
-import { constructorById, constructorStandings } from '@/data/results';
+import { constructorStandings } from '@/data/results';
 
 /**
  * Team explorer.
@@ -111,7 +111,7 @@ export default function Teams() {
 
                 <header className="relative flex flex-col gap-7 border-b border-white/[0.07] p-7 md:flex-row md:items-center md:justify-between md:p-10">
                   <div className="flex items-center gap-6">
-                    <TeamCrest team={team} size={78} className="shrink-0" />
+                    <TeamLogo team={team} size={54} animated className="shrink-0" />
                     <div>
                       <p className="mono-label mb-2.5">P{stats.position} · Constructors</p>
                       <h2 className="font-display text-[clamp(1.9rem,4.5vw,3.2rem)] leading-[0.95] font-medium tracking-[-0.045em]">

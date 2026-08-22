@@ -7,7 +7,6 @@
  * included, and match the official standings.
  */
 import rounds from './snapshot/results.json';
-import standingsRaw from './snapshot/standings.json';
 import { drivers, driverById } from './drivers';
 import { teams } from './teams';
 import { circuitById } from './circuits';

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInView, useMotionValue, useReducedMotion, useSpring, useTransform, animate } from 'framer-motion';
+import { parseUtc } from '@/lib/session';
 
 /**
  * Reduced-motion gate.
@@ -42,7 +43,7 @@ export function useCountUp(target, { duration = 1.4, decimals = 0, prefix = '', 
 
 /** Live countdown to an ISO timestamp, ticking once per second. */
 export function useCountdown(iso) {
-  const target = useMemo(() => new Date(iso).getTime(), [iso]);
+  const target = useMemo(() => parseUtc(iso), [iso]);
   const [ms, setMs] = useState(() => Math.max(0, target - Date.now()));
 
   useEffect(() => {

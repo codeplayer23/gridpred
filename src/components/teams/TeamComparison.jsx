@@ -4,6 +4,7 @@ import DriverHeadshot from '@/components/drivers/DriverHeadshot';
 import { tint } from '@/lib/format';
 import { viewport } from '@/lib/motion';
 import { getDriver } from '@/data/drivers';
+import { useTeamDrivers } from '@/hooks/useLiveSeason';
 import { seasonStats } from '@/data/results';
 
 const ROWS = [
@@ -22,9 +23,15 @@ const ROWS = [
  * the centre, so the balance of the garage is readable at a glance.
  */
 export default function TeamComparison({ team }) {
-  const [a, b] = team.drivers.map(getDriver).filter(Boolean);
-  const sa = seasonStats(a.id);
-  const sb = seasonStats(b.id);
+  // The pairing a team is actually fielding this weekend, which can differ from
+  // its contracted lineup when a driver is stood down.
+  const entered = useTeamDrivers(team.id);
+  const [a, b] = (entered.length >= 2 ? entered : team.drivers.map(getDriver)).filter(Boolean);
+  // A reserve called up for this weekend has no season record yet; zeroes here
+  // are literal, not missing data.
+  const EMPTY = { points: 0, wins: 0, podiums: 0, poles: 0, avgFinish: 0, avgGrid: 0 };
+  const sa = seasonStats(a.id) ?? EMPTY;
+  const sb = seasonStats(b.id) ?? EMPTY;
 
   return (
     <div>
@@ -41,7 +48,9 @@ export default function TeamComparison({ team }) {
               <p className="truncate font-display text-[1.25rem] leading-tight font-medium tracking-[-0.035em] transition-colors group-hover:text-ink">
                 {d.lastName}
               </p>
-              <p className="tabular text-[0.72rem] text-ink-faint">#{d.number}</p>
+              <p className="tabular text-[1.05rem] font-semibold leading-none" style={{ color: team.accent }}>
+                {d.number}
+              </p>
             </div>
           </Link>
         ))}

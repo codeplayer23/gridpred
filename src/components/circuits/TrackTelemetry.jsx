@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { getTelemetry } from '@/services/telemetry';
 import { useCalmMotion } from '@/hooks';
 import { tint } from '@/lib/format';

@@ -5,11 +5,13 @@ import { LayoutGrid, List, Search } from 'lucide-react';
 import DriverCard from '@/components/drivers/DriverCard';
 import Reveal from '@/components/ui/Reveal';
 import PositionBadge from '@/components/ui/PositionBadge';
-import { cx } from '@/lib/format';
+import { cx, numberWord } from '@/lib/format';
 import { spring, springSnappy } from '@/lib/motion';
 import { drivers, fullName, predictionScore } from '@/data/drivers';
 import { teams, getTeam } from '@/data/teams';
 import { standingsById } from '@/data/results';
+import { useLiveSeason, useWeekendGrid } from '@/hooks/useLiveSeason';
+import LiveIndicator from '@/components/ui/LiveIndicator';
 
 const SORTS = [
   { id: 'championship', label: 'Championship' },
@@ -20,6 +22,8 @@ const SORTS = [
 
 /** Full driver index: filterable, sortable, and switchable between gallery and table. */
 export default function Drivers() {
+  const { driverStats } = useLiveSeason();
+  const { drivers: grid } = useWeekendGrid();
   const [team, setTeam] = useState('all');
   const [sort, setSort] = useState('championship');
   const [query, setQuery] = useState('');
@@ -28,18 +32,18 @@ export default function Drivers() {
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     const by = {
-      championship: (a, b) => standingsById[a.id].position - standingsById[b.id].position,
+      championship: (a, b) => (driverStats(a.id)?.position ?? 99) - (driverStats(b.id)?.position ?? 99),
       prediction: (a, b) => (predictionScore(b) ?? 0) - (predictionScore(a) ?? 0),
       pace: (a, b) => (b.ratings.racePace ?? 0) - (a.ratings.racePace ?? 0),
       quali: (a, b) => (b.ratings.qualifying ?? 0) - (a.ratings.qualifying ?? 0),
     };
-    return drivers
+    return grid
       .filter((d) => (team === 'all' ? true : d.team === team))
       .filter((d) =>
         q ? `${fullName(d)} ${d.abbreviation} ${d.number} ${getTeam(d.team).name}`.toLowerCase().includes(q) : true,
       )
       .sort(by[sort]);
-  }, [team, sort, query]);
+  }, [team, sort, query, driverStats, grid]);
 
   return (
     <div className="px-6 pt-32 pb-16 md:px-10 md:pt-40">
@@ -52,7 +56,8 @@ export default function Drivers() {
             DRIVER.
           </h1>
           <p className="mt-8 max-w-lg text-lg leading-relaxed text-ink-dim">
-            Twenty cars, nine performance dimensions each. Filter by constructor,
+            {numberWord(drivers.length).replace(/^./, (c) => c.toUpperCase())} cars, each
+            scored on the season it has actually had. Filter by constructor,
             reorder by what you care about, then open a driver for the full read.
           </p>
         </Reveal>
@@ -130,7 +135,10 @@ export default function Drivers() {
           </div>
         </div>
 
-        <p className="mono-label mt-8">{visible.length} drivers</p>
+        <div className="mt-8 flex items-center justify-between gap-4">
+          <p className="mono-label">{visible.length} drivers</p>
+          <LiveIndicator />
+        </div>
 
         {/* results */}
         <AnimatePresence mode="wait">
@@ -180,7 +188,7 @@ export default function Drivers() {
                 <tbody>
                   {visible.map((d) => {
                     const t = getTeam(d.team);
-                    const s = standingsById[d.id];
+                    const s = driverStats(d.id) ?? standingsById[d.id];
                     return (
                       <tr
                         key={d.id}

@@ -12,7 +12,7 @@ import { requestTelemetry } from './fastf1';
 
 /**
  * @param {string} circuitId
- * @returns {Promise<{speedTrace: Array, racingLine: Array, source: object}|null>}
+ * @returns {Promise<{speedTrace, racingLine, fullThrottleZones, brakingZones, drsZones, source}|null>}
  */
 export async function getTelemetry(circuitId) {
   if (!circuitId) return null;
@@ -22,6 +22,10 @@ export async function getTelemetry(circuitId) {
     circuitId,
     speedTrace: raw.speedTrace ?? [],
     racingLine: raw.racingLine ?? [],
+    fullThrottleZones: raw.fullThrottleZones ?? [],
+    brakingZones: raw.brakingZones ?? [],
+    /** Empty for 2026 — the regulations abolished DRS. */
+    drsZones: raw.drsZones ?? [],
     source: raw.source ?? null,
   };
 }

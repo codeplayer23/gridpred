@@ -7,7 +7,7 @@ import DriverCard from './DriverCard';
  * Horizontally scrollable driver gallery.
  *
  * Native overflow scrolling does the heavy lifting — it gives trackpad, touch
- * and keyboard support for free, and stays smooth with twenty cards mounted.
+ * and keyboard support for free, and stays smooth with the whole grid mounted.
  * The arrows are progressive enhancement for pointer users.
  */
 export default function DriverCarousel({ drivers, compact = false, className = '' }) {

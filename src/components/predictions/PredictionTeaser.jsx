@@ -7,6 +7,8 @@ import RadialGauge from '@/components/ui/RadialGauge';
 import PredictionGrid from '@/components/predictions/PredictionGrid';
 import ModelReasoning from '@/components/predictions/ModelReasoning';
 import { nextRace } from '@/data/races';
+import { drivers } from '@/data/drivers';
+import { numberWord } from '@/lib/format';
 import { explain, predictRace } from '@/data/predictions';
 
 /**
@@ -52,8 +54,9 @@ export default function PredictionTeaser() {
                 suffix="%"
               />
               <p className="text-[0.86rem] leading-relaxed text-ink-mute">
-                Six weighted features, twenty cars, one projected order. Confidence
-                reflects how decisive the gap at the front is.
+                Six weighted features, {numberWord(drivers.length)} cars, one
+                projected order. Confidence reflects how decisive the gap at the
+                front is.
               </p>
             </div>
 

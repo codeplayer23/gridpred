@@ -1,16 +1,16 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Flag, Gauge, MapPin, Radio } from 'lucide-react';
+import { ArrowLeft, Gauge, MapPin, Radio } from 'lucide-react';
 import Reveal from '@/components/ui/Reveal';
 import Counter from '@/components/ui/Counter';
 import Button from '@/components/ui/Button';
 import Meter from '@/components/ui/Meter';
 import SectionHeader from '@/components/ui/SectionHeader';
 import PositionBadge from '@/components/ui/PositionBadge';
-import CircuitMap from '@/components/circuits/CircuitMap';
-import CircuitCornerPanel from '@/components/circuits/CircuitCornerPanel';
+import CircuitDetail from '@/components/circuits/CircuitDetail';
 import { countdownParts, cx, dateParts, pad2, tint } from '@/lib/format';
+import { parseUtc } from '@/lib/session';
 import { spring, springSnappy } from '@/lib/motion';
 import { useCountdown } from '@/hooks';
 import { raceById } from '@/data/races';
@@ -40,7 +40,7 @@ export default function RaceDetail() {
   if (!race) return <NotFound label="Circuit not found" />;
 
   const circuit = race.circuit;
-  const done = new Date(race.startsAt).getTime() <= now;
+  const done = parseUtc(race.startsAt) <= now;
   const result = done ? getResult(race.circuitId) : null;
   const date = dateParts(race.startsAt);
   const { days, hours, minutes } = countdownParts(ms);
@@ -51,7 +51,7 @@ export default function RaceDetail() {
     ['Track length', circuit?.trackLength, ' km', 3],
     ['Laps', circuit?.laps, '', 0],
     ['Race distance', circuit?.raceDistance, ' km', 1],
-    ['Corners', layout?.corners?.length ?? circuit?.cornerCount, '', 0],
+    ['Corners', layout?.corners?.length ?? circuit?.corners, '', 0],
   ];
 
   return (
@@ -154,18 +154,12 @@ export default function RaceDetail() {
                 </div>
               )}
 
-              <CircuitMap
+              <CircuitDetail
                 circuit={circuit}
-                interactive
-                showCorners
-                showStartFinish
-                showTelemetry={view === 'telemetry'}
-                showBraking={view === 'telemetry'}
+                corner={activeCorner}
                 onCornerChange={setActiveCorner}
-                lapSeconds={12}
+                telemetry={view === 'telemetry'}
               />
-
-              {layout && <CircuitCornerPanel circuit={circuit} corner={activeCorner} />}
             </motion.div>
           </div>
 

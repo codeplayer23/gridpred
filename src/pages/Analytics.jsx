@@ -14,8 +14,7 @@ import { drivers, driverById } from '@/data/drivers';
 import { teams, getTeam } from '@/data/teams';
 import { races } from '@/data/races';
 import {
-  completedRounds, constructorStandings, standings, standingsById, standingsHistory,
-  circuitPerformance,
+  completedRounds, standings, standingsById, standingsHistory, circuitPerformance,
 } from '@/data/results';
 
 const SCOPES = [

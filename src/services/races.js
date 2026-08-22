@@ -1,5 +1,6 @@
 import { request } from './fastf1';
 import { normalizeRace } from './normalize';
+import { parseUtc } from '@/lib/session';
 
 export async function getRaces() {
   const raw = await request('calendar');
@@ -14,5 +15,5 @@ export async function getRace(id) {
 /** The next race is always computed from the schedule, never configured. */
 export async function getNextRace(now = Date.now()) {
   const all = await getRaces();
-  return all.find((r) => new Date(r.startsAt).getTime() > now) ?? all[all.length - 1];
+  return all.find((r) => parseUtc(r.startsAt) > now) ?? all[all.length - 1];
 }

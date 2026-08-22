@@ -6,21 +6,23 @@ import Counter from '@/components/ui/Counter';
 import SectionHeader from '@/components/ui/SectionHeader';
 import RadialGauge from '@/components/ui/RadialGauge';
 import DriverCard from '@/components/drivers/DriverCard';
-import TeamCrest from '@/components/teams/TeamCrest';
+import TeamLogo from '@/components/teams/TeamLogo';
 import TeamComparison from '@/components/teams/TeamComparison';
 import { tint } from '@/lib/format';
 import { teamById } from '@/data/teams';
 import { getDriver } from '@/data/drivers';
+import { useTeamDrivers } from '@/hooks/useLiveSeason';
 import { constructorById } from '@/data/results';
 import NotFound from './NotFound';
 
 export default function TeamDetail() {
   const { id } = useParams();
   const team = teamById[id];
+  const entered = useTeamDrivers(id);
   if (!team) return <NotFound label="Team not found" />;
 
   const stats = constructorById[team.id];
-  const drivers = team.drivers.map(getDriver);
+  const drivers = entered.length ? entered : team.drivers.map(getDriver);
   const accent = team.accent;
 
   return (
@@ -53,7 +55,7 @@ export default function TeamDetail() {
                 {team.fullName}
               </p>
             </div>
-            <TeamCrest team={team} size={128} className="shrink-0" />
+            <TeamLogo team={team} size={92} animated className="shrink-0" />
           </div>
 
           <div className="mt-16 grid grid-cols-2 gap-x-6 gap-y-9 border-t border-white/[0.07] pt-10 sm:grid-cols-4">

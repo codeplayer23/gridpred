@@ -4,7 +4,7 @@ import Reveal from '@/components/ui/Reveal';
 import RaceRow from '@/components/races/RaceRow';
 import CircuitCard from '@/components/circuits/CircuitCard';
 import { LayoutGrid, List } from 'lucide-react';
-import { cx } from '@/lib/format';
+import { cx, numberWordUpper } from '@/lib/format';
 import { springSnappy } from '@/lib/motion';
 import { races, nextRace, SEASON } from '@/data/races';
 
@@ -35,7 +35,7 @@ export default function Races() {
         <Reveal>
           <p className="mono-label mb-6">Calendar · {SEASON}</p>
           <h1 className="font-display text-[clamp(2.6rem,8vw,6.5rem)] leading-[0.88] font-medium tracking-[-0.05em]">
-            TWENTY-FOUR
+            {numberWordUpper(races.length)}
             <br />
             WEEKENDS.
           </h1>
