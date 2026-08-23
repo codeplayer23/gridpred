@@ -12,7 +12,7 @@ import SectionHeader from '@/components/ui/SectionHeader';
 import FormStrip from '@/components/drivers/FormStrip';
 import AttributeProfile from '@/components/drivers/AttributeProfile';
 import PaceChart from '@/components/charts/PaceChart';
-import { cx, ordinal, tint } from '@/lib/format';
+import { cx, ordinal } from '@/lib/format';
 import { usePointerParallax } from '@/hooks';
 import { driverById, fullName, predictionScore } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
@@ -22,6 +22,7 @@ import { useCurrentTeam } from '@/hooks/useDriverAssets';
 import { nextRace, SEASON } from '@/data/races';
 import { predictRace } from '@/data/predictions';
 import NotFound from './NotFound';
+import Bloom from '@/components/ui/Bloom';
 
 export default function DriverDetail() {
   const { id } = useParams();
@@ -76,10 +77,10 @@ export default function DriverDetail() {
     <article className="relative">
       {/* ── Hero ─────────────────────────────────────────────── */}
       <header className="relative overflow-hidden px-6 pt-32 pb-20 md:px-10 md:pt-40 md:pb-28">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -top-52 left-1/2 h-[38rem] w-[70rem] -translate-x-1/2 rounded-full blur-[130px]"
-          style={{ background: `radial-gradient(circle, ${tint(accent, 0.3)}, transparent 68%)` }}
+        <Bloom
+          accent={accent}
+          intensity={0.28}
+          className="-top-52 left-1/2 h-[38rem] w-[70rem] -translate-x-1/2"
         />
 
         <div className="relative mx-auto max-w-7xl">

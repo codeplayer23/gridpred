@@ -8,10 +8,11 @@ import Meter from '@/components/ui/Meter';
 import Button from '@/components/ui/Button';
 import TeamLogo from '@/components/teams/TeamLogo';
 import TeamComparison from '@/components/teams/TeamComparison';
-import { cx, tint } from '@/lib/format';
+import { cx } from '@/lib/format';
 import { easeOut, spring } from '@/lib/motion';
 import { getTeam } from '@/data/teams';
 import { constructorStandings } from '@/data/results';
+import Bloom from '@/components/ui/Bloom';
 
 /**
  * Team explorer.
@@ -103,10 +104,10 @@ export default function Teams() {
                 transition={{ duration: 0.4, ease: easeOut }}
                 className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl"
               >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute -top-40 left-1/3 h-80 w-[70%] rounded-full blur-[100px]"
-                  style={{ background: `radial-gradient(circle, ${tint(team.accent, 0.32)}, transparent 70%)` }}
+                <Bloom
+                  accent={team.accent}
+                  intensity={0.3}
+                  className="-top-40 left-1/3 h-80 w-[70%]"
                 />
 
                 <header className="relative flex flex-col gap-7 border-b border-white/[0.07] p-7 md:flex-row md:items-center md:justify-between md:p-10">

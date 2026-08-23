@@ -8,12 +8,12 @@ import RadialGauge from '@/components/ui/RadialGauge';
 import DriverCard from '@/components/drivers/DriverCard';
 import TeamLogo from '@/components/teams/TeamLogo';
 import TeamComparison from '@/components/teams/TeamComparison';
-import { tint } from '@/lib/format';
 import { teamById } from '@/data/teams';
 import { getDriver } from '@/data/drivers';
 import { useTeamDrivers } from '@/hooks/useLiveSeason';
 import { constructorById } from '@/data/results';
 import NotFound from './NotFound';
+import Bloom from '@/components/ui/Bloom';
 
 export default function TeamDetail() {
   const { id } = useParams();
@@ -28,10 +28,10 @@ export default function TeamDetail() {
   return (
     <article>
       <header className="relative overflow-hidden px-6 pt-32 pb-16 md:px-10 md:pt-40 md:pb-24">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -top-56 left-1/2 h-[38rem] w-[66rem] -translate-x-1/2 rounded-full blur-[130px]"
-          style={{ background: `radial-gradient(circle, ${tint(accent, 0.28)}, transparent 68%)` }}
+        <Bloom
+          accent={accent}
+          intensity={0.26}
+          className="-top-56 left-1/2 h-[38rem] w-[66rem] -translate-x-1/2"
         />
         <div className="relative mx-auto max-w-7xl">
           <Reveal y={10}>

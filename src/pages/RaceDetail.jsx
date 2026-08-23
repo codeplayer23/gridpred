@@ -20,6 +20,7 @@ import { driverById, fullName } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
 import { predictRace } from '@/data/predictions';
 import NotFound from './NotFound';
+import Bloom from '@/components/ui/Bloom';
 
 const VIEW_MODES = [
   { id: 'track', label: 'Track' },
@@ -58,10 +59,10 @@ export default function RaceDetail() {
     <article>
       {/* ── Hero: the circuit is the page ──────────────────── */}
       <header className="relative overflow-hidden px-6 pt-32 pb-16 md:px-10 md:pt-40 md:pb-20">
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -top-52 left-1/2 h-[36rem] w-[64rem] -translate-x-1/2 rounded-full blur-[130px]"
-          style={{ background: `radial-gradient(circle, ${tint('#e10600', 0.18)}, transparent 68%)` }}
+        <Bloom
+          accent="#e10600"
+          intensity={0.17}
+          className="-top-52 left-1/2 h-[36rem] w-[64rem] -translate-x-1/2"
         />
         <div className="relative mx-auto max-w-7xl">
           <Reveal y={10}>

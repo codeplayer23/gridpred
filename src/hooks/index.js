@@ -11,6 +11,30 @@ export function useCalmMotion() {
   return useReducedMotion() === true;
 }
 
+/** True on phones, tablets and touch laptops. */
+export function useCoarsePointer() {
+  return useMediaQuery('(pointer: coarse)');
+}
+
+/**
+ * Capability gate for the ambient effects layer.
+ *
+ * Large blur radii, blended full-viewport washes and scroll-linked transforms
+ * over complex SVG are all paid for on the compositor. A desktop GPU absorbs
+ * them; a phone or tablet drops frames for the whole scroll.
+ *
+ * The gate is the pointer, not a hardware sniff. `navigator.deviceMemory` and
+ * `hardwareConcurrency` are absent on Safari and Firefox and only loosely track
+ * GPU fill rate anywhere else, so keying off them would mean the same phone
+ * rendering differently in two browsers. A coarse pointer is reported by every
+ * device that has the problem and by nothing that doesn't.
+ */
+export function useReducedEffects() {
+  const coarse = useCoarsePointer();
+  const calm = useCalmMotion();
+  return coarse || calm;
+}
+
 /**
  * Animated counter that only runs once its element enters the viewport.
  * @returns {[React.RefObject, string]} ref to attach, and the display string
@@ -61,7 +85,11 @@ export function useCountdown(iso) {
  */
 export function useMagnetic(strength = 18) {
   const ref = useRef(null);
-  const calm = useCalmMotion();
+  // A touch drag emits pointermove, so without this gate every scroll over a
+  // magnetic element drives a spring that nobody asked for.
+  const reducedMotion = useCalmMotion();
+  const coarse = useCoarsePointer();
+  const calm = reducedMotion || coarse;
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 260, damping: 20, mass: 0.6 });
@@ -90,7 +118,12 @@ export function useMagnetic(strength = 18) {
  * Drives the driver-portrait parallax.
  */
 export function usePointerParallax(depth = 12) {
-  const calm = useCalmMotion();
+  // Same reasoning as useMagnetic: on a touch device the "pointer" is a finger
+  // that is scrolling, and leaning the artwork toward it is both wrong and
+  // expensive.
+  const reducedMotion = useCalmMotion();
+  const coarse = useCoarsePointer();
+  const calm = reducedMotion || coarse;
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const sx = useSpring(mx, { stiffness: 180, damping: 22 });
@@ -159,8 +192,16 @@ export function useMediaQuery(query) {
 export function useScrolled(threshold = 24) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > threshold);
-    onScroll();
+    // The listener fires on every scroll frame, so the last crossing is kept in
+    // the closure and React is only told when the boolean actually flips.
+    let past = window.scrollY > threshold;
+    setScrolled(past);
+    const onScroll = () => {
+      const next = window.scrollY > threshold;
+      if (next === past) return;
+      past = next;
+      setScrolled(next);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [threshold]);

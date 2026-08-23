@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { cx, tint } from '@/lib/format';
-import { useCalmMotion } from '@/hooks';
+import { useCalmMotion, useReducedEffects } from '@/hooks';
 import DriverPlaceholder from './DriverPlaceholder';
 import { useDriverAssets } from '@/hooks/useDriverAssets';
 
@@ -33,6 +33,11 @@ function DriverHeadshot({
   variant = 'portrait',
 }) {
   const calm = useCalmMotion();
+  // A grid of driver cards is the densest screen in the product. Each portrait
+  // otherwise carries a blurred glow layer and a drop-shadow filter, and both
+  // are per-pixel work over a large transparent PNG — twenty of them is the
+  // difference between a smooth scroll and a stuttering one on a phone.
+  const lean = useReducedEffects();
   const [failed, setFailed] = useState(false);
   // Resolved against the driver's current team, so a mid-season move updates
   // the photograph without any rebuild.
@@ -50,7 +55,7 @@ function DriverHeadshot({
   const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), { stiffness: 210, damping: 20 });
   const px = useSpring(useTransform(mx, [-0.5, 0.5], [-7, 7]), { stiffness: 180, damping: 22 });
 
-  const interactive = tilt && !calm;
+  const interactive = tilt && !calm && !lean;
   const handlers = interactive
     ? {
         onPointerMove: (e) => {
@@ -79,7 +84,9 @@ function DriverHeadshot({
       style={{
         width: size,
         height: boxHeight,
-        perspective: 800,
+        // A perspective creates a 3D rendering context for the subtree; there is
+        // no reason to pay for one when nothing tilts.
+        perspective: interactive ? 800 : undefined,
         rotateX: interactive ? rx : 0,
         rotateY: interactive ? ry : 0,
       }}
@@ -88,8 +95,13 @@ function DriverHeadshot({
       {glow && (
         <span
           aria-hidden
-          className="absolute inset-[-12%] rounded-full blur-3xl"
-          style={{ background: `radial-gradient(closest-side, ${tint(accent, 0.3)}, transparent 72%)` }}
+          className={cx('absolute inset-[-12%] rounded-full', !lean && 'blur-3xl')}
+          style={{
+            // Without the blur pass the gradient carries the softness itself.
+            background: lean
+              ? `radial-gradient(closest-side, ${tint(accent, 0.26)}, ${tint(accent, 0.1)} 45%, transparent 76%)`
+              : `radial-gradient(closest-side, ${tint(accent, 0.3)}, transparent 72%)`,
+          }}
         />
       )}
 
@@ -124,7 +136,7 @@ function DriverHeadshot({
           x: interactive ? px : 0,
           // crop from the top so the face is kept, not the boots
           objectPosition: full ? undefined : '50% 0%',
-          filter: 'drop-shadow(0 16px 26px rgba(0,0,0,0.55))',
+          filter: lean ? undefined : 'drop-shadow(0 16px 26px rgba(0,0,0,0.55))',
         }}
       />
     </motion.div>

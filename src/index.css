@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Phones, tablets and touch laptops. Used to stand down effects whose cost
+   lands on the compositor rather than on the CPU. */
+@custom-variant touch (@media (pointer: coarse));
+@custom-variant fine (@media (pointer: fine));
+
 @theme {
   /* ── Surfaces ────────────────────────────────────────────── */
   --color-void: #050609;
@@ -109,7 +114,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
@@ -188,4 +192,54 @@
 @utility mask-fade-x {
   mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+}
+
+/* ── Touch-device performance ──────────────────────────────── *
+ *
+ * Phones and tablets composite this page on a mobile GPU with a fraction of a
+ * desktop's fill rate. Three things in the design are, together, more than that
+ * budget: ~30 backdrop-filtered surfaces, a full-viewport blended noise layer,
+ * and a 4px-period carbon weave rasterised at 3x device pixels.
+ *
+ * Each of those is bought with almost no visual return here — the field behind
+ * every glass surface is a near-flat dark backdrop, so blurring it produces
+ * essentially the fill that is already painted on top of it. Touch devices get
+ * the fill and keep the frame budget; pointer devices keep the glass.
+ *
+ * The prefixed and unprefixed properties below are deliberately in separate
+ * rules: the CSS minifier collapses a `backdrop-filter`/`-webkit-` pair that
+ * shares a declaration block down to whichever one it saw last, which would
+ * leave half the mobile browsers still blurring.
+ */
+@media (pointer: coarse) {
+  /* Every Tailwind backdrop-blur utility, at any breakpoint. */
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+  }
+
+  .glass {
+    background: color-mix(in oklab, var(--color-graphite) 92%, transparent);
+    backdrop-filter: none;
+  }
+
+  /* The weave reads as texture at arm's length and as cost at 3x DPR. */
+  .carbon {
+    background-image: none;
+  }
+}
+
+@supports (-webkit-backdrop-filter: none) {
+  @media (pointer: coarse) {
+    [class*="backdrop-blur"] {
+      -webkit-backdrop-filter: none !important;
+    }
+    .glass {
+      -webkit-backdrop-filter: none;
+    }
+  }
+}
+
+/* Ambient decoration is never worth a dropped frame while the user is reading. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift { animation: none !important; }
 }

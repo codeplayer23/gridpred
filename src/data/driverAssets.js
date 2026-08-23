@@ -30,7 +30,10 @@ export function buildHeadshotUrl(teamSlug, code, width = 800) {
 /** Responsive srcset for the same portrait. */
 export function buildHeadshotSrcSet(teamSlug, code) {
   if (!teamSlug || !code) return null;
-  return [400, 800, 1200]
+  // Card portraits render at 200–260 CSS px, so on a 2x–3x phone the useful
+  // range starts well below 800. The intermediate steps keep those devices off
+  // the desktop-sized asset.
+  return [300, 500, 800, 1200]
     .map((w) => `${buildHeadshotUrl(teamSlug, code, w)} ${w}w`)
     .join(', ');
 }

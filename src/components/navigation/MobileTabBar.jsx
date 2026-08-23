@@ -7,12 +7,18 @@ import { navItems } from './navItems';
 /**
  * Thumb-reachable bottom navigation for small screens.
  * Mobile gets its own control surface rather than a shrunken desktop rail.
+ *
+ * The bar is fixed over scrolling content, which makes it the one surface here
+ * whose blur was load-bearing rather than decorative. Touch devices — which is
+ * to say every device that ever sees this bar — take an opaque fill instead, so
+ * the compositor is not snapshotting and blurring the page behind it on every
+ * scroll frame.
  */
 export default function MobileTabBar() {
   return (
     <nav
       aria-label="Primary mobile"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-white/[0.07] bg-[#08090d]/88 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-white/[0.07] bg-[#08090d]/88 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl touch:bg-[#08090d] md:hidden"
     >
       <ul className="flex items-stretch justify-around px-1">
         {navItems.map((item) => (

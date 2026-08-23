@@ -3,8 +3,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDown, ArrowRight, Users } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import CircuitMap from '@/components/circuits/CircuitMap';
-import { revealLine } from '@/lib/motion';
-import { useCalmMotion, useLiveValue } from '@/hooks';
+import { revealLine, revealLineLean } from '@/lib/motion';
+import { useCalmMotion, useLiveValue, useReducedEffects } from '@/hooks';
 import { useNow } from '@/hooks/useNow';
 import { weekendState } from '@/lib/session';
 import LiveIndicator from '@/components/ui/LiveIndicator';
@@ -33,11 +33,17 @@ export default function Hero() {
   const { live: sessionLive } = weekendState(race, now);
   const ref = useRef(null);
   const calm = useCalmMotion();
+  const lean = useReducedEffects();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
 
   const typeY = useTransform(scrollYProgress, [0, 1], ['0%', calm ? '0%' : '-38%']);
   const typeOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
-  const mapScale = useTransform(scrollYProgress, [0, 1], [1, calm ? 1 : 1.18]);
+  // Translate and opacity are handed to the compositor; scale is not — it
+  // re-rasterises whatever it is applied to, and here that is a circuit map of
+  // several hundred vector operations, once per scroll frame. Desktops absorb
+  // it, phones spend the whole scroll on it, so the parallax zoom is a
+  // pointer-device flourish only.
+  const mapScale = useTransform(scrollYProgress, [0, 1], [1, calm || lean ? 1 : 1.18]);
   const mapOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.1]);
 
   return (
@@ -98,7 +104,7 @@ export default function Hero() {
               <motion.span
                 className="block text-[clamp(2.9rem,10.5vw,9.5rem)]"
                 custom={i}
-                variants={revealLine}
+                variants={lean ? revealLineLean : revealLine}
                 initial={calm ? { opacity: 0 } : 'hidden'}
                 animate={calm ? { opacity: 1 } : 'show'}
                 aria-hidden

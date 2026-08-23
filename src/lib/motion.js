@@ -31,4 +31,23 @@ export const revealLine = {
   }),
 };
 
+/**
+ * The same reveal without the blur pass.
+ *
+ * Animating `filter: blur()` across the largest type on the page means a real
+ * blur of the rasterised glyphs on every frame of the intro — on the element
+ * that is also the page's largest contentful paint. Worse, the element keeps
+ * `filter: blur(0px)` afterwards, which holds it on its own composited layer
+ * with a filter attached for the rest of the session. Touch devices get the
+ * lift and the fade, which is where nearly all of the effect lives anyway.
+ */
+export const revealLineLean = {
+  hidden: { opacity: 0, y: '38%' },
+  show: (i = 0) => ({
+    opacity: 1,
+    y: '0%',
+    transition: { duration: 0.85, ease: easeOut, delay: 0.08 + i * 0.09 },
+  }),
+};
+
 export const viewport = { once: true, amount: 0.25, margin: '0px 0px -12% 0px' };

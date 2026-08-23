@@ -33,6 +33,10 @@ function CircuitCorner({ corner, accent, active, onEnter, onLeave, scale = 1 }) 
         fill={active ? accent : '#ffffff'}
         stroke={active ? '#ffffff' : 'rgba(5,7,10,0.65)'}
         strokeWidth={active ? 2.4 * scale : 1.6 * scale}
+        // Without this, the mount frame animates `r` from an undefined origin
+        // and the browser rejects `r="undefined"` once per corner. The marker
+        // should start at its real radius and only animate when `active` flips.
+        initial={false}
         animate={{ r }}
         transition={{ type: 'spring', stiffness: 400, damping: 26 }}
         style={{ filter: active ? `drop-shadow(0 0 12px ${tint(accent, 0.9)})` : 'none' }}

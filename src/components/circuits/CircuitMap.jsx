@@ -2,13 +2,26 @@ import { memo, useEffect, useId, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cx, tint } from '@/lib/format';
 import { easeOut, viewport } from '@/lib/motion';
-import { useCalmMotion } from '@/hooks';
+import { useCalmMotion, useReducedEffects } from '@/hooks';
 import { getTelemetry } from '@/services/telemetry';
 import CircuitCorner from './CircuitCorner';
 import DRSZone from './DRSZone';
 import TrackTelemetry from './TrackTelemetry';
 
 const VIEW_BOX = '0 0 1000 620';
+
+/**
+ * Stand-in for the blurred kerb halo, as [extra stroke width, opacity].
+ *
+ * Three progressively wider and fainter strokes read as a glow at a glance, and
+ * unlike `feGaussianBlur` they are ordinary stroke paint — no offscreen buffer
+ * to allocate and re-rasterise. Widest first so the falloff builds inward.
+ */
+const HALO_STACK = [
+  [34, 0.1],
+  [24, 0.15],
+  [15, 0.3],
+];
 
 /**
  * The one circuit renderer in GridPred.
@@ -37,6 +50,11 @@ function CircuitMap({
   onCornerChange,
 }) {
   const calm = useCalmMotion();
+  // An SVG filter is rasterised into an offscreen buffer sized to its region,
+  // and this one covers 160% of a 1000x620 canvas. On a phone that buffer is
+  // rebuilt whenever anything in the SVG invalidates — including the pace car
+  // that runs continuously — so touch devices get a plain wide stroke instead.
+  const lean = useReducedEffects();
   const uid = useId().replace(/:/g, '');
   const [activeCorner, setActiveCorner] = useState(null);
   const [pointer, setPointer] = useState(null);
@@ -108,13 +126,15 @@ function CircuitMap({
         }}
       >
         <defs>
-          <filter id={`${uid}-glow`} x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="11" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          {!lean && (
+            <filter id={`${uid}-glow`} x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="11" result="b" />
+              <feMerge>
+                <feMergeNode in="b" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          )}
           <radialGradient id={`${uid}-cursor`}>
             <stop offset="0%" stopColor={resolvedAccent} stopOpacity="0.5" />
             <stop offset="100%" stopColor={resolvedAccent} stopOpacity="0" />
@@ -127,17 +147,32 @@ function CircuitMap({
           <circle cx={pointer.x} cy={pointer.y} r="150" fill={`url(#${uid}-cursor)`} />
         )}
 
-        {/* kerb halo */}
-        <use
-          href={`#${uid}-track`}
-          fill="none"
-          stroke={tint(resolvedAccent, 0.3)}
-          strokeWidth={strokeWidth + 15}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          filter={`url(#${uid}-glow)`}
-          opacity="0.4"
-        />
+        {/* kerb halo — one filtered stroke, or three plain ones stacked */}
+        {lean ? (
+          HALO_STACK.map(([extra, opacity]) => (
+            <use
+              key={extra}
+              href={`#${uid}-track`}
+              fill="none"
+              stroke={tint(resolvedAccent, 0.3)}
+              strokeWidth={strokeWidth + extra}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={opacity}
+            />
+          ))
+        ) : (
+          <use
+            href={`#${uid}-track`}
+            fill="none"
+            stroke={tint(resolvedAccent, 0.3)}
+            strokeWidth={strokeWidth + 15}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter={`url(#${uid}-glow)`}
+            opacity="0.4"
+          />
+        )}
         {/* asphalt */}
         <use
           href={`#${uid}-track`}

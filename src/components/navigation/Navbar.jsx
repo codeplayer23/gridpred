@@ -33,7 +33,7 @@ export default function Navbar() {
           className={cx(
             'flex w-full max-w-6xl items-center justify-between rounded-full transition-[background,border-color,box-shadow,padding] duration-500',
             scrolled
-              ? 'border border-white/[0.08] bg-[#0a0c10]/72 px-3 py-2 shadow-[0_18px_50px_-20px_rgba(0,0,0,0.9)] backdrop-blur-2xl md:px-4'
+              ? 'border border-white/[0.08] bg-[#0a0c10]/72 px-3 py-2 shadow-[0_18px_50px_-20px_rgba(0,0,0,0.9)] backdrop-blur-2xl touch:bg-[#0a0c10]/97 md:px-4'
               : 'border border-transparent bg-transparent px-2 py-3 md:px-4',
           )}
           animate={{ scale: scrolled ? 0.985 : 1 }}
@@ -110,7 +110,7 @@ export default function Navbar() {
           >
             <button
               type="button"
-              className="absolute inset-0 h-full w-full bg-void/80 backdrop-blur-xl"
+              className="absolute inset-0 h-full w-full bg-void/80 backdrop-blur-xl touch:bg-void/97"
               aria-label="Close menu"
               onClick={() => setOpen(false)}
             />

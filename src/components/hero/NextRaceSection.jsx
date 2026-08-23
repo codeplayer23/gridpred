@@ -9,6 +9,7 @@ import { useCountdown } from '@/hooks';
 import { nextRace } from '@/data/races';
 import SessionStatus from './SessionStatus';
 import LineupChanges from '@/components/drivers/LineupChanges';
+import Bloom from '@/components/ui/Bloom';
 
 function CountdownUnit({ value, label, pulse = false }) {
   return (
@@ -72,10 +73,10 @@ export default function NextRaceSection() {
         </Reveal>
 
         <Reveal delay={0.08} className="group relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -top-40 left-1/4 h-80 w-[60%] rounded-full opacity-25 blur-[100px]"
-            style={{ background: 'radial-gradient(circle, #e10600, transparent 70%)' }}
+          <Bloom
+            accent="#e10600"
+            intensity={0.25}
+            className="-top-40 left-1/4 h-80 w-[60%]"
           />
 
           <div className="relative grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
