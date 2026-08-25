@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { fetchStandings, fetchEntryList } from '@/services/live';
+import {
+  fetchStandings,
+  fetchEntryList,
+  fetchResultsSince,
+  fetchSchedule,
+} from '@/services/live';
 import { drivers as snapshotDrivers } from '@/data/drivers';
 import { teams as snapshotTeams } from '@/data/teams';
 import { standingsById as snapshotStandings } from '@/data/results';
-import { SNAPSHOT } from '@/data/races';
+import { SNAPSHOT, races as snapshotRaces } from '@/data/races';
 import { deriveDriverCode } from '@/data/driverAssets';
 import { LiveSeasonContext } from './liveSeasonContext';
 
@@ -26,6 +31,35 @@ import { LiveSeasonContext } from './liveSeasonContext';
 const REFRESH_MS = 5 * 60_000;
 
 const norm = (x) => String(x ?? '').toLowerCase().replace(/[^a-z]/g, '');
+
+/** Words that appear in half the circuit names on the calendar and identify nothing. */
+const GENERIC_VENUE_WORDS = new Set([
+  'circuit', 'international', 'grand', 'prix', 'raceway', 'autodromo', 'autodrome',
+  'racing', 'course', 'park', 'street', 'speedway', 'motorsport', 'the', 'de', 'du',
+  'city', 'national', 'ring', 'auto', 'club',
+]);
+
+const venueTokens = (...parts) =>
+  new Set(
+    parts
+      .flatMap((p) =>
+        String(p ?? '')
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .toLowerCase()
+          .split(/[^a-z]+/),
+      )
+      .filter((w) => w.length > 3 && !GENERIC_VENUE_WORDS.has(w)),
+  );
+
+/** Do two calendar entries describe the same venue? */
+function sameVenue(race, published) {
+  const a = venueTokens(race.circuit?.name, race.circuitName, race.shortName, race.city);
+  const b = venueTokens(published.circuitName, published.locality);
+  if (!a.size || !b.size) return true; // not enough to judge — assume unchanged
+  for (const token of a) if (b.has(token)) return true;
+  return false;
+}
 const slugify = (x) =>
   String(x ?? '')
     .normalize('NFD')
@@ -37,6 +71,8 @@ const slugify = (x) =>
 export function LiveSeasonProvider({ children }) {
   const [live, setLive] = useState(null);
   const [entry, setEntry] = useState(null);
+  const [rounds, setRounds] = useState(null); // rounds run since the snapshot
+  const [schedule, setSchedule] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | syncing | live | offline
 
   useEffect(() => {
@@ -44,14 +80,28 @@ export function LiveSeasonProvider({ children }) {
 
     const sync = async () => {
       if (!cancelled) setStatus((s) => (s === 'live' ? 'live' : 'syncing'));
-      const [standings, entryList] = await Promise.all([
+
+      const [standings, entryList, published] = await Promise.all([
         fetchStandings(snapshotDrivers, snapshotTeams),
         fetchEntryList(Date.now()),
+        fetchSchedule(),
       ]);
       if (cancelled) return;
+
       if (standings) setLive(standings);
       if (entryList) setEntry(entryList);
-      setStatus(standings || entryList ? 'live' : 'offline');
+      if (published) setSchedule(published);
+      setStatus(standings || entryList || published ? 'live' : 'offline');
+
+      // Only ask for rounds the snapshot does not already contain.
+      if (standings?.round > SNAPSHOT.roundsCompleted) {
+        const fresh = await fetchResultsSince(
+          SNAPSHOT.roundsCompleted,
+          standings.round,
+          snapshotDrivers,
+        );
+        if (!cancelled && fresh.length) setRounds(fresh);
+      }
     };
 
     sync();
@@ -139,6 +189,61 @@ export function LiveSeasonProvider({ children }) {
       });
     }
 
+    // ── calendar drift ────────────────────────────────────────────────────
+    // A round can be cancelled, moved, or relocated to a different circuit.
+    // Comparing the published schedule against the bundled one is what lets the
+    // interface say so rather than counting down to a race that is not running.
+    const scheduleChanges = [];
+    if (schedule) {
+      const publishedByRound = new Map(schedule.map((r) => [r.round, r]));
+      snapshotRaces.forEach((race) => {
+        const pub = publishedByRound.get(race.round);
+        if (!pub) {
+          scheduleChanges.push({ type: 'removed', round: race.round, name: race.name });
+          return;
+        }
+        // A one-day difference is a timezone artefact, not a reschedule: a late
+        // night race such as Las Vegas has a local date one day behind its UTC
+        // date, and the two feeds disagree about which to publish. A genuine
+        // move is measured in weeks.
+        const drift = Math.round(
+          Math.abs(new Date(`${pub.date}T12:00:00Z`) - new Date(`${race.date}T12:00:00Z`)) / 86_400_000,
+        );
+        if (drift >= 2) {
+          scheduleChanges.push({
+            type: 'rescheduled', round: race.round, name: race.name,
+            from: race.date, to: pub.date, startsAt: pub.startsAt,
+          });
+        }
+        // Venue names differ harmlessly between sources — "Albert Park Circuit"
+        // against "Albert Park Grand Prix Circuit" is the same track. Only treat
+        // it as a relocation when neither the circuit names nor the towns share
+        // a meaningful word.
+        if (!sameVenue(race, pub)) {
+          scheduleChanges.push({
+            type: 'relocated', round: race.round, name: race.name,
+            from: race.circuitName, to: pub.circuitName, locality: pub.locality,
+          });
+        }
+      });
+      const knownRounds = new Set(snapshotRaces.map((r) => r.round));
+      schedule.forEach((pub) => {
+        if (!knownRounds.has(pub.round)) {
+          scheduleChanges.push({ type: 'added', round: pub.round, name: pub.name, startsAt: pub.startsAt });
+        }
+      });
+    }
+
+    // ── rounds run since the snapshot ─────────────────────────────────────
+    const freshRounds = rounds ?? [];
+    const resultsByRound = Object.fromEntries(freshRounds.map((r) => [r.round, r]));
+    const roundByCircuit = Object.fromEntries(
+      snapshotRaces.map((r) => [r.round, r.circuitId ?? r.id]),
+    );
+    const resultsByCircuit = Object.fromEntries(
+      freshRounds.map((r) => [roundByCircuit[r.round] ?? String(r.round), r]),
+    );
+
     return {
       status,
       round: liveRound,
@@ -163,6 +268,14 @@ export function LiveSeasonProvider({ children }) {
       absent,
       teamChanges,
 
+      /** Rounds completed since the snapshot was built, keyed both ways. */
+      freshRounds,
+      resultsByRound,
+      resultsByCircuit,
+      /** Published-schedule differences against the bundled calendar. */
+      scheduleChanges,
+      schedule,
+
       /**
        * The team a driver is racing for right now. The weekend entry wins over
        * a permanent championship move, which in turn wins over the snapshot.
@@ -180,7 +293,7 @@ export function LiveSeasonProvider({ children }) {
         return over ? { ...base, ...over } : base;
       },
     };
-  }, [live, entry, status]);
+  }, [live, entry, rounds, schedule, status]);
 
   return <LiveSeasonContext.Provider value={value}>{children}</LiveSeasonContext.Provider>;
 }

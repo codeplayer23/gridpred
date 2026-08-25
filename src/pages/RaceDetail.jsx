@@ -16,6 +16,9 @@ import { useCountdown } from '@/hooks';
 import { raceById } from '@/data/races';
 import { circuitCharacter } from '@/data/circuits';
 import { circuitPerformance, getResult } from '@/data/results';
+import { useRoundResult } from '@/hooks/useLiveSeason';
+import SessionResults from '@/components/races/SessionResults';
+import ScheduleNotice from '@/components/races/ScheduleNotice';
 import { driverById, fullName } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
 import { predictRace } from '@/data/predictions';
@@ -31,6 +34,8 @@ export default function RaceDetail() {
   const { id } = useParams();
   const race = raceById[id];
   const [now] = useState(() => Date.now());
+  // A round run since the snapshot was built has its result fetched live.
+  const liveResult = useRoundResult(id);
   const [view, setView] = useState('track');
   const [activeCorner, setActiveCorner] = useState(null);
   const ms = useCountdown(race?.startsAt ?? new Date().toISOString());
@@ -42,7 +47,9 @@ export default function RaceDetail() {
 
   const circuit = race.circuit;
   const done = parseUtc(race.startsAt) <= now;
-  const result = done ? getResult(race.circuitId) : null;
+  const snapshotResult = done ? getResult(race.circuitId) : null;
+  const result = liveResult ?? snapshotResult;
+  const hasResult = Boolean(result?.results?.length);
   const date = dateParts(race.startsAt);
   const { days, hours, minutes } = countdownParts(ms);
   const character = circuitCharacter(circuit);
@@ -122,6 +129,8 @@ export default function RaceDetail() {
               <div className="mt-10 flex flex-wrap gap-3">
                 <Button to="/predict">Prediction for this race</Button>
               </div>
+
+              <ScheduleNotice className="mt-8" round={race.round} />
             </div>
 
             <motion.div
@@ -297,16 +306,18 @@ export default function RaceDetail() {
       <section className="px-6 py-20 md:px-10 md:py-28">
         <div className="mx-auto max-w-7xl">
           <SectionHeader
-            eyebrow={done ? 'Classification' : 'Model projection'}
-            title={done ? 'How it finished' : 'How it should finish'}
+            eyebrow={hasResult ? 'Classification' : 'Model projection'}
+            title={hasResult ? 'How it finished' : 'How it should finish'}
             lede={
-              done
-                ? `Pole went to ${driverById[result?.polePosition]?.lastName ?? '—'}.`
+              hasResult
+                ? liveResult
+                  ? 'Result fetched live — this round was run after the bundled data was built.'
+                  : `Pole went to ${driverById[result?.polePosition]?.lastName ?? '—'}.`
                 : `The model's projected top ten, at ${prediction.confidence}% confidence.`
             }
           />
           <ol className="mt-12 grid gap-2.5 md:grid-cols-2">
-            {(done
+            {(hasResult
               ? [...result.results].filter((r) => r.position).sort((a, b) => a.position - b.position).slice(0, 10)
               : prediction.race.slice(0, 10)
             ).map((row, i) => {
@@ -321,12 +332,14 @@ export default function RaceDetail() {
                     {fullName(driver)}
                   </Link>
                   <span className="tabular shrink-0 text-[0.8rem] text-ink-mute">
-                    {done ? `${row.points} pts` : `${row.winProbability}%`}
+                    {hasResult ? `${row.points} pts` : `${row.winProbability}%`}
                   </span>
                 </li>
               );
             })}
           </ol>
+
+          <SessionResults className="mt-10" />
         </div>
       </section>
     </article>

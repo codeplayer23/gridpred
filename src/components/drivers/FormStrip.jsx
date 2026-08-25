@@ -4,6 +4,7 @@ import Tooltip from '@/components/ui/Tooltip';
 import { cx, tint } from '@/lib/format';
 import { spring } from '@/lib/motion';
 import { recentForm } from '@/data/results';
+import { useDriverForm } from '@/hooks/useLiveSeason';
 
 /**
  * Last ten rounds as an interactive bar strip.
@@ -13,7 +14,8 @@ import { recentForm } from '@/data/results';
  * result: grid slot, positions gained, stops, weather.
  */
 export default function FormStrip({ driverId, accent = '#e10600', count = 10 }) {
-  const form = recentForm(driverId, count);
+  // Extended with any round run since the snapshot, so the strip keeps growing.
+  const form = useDriverForm(driverId, recentForm(driverId, count), count);
   const [open, setOpen] = useState(null);
 
   return (

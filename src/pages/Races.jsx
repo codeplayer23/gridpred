@@ -7,6 +7,9 @@ import { LayoutGrid, List } from 'lucide-react';
 import { cx, numberWordUpper } from '@/lib/format';
 import { springSnappy } from '@/lib/motion';
 import { races, nextRace, SEASON } from '@/data/races';
+import { parseUtc } from '@/lib/session';
+import ScheduleNotice from '@/components/races/ScheduleNotice';
+import { useRoundsCompleted } from '@/hooks/useLiveSeason';
 
 const FILTERS = [
   { id: 'all', label: 'Full season' },
@@ -17,6 +20,7 @@ const FILTERS = [
 export default function Races() {
   const [filter, setFilter] = useState('all');
   const [view, setView] = useState('list');
+  const completed = useRoundsCompleted();
   // Pinned at mount so filtering stays stable across re-renders.
   const [now] = useState(() => Date.now());
   const upcoming = nextRace(now);
@@ -27,7 +31,11 @@ export default function Races() {
     return races;
   }, [filter, now]);
 
-  const completedCount = races.filter((r) => new Date(r.date).getTime() <= now).length;
+  // Prefer the live round count so a race run since the snapshot is counted.
+  const completedCount = Math.max(
+    completed,
+    races.filter((r) => parseUtc(r.startsAt) <= now).length,
+  );
 
   return (
     <div className="px-6 pt-32 pb-16 md:px-10 md:pt-40">
@@ -44,6 +52,8 @@ export default function Races() {
             tolerance for overtaking. Hover a round to read it.
           </p>
         </Reveal>
+
+        <ScheduleNotice className="mt-10" />
 
         <div className="mt-14 flex flex-wrap items-center justify-between gap-5">
           <div className="flex rounded-full border border-white/[0.08] p-1">

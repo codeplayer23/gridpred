@@ -111,11 +111,31 @@ of the initial payload.
 The bundled snapshot is generated at build time and goes stale the moment
 another Grand Prix runs. Two mechanisms keep a deployed GridPred honest.
 
-**Live championship sync.** On load — and every five minutes, and whenever the
-tab regains focus — GridPred asks a public, CORS-enabled mirror of the F1
-results API for the current standings, and upgrades points, positions and wins
-in place. If the network is unavailable the snapshot simply stands, and the
-freshness badge says so.
+Everything below runs on load, every five minutes, and whenever the tab regains
+focus. Each feed fails soft: if one is unavailable the snapshot stands in its
+place and the freshness badge says so.
+
+**Championship standings.** Points, positions and wins are upgraded in place
+from a public, CORS-enabled mirror of the F1 results API.
+
+**Results for rounds run since the build.** When the feed reports a round the
+snapshot predates, GridPred fetches just those classifications — a handful of
+requests at most. The race page switches from a projection to the real result,
+form strips grow, and the "rounds in" counts follow.
+
+**Session results.** Practice, sprint and qualifying classifications come from
+the timing API, which is the only source that publishes them — the results feed
+carries the Grand Prix alone. Fetched on demand, since only the race page shows
+them.
+
+**Calendar drift.** The published schedule is compared against the bundled one,
+and cancellations, reschedules and relocations are stated rather than silently
+counted down to. Two false positives are deliberately suppressed: venue names
+that differ only in wording ("Albert Park Circuit" against "Albert Park Grand
+Prix Circuit") are matched on shared distinctive words, and a one-day date
+difference is treated as a timezone artefact — a night race such as Las Vegas
+has a local date one day behind its UTC date, and the feeds disagree about which
+to publish. A genuine move is measured in weeks.
 
 **This weekend's entry.** Championship standings say who has *scored* what;
 they cannot say who is *driving*. A driver stood down through injury keeps their

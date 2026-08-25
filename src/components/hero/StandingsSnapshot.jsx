@@ -8,13 +8,16 @@ import { tint } from '@/lib/format';
 import { easeOut, viewport } from '@/lib/motion';
 import { driverById, fullName } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
-import { completedRounds } from '@/data/results';
-import { useDriverStandings, useConstructorStandings, useLiveSeason } from '@/hooks/useLiveSeason';
+import {
+  useDriverStandings,
+  useConstructorStandings,
+  useRoundsCompleted,
+} from '@/hooks/useLiveSeason';
 import LiveIndicator from '@/components/ui/LiveIndicator';
 
 /** Championship snapshot — drivers and constructors side by side. */
 export default function StandingsSnapshot() {
-  const { round } = useLiveSeason();
+  const round = useRoundsCompleted();
   const allDrivers = useDriverStandings();
   const allTeams = useConstructorStandings();
   const topDrivers = allDrivers.slice(0, 6);
@@ -27,7 +30,7 @@ export default function StandingsSnapshot() {
       <div className="mx-auto max-w-7xl">
         <SectionHeader
           eyebrow="Standings"
-          title={`${round ?? completedRounds} rounds in.`}
+          title={`${round} rounds in.`}
           lede="The official championship as it stands, summed from every classification this season — sprint points included."
           action={
             <div className="flex flex-col items-start gap-3 md:items-end">

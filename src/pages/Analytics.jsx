@@ -14,8 +14,9 @@ import { drivers, driverById } from '@/data/drivers';
 import { teams, getTeam } from '@/data/teams';
 import { races } from '@/data/races';
 import {
-  completedRounds, standings, standingsById, standingsHistory, circuitPerformance,
+  standings, standingsById, standingsHistory, circuitPerformance,
 } from '@/data/results';
+import { useRoundsCompleted } from '@/hooks/useLiveSeason';
 
 const SCOPES = [
   { id: 'drivers', label: 'Drivers' },
@@ -46,6 +47,7 @@ const TEAM_METRICS = [
  */
 export default function Analytics() {
   const [scope, setScope] = useState('drivers');
+  const rounds = useRoundsCompleted();
 
   return (
     <div className="px-6 pt-32 pb-16 md:px-10 md:pt-40">
@@ -58,8 +60,8 @@ export default function Analytics() {
             SEASON.
           </h1>
           <p className="mt-8 max-w-lg text-lg leading-relaxed text-ink-dim">
-            {completedRounds} rounds of real results, cut four ways. Hover any
-            point for the detail behind it.
+            {rounds} rounds of real results, cut four ways. Hover any point for
+            the detail behind it.
           </p>
         </Reveal>
 

@@ -190,12 +190,15 @@ export function useMediaQuery(query) {
 
 /** True once the window has scrolled past `threshold` px. */
 export function useScrolled(threshold = 24) {
-  const [scrolled, setScrolled] = useState(false);
+  // Derived at init rather than in an effect, so the first paint is already
+  // correct on a page restored mid-scroll.
+  const [scrolled, setScrolled] = useState(
+    () => typeof window !== 'undefined' && window.scrollY > threshold,
+  );
   useEffect(() => {
     // The listener fires on every scroll frame, so the last crossing is kept in
     // the closure and React is only told when the boolean actually flips.
     let past = window.scrollY > threshold;
-    setScrolled(past);
     const onScroll = () => {
       const next = window.scrollY > threshold;
       if (next === past) return;

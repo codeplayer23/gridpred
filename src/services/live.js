@@ -201,7 +201,7 @@ function getTiming(path) {
   return promise;
 }
 
-async function doGetTiming(path) {
+async function doGetTiming(path, attempt = 0) {
   const cached = cacheRead(`timing:${path}`);
   if (cached) return cached;
   const controller = new AbortController();
@@ -211,6 +211,13 @@ async function doGetTiming(path) {
       signal: controller.signal,
       headers: { accept: 'application/json' },
     });
+    // The timing API throttles aggressively. One backed-off retry recovers the
+    // odd rejected request without hammering it further.
+    if (res.status === 429 && attempt < 2) {
+      clearTimeout(timer);
+      await new Promise((r) => setTimeout(r, 900 * (attempt + 1)));
+      return doGetTiming(path, attempt + 1);
+    }
     if (!res.ok) return null;
     const json = await res.json();
     cacheWrite(`timing:${path}`, json);
@@ -271,20 +278,137 @@ export async function fetchEntryList(now = Date.now()) {
   };
 }
 
-/** Result of the most recently completed round. */
-export async function fetchLastResult() {
-  const data = await get('last/results/');
+/**
+ * Classification for one round.
+ *
+ * Used to fill in rounds run since the snapshot was generated, so form strips
+ * and race pages show the real result rather than a projection.
+ */
+export async function fetchRoundResult(round, drivers) {
+  const data = await get(`${round}/results/`);
   const race = data?.MRData?.RaceTable?.Races?.[0];
-  if (!race) return null;
+  if (!race?.Results?.length) return null;
+
+  const index = indexDrivers(drivers);
   return {
     round: Number(race.round),
-    name: race.raceName,
+    event: race.raceName,
     date: race.date,
-    podium: (race.Results ?? []).slice(0, 3).map((r) => ({
-      position: Number(r.position),
-      surname: r.Driver?.familyName,
-      number: r.Driver?.permanentNumber,
-      constructor: r.Constructor?.name,
-    })),
+    circuitName: race.Circuit?.circuitName ?? null,
+    results: race.Results.map((r) => {
+      const status = r.status ?? '';
+      const finished = status === 'Finished' || /^\+\d+ Lap/.test(status);
+      return {
+        driverId: resolveDriver(r, index),
+        number: r.Driver?.permanentNumber ? Number(r.Driver.permanentNumber) : null,
+        surname: r.Driver?.familyName ?? null,
+        constructorName: r.Constructor?.name ?? null,
+        position: Number(r.position),
+        grid: r.grid != null ? Number(r.grid) : null,
+        points: Number(r.points ?? 0),
+        status,
+        finished,
+        laps: r.laps != null ? Number(r.laps) : null,
+        time: r.Time?.time ?? null,
+        fastestLap: r.FastestLap?.rank === '1',
+      };
+    }),
   };
+}
+
+/**
+ * Every round run since `after`.
+ *
+ * Kept deliberately small: the snapshot already holds the season up to the
+ * point it was built, so this only ever asks for the handful of rounds that
+ * have happened since.
+ */
+export async function fetchResultsSince(after, latestRound, drivers, cap = 6) {
+  const rounds = [];
+  for (let r = after + 1; r <= latestRound && rounds.length < cap; r += 1) rounds.push(r);
+  if (!rounds.length) return [];
+  const settled = await Promise.all(rounds.map((r) => fetchRoundResult(r, drivers)));
+  return settled.filter(Boolean);
+}
+
+/**
+ * The published schedule.
+ *
+ * Calendars move: a round can be cancelled, rescheduled or relocated to another
+ * circuit entirely. Comparing this against the bundled calendar is what lets the
+ * interface say so instead of counting down to a race that is not happening.
+ */
+export async function fetchSchedule() {
+  const data = await get('');
+  const races = data?.MRData?.RaceTable?.Races;
+  if (!Array.isArray(races) || !races.length) return null;
+  return races.map((r) => ({
+    round: Number(r.round),
+    name: r.raceName,
+    date: r.date,
+    time: r.time ?? null,
+    startsAt: r.time ? `${r.date}T${r.time}` : `${r.date}T13:00:00Z`,
+    circuitId: r.Circuit?.circuitId ?? null,
+    circuitName: r.Circuit?.circuitName ?? null,
+    locality: r.Circuit?.Location?.locality ?? null,
+    country: r.Circuit?.Location?.country ?? null,
+  }));
+}
+
+/**
+ * Classification for a single timed session — practice, qualifying or sprint.
+ * The results feed only publishes the Grand Prix, so this is the only way to
+ * show what happened on a Friday.
+ */
+export async function fetchSessionResult(sessionKey) {
+  const rows = await getTiming(`session_result?session_key=${sessionKey}`);
+  if (!Array.isArray(rows) || !rows.length) return null;
+  return rows
+    .map((r) => ({
+      position: r.position != null ? Number(r.position) : null,
+      number: r.driver_number != null ? Number(r.driver_number) : null,
+      laps: r.number_of_laps ?? null,
+      duration: Array.isArray(r.duration) ? r.duration.at(-1) : r.duration,
+      gap: Array.isArray(r.gap_to_leader) ? r.gap_to_leader.at(-1) : r.gap_to_leader,
+      dnf: Boolean(r.dnf),
+      dns: Boolean(r.dns),
+      dsq: Boolean(r.dsq),
+    }))
+    .filter((r) => r.position != null)
+    .sort((a, b) => a.position - b.position);
+}
+
+/** Every session of the most recent race weekend, with its classification. */
+export async function fetchWeekendSessions(now = Date.now()) {
+  const since = new Date(now - 45 * 86_400_000).toISOString().slice(0, 10);
+  let sessions = await getTiming(
+    `sessions?year=${SEASON}&${encodeURIComponent('date_start>=')}${since}`,
+  );
+  if (!Array.isArray(sessions) || !sessions.length) return null;
+
+  const started = sessions
+    .filter((s) => s.date_start && new Date(s.date_start).getTime() <= now)
+    .sort((a, b) => new Date(a.date_start) - new Date(b.date_start));
+  if (!started.length) return null;
+
+  const meetingKey = started[started.length - 1].meeting_key;
+  const weekend = started
+    .filter((s) => s.meeting_key === meetingKey)
+    .sort((a, b) => new Date(a.date_start) - new Date(b.date_start));
+
+  // Sequential on purpose: firing a session's worth of requests at once earns a
+  // 429 from the timing API, and a weekend is only ever a handful of sessions.
+  const withResults = [];
+  for (const s of weekend) {
+    withResults.push({
+      sessionKey: s.session_key,
+      name: s.session_name,
+      type: s.session_type ?? null,
+      startedAt: s.date_start,
+      location: s.location ?? null,
+      // eslint-disable-next-line no-await-in-loop
+      results: await fetchSessionResult(s.session_key),
+    });
+  }
+  return { meetingKey, location: weekend[0]?.location ?? null, sessions: withResults };
 }

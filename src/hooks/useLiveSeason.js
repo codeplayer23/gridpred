@@ -1,4 +1,5 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { fetchWeekendSessions } from '@/services/live';
 import { LiveSeasonContext } from '@/context/liveSeasonContext';
 import { drivers as snapshotDrivers } from '@/data/drivers';
 import { teams as snapshotTeams } from '@/data/teams';
@@ -21,6 +22,11 @@ export function useLiveSeason() {
       constructorOverrides: null,
       entry: null,
       entryTeams: {},
+      freshRounds: [],
+      resultsByRound: {},
+      resultsByCircuit: {},
+      scheduleChanges: [],
+      schedule: null,
       substitutes: [],
       newcomers: [],
       absent: [],
@@ -100,4 +106,80 @@ export function useConstructorStandings() {
     const rows = snapshotTeams.map((t) => ({ ...t, ...(constructorOverrides?.[t.id] ?? {}) }));
     return rows.sort((a, b) => a.position - b.position);
   }, [constructorOverrides]);
+}
+
+
+/**
+ * Classification for a round, preferring a result that has come in since the
+ * snapshot was built. Returns null for a round that has not been run.
+ */
+export function useRoundResult(circuitId) {
+  const { resultsByCircuit } = useLiveSeason();
+  return resultsByCircuit?.[circuitId] ?? null;
+}
+
+/** How many rounds are complete, counting anything run since the snapshot. */
+export function useRoundsCompleted() {
+  const { round, snapshotRound } = useLiveSeason();
+  return Math.max(round ?? 0, snapshotRound);
+}
+
+/** Differences between the published calendar and the bundled one. */
+export function useScheduleChanges() {
+  const { scheduleChanges } = useLiveSeason();
+  return scheduleChanges ?? [];
+}
+
+/**
+ * Sessions of the most recent race weekend, with classifications.
+ *
+ * Fetched on demand rather than with the rest of the live data: only the race
+ * page shows per-session results, and the timing API throttles hard enough that
+ * asking for them on every page load costs more than it returns.
+ */
+export function useWeekendSessions() {
+  const [weekend, setWeekend] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetchWeekendSessions(Date.now()).then((w) => {
+      if (!cancelled && w) setWeekend(w);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return weekend;
+}
+
+/**
+ * A driver's form, extended with rounds run since the snapshot so the strip
+ * keeps growing without a rebuild.
+ */
+export function useDriverForm(driverId, base = [], count = 10) {
+  const { freshRounds } = useLiveSeason();
+  return useMemo(() => {
+    const known = new Set(base.map((f) => f.round));
+    const extra = (freshRounds ?? [])
+      .filter((r) => !known.has(r.round))
+      .map((r) => {
+        const row = r.results.find((x) => x.driverId === driverId);
+        if (!row) return null;
+        return {
+          round: r.round,
+          circuitId: String(r.event ?? '').toLowerCase().replace(/[^a-z]/g, '').slice(0, 12),
+          event: r.event,
+          position: row.position,
+          grid: row.grid,
+          points: row.points,
+          status: row.status,
+          finished: row.finished,
+          fastestLap: row.fastestLap,
+          pitStops: null,
+          compounds: [],
+          wet: null,
+        };
+      })
+      .filter(Boolean);
+    return [...base, ...extra].sort((a, b) => a.round - b.round).slice(-count);
+  }, [driverId, base, freshRounds, count]);
 }
