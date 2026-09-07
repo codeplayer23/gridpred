@@ -115,8 +115,17 @@ Everything below runs on load, every five minutes, and whenever the tab regains
 focus. Each feed fails soft: if one is unavailable the snapshot stands in its
 place and the freshness badge says so.
 
-**Championship standings.** Points, positions and wins are upgraded in place
-from a public, CORS-enabled mirror of the F1 results API.
+**Championship standings.** When the feed answers, the tables *are* the
+published order — rows are built by walking that list, not by re-sorting the
+bundled ones. Mixing the two is what lets a single unresolved name sit on a
+stale score while everything around it updates, so the fallback to the snapshot
+is all-or-nothing.
+
+Constructor names differ between sources — the results feed calls Racing Bulls
+"RB F1 Team" and Red Bull Racing simply "Red Bull" — so they are matched by an
+explicit alias table first, then by distinctive-word overlap that ignores filler
+like "F1 Team". A driver the bundled data has never seen is carried through with
+their real championship row rather than showing zero.
 
 **Results for rounds run since the build.** When the feed reports a round the
 snapshot predates, GridPred fetches just those classifications — a handful of
@@ -138,7 +147,10 @@ has a local date one day behind its UTC date, and the feeds disagree about which
 to publish. A genuine move is measured in weeks.
 
 **This weekend's entry.** Championship standings say who has *scored* what;
-they cannot say who is *driving*. A driver stood down through injury keeps their
+they cannot say who is *driving*. An entry list describes only the weekend it
+belongs to, so it is treated as the current field until that weekend's last
+session has run, and as history afterwards — otherwise a driver who sat out the
+previous round would stay hidden while they are racing the next one. A driver stood down through injury keeps their
 points and their standings place, and their stand-in has no standings row at
 all — so substitutions are invisible to a standings feed. GridPred therefore
 also reads the session entry list from the timing API and treats it as the

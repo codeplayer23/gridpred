@@ -7,7 +7,7 @@ import { springSnappy } from '@/lib/motion';
 import { drivers, predictionScore } from '@/data/drivers';
 import { useWeekendGrid } from '@/hooks/useLiveSeason';
 import { teams } from '@/data/teams';
-import { standingsById } from '@/data/results';
+import { useLiveSeason } from '@/hooks/useLiveSeason';
 import DriverCarousel from './DriverCarousel';
 
 const SORTS = [
@@ -23,18 +23,20 @@ const SORTS = [
  */
 export default function DriverExplorer() {
   const { drivers: grid } = useWeekendGrid();
+  const { driverStats } = useLiveSeason();
   const [team, setTeam] = useState('all');
   const [sort, setSort] = useState('championship');
 
   const visible = useMemo(() => {
     const list = team === 'all' ? [...grid] : grid.filter((d) => d.team === team);
     const by = {
-      championship: (a, b) => (standingsById[a.id]?.position ?? 99) - (standingsById[b.id]?.position ?? 99),
+      championship: (a, b) =>
+        (driverStats(a.id)?.position ?? 99) - (driverStats(b.id)?.position ?? 99),
       prediction: (a, b) => (predictionScore(b) ?? 0) - (predictionScore(a) ?? 0),
       pace: (a, b) => (b.ratings.racePace ?? 0) - (a.ratings.racePace ?? 0),
     };
     return list.sort(by[sort]);
-  }, [team, sort, grid]);
+  }, [team, sort, grid, driverStats]);
 
   return (
     <section className="relative pt-28 pb-14 md:pt-36 md:pb-18">

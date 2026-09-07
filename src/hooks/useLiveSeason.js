@@ -20,6 +20,9 @@ export function useLiveSeason() {
       fetchedAt: null,
       driverOverrides: null,
       constructorOverrides: null,
+      driverOrder: null,
+      constructorOrder: null,
+      unmatchedConstructors: [],
       entry: null,
       entryTeams: {},
       freshRounds: [],
@@ -50,7 +53,20 @@ export function useLiveSeason() {
 export function useWeekendGrid() {
   const { entryTeams, newcomers, absent, entry } = useLiveSeason();
   return useMemo(() => {
-    if (!entry) return { drivers: snapshotDrivers, changed: false, absent: [], newcomers: [] };
+    if (!entry) {
+      return { drivers: snapshotDrivers, changed: false, absent: [], newcomers: [], absentDrivers: [] };
+    }
+    // Outside a race weekend nobody is "absent" — the roster is everyone
+    // contracted plus anyone who has since appeared.
+    if (!entry.current) {
+      return {
+        drivers: [...snapshotDrivers, ...newcomers],
+        absentDrivers: [],
+        absent: [],
+        newcomers,
+        changed: false,
+      };
+    }
     const racing = snapshotDrivers
       .filter((d) => !absent.includes(d.id))
       .map((d) => (entryTeams[d.id] && entryTeams[d.id] !== d.team
@@ -85,27 +101,62 @@ export function useDriverStats(driverId) {
   return driverStats(driverId);
 }
 
-/** Championship table ordered by the freshest data available. */
+/**
+ * Drivers' championship.
+ *
+ * When the live feed has answered, the table IS the published order — rows are
+ * built by walking that list, not by re-sorting snapshot rows. Mixing the two
+ * is what lets one unresolved name sit on a stale score while everything around
+ * it updates, so the fallback to the snapshot is all-or-nothing.
+ */
 export function useDriverStandings() {
-  const { driverOverrides } = useLiveSeason();
+  const { driverOrder } = useLiveSeason();
   return useMemo(() => {
-    const rows = snapshotDrivers.map((d) => ({
-      ...snapshotStandings[d.id],
-      ...(driverOverrides?.[d.id] ?? {}),
-      driverId: d.id,
-      teamId: d.team,
-    }));
-    return rows.sort((a, b) => a.position - b.position);
-  }, [driverOverrides]);
+    if (!driverOrder?.length) {
+      return snapshotDrivers
+        .map((d) => ({ ...snapshotStandings[d.id], driverId: d.id, teamId: d.team }))
+        .sort((a, b) => a.position - b.position);
+    }
+    const byId = Object.fromEntries(snapshotDrivers.map((d) => [d.id, d]));
+    return driverOrder.map((row) => {
+      const known = row.driverId ? byId[row.driverId] : null;
+      return {
+        ...(row.driverId ? snapshotStandings[row.driverId] : null),
+        driverId: row.driverId,
+        teamId: known?.team ?? null,
+        position: row.position,
+        points: row.points,
+        wins: row.wins,
+        /** Present only for a driver the snapshot has never seen. */
+        unknown: known
+          ? null
+          : { firstName: row.firstName, surname: row.surname, number: row.number },
+      };
+    });
+  }, [driverOrder]);
 }
 
-/** Constructor table ordered by the freshest data available. */
+/** Constructors' championship, built the same way. */
 export function useConstructorStandings() {
-  const { constructorOverrides } = useLiveSeason();
+  const { constructorOrder } = useLiveSeason();
   return useMemo(() => {
-    const rows = snapshotTeams.map((t) => ({ ...t, ...(constructorOverrides?.[t.id] ?? {}) }));
-    return rows.sort((a, b) => a.position - b.position);
-  }, [constructorOverrides]);
+    if (!constructorOrder?.length) {
+      return [...snapshotTeams].sort((a, b) => a.position - b.position);
+    }
+    const byId = Object.fromEntries(snapshotTeams.map((t) => [t.id, t]));
+    return constructorOrder.map((row) => {
+      const known = row.teamId ? byId[row.teamId] : null;
+      return {
+        ...(known ?? {}),
+        id: row.teamId ?? row.name,
+        name: known?.name ?? row.name,
+        position: row.position,
+        points: row.points,
+        wins: row.wins,
+        unresolved: !known,
+      };
+    });
+  }, [constructorOrder]);
 }
 
 

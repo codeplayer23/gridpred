@@ -10,6 +10,7 @@ import { spring } from '@/lib/motion';
 import { usePointerParallax } from '@/hooks';
 import { getTeam } from '@/data/teams';
 import { seasonStats } from '@/data/results';
+import { useDriverStats, useLiveSeason } from '@/hooks/useLiveSeason';
 import { predictionScore } from '@/data/drivers';
 
 /**
@@ -21,7 +22,11 @@ import { predictionScore } from '@/data/drivers';
  */
 function DriverCard({ driver, index = 0, compact = false }) {
   const team = useCurrentTeam(driver) ?? getTeam(driver.team);
-  const stats = seasonStats(driver.id);
+  const liveStats = useDriverStats(driver.id);
+  const stats = liveStats ?? seasonStats(driver.id);
+  const { entry } = useLiveSeason();
+  // The badge describes the weekend in progress, so it retires with it.
+  const standingIn = Boolean(driver.isSubstitute && entry?.current);
   const [hover, setHover] = useState(false);
   const { handlers } = usePointerParallax(compact ? 6 : 12);
 
@@ -128,7 +133,7 @@ function DriverCard({ driver, index = 0, compact = false }) {
               </p>
               <span className="mt-2.5 flex items-center gap-2">
                 <TeamLogo team={team} size={18} />
-                {driver.isSubstitute && (
+                {standingIn && (
                   <span
                     className="rounded-full px-2 py-0.5 text-[0.45rem] font-semibold tracking-[0.14em] uppercase"
                     style={{ background: team.accent, color: '#06070a' }}

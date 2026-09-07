@@ -46,7 +46,8 @@ export default function StandingsSnapshot() {
             <ol className="flex flex-col gap-2">
               {topDrivers.map((s, i) => {
                 const driver = driverById[s.driverId];
-                const team = getTeam(s.teamId);
+                const team = s.teamId ? getTeam(s.teamId) : null;
+                if (!driver || !team) return null;
                 return (
                   <li key={s.driverId}>
                     <Link

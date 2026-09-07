@@ -12,6 +12,7 @@ import { easeOut, spring, viewport } from '@/lib/motion';
 import { drivers, driverById, fullName, ratingLabels, ratingBasis, hasRating } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
 import { standingsById } from '@/data/results';
+import { useDriverStats } from '@/hooks/useLiveSeason';
 
 const SEASON_ROWS = [
   { key: 'points', label: 'Points' },
@@ -40,8 +41,11 @@ export default function Compare() {
   const right = driverById[b] ?? drivers[1];
   const leftTeam = getTeam(left.team);
   const rightTeam = getTeam(right.team);
-  const ls = standingsById[left.id];
-  const rs = standingsById[right.id];
+  // Live figures where the feed has them, snapshot otherwise.
+  const liveLeft = useDriverStats(left.id);
+  const liveRight = useDriverStats(right.id);
+  const ls = liveLeft ?? standingsById[left.id];
+  const rs = liveRight ?? standingsById[right.id];
 
   const select = (side, value) => {
     if (side === 'a') setA(value);

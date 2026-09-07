@@ -22,7 +22,8 @@ export default function LineupChanges({ className = '', compact = false }) {
   const { entry } = useLiveSeason();
   const { drivers: grid, absentDrivers = [], newcomers = [], changed } = useWeekendGrid();
 
-  if (!entry || !changed) return null;
+  // Only describes a weekend in progress; a past entry is history.
+  if (!entry?.current || !changed) return null;
 
   const movedIn = grid.filter((d) => d.isSubstitute && !newcomers.some((n) => n.id === d.id));
 

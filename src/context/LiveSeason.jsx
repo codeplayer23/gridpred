@@ -11,6 +11,7 @@ import { standingsById as snapshotStandings } from '@/data/results';
 import { SNAPSHOT, races as snapshotRaces } from '@/data/races';
 import { deriveDriverCode } from '@/data/driverAssets';
 import { LiveSeasonContext } from './liveSeasonContext';
+import { useNow } from '@/hooks/useNow';
 
 /**
  * Live season overlay.
@@ -74,6 +75,9 @@ export function LiveSeasonProvider({ children }) {
   const [rounds, setRounds] = useState(null); // rounds run since the snapshot
   const [schedule, setSchedule] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | syncing | live | offline
+  // A minute-resolution clock, so "is this weekend still live" re-evaluates as
+  // time passes rather than being frozen at first render.
+  const now = useNow(60_000);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,6 +141,13 @@ export function LiveSeasonProvider({ children }) {
     const newcomers = []; // in the entry but absent from the snapshot entirely
     const entered = new Set();
 
+    // A driver the snapshot has never seen may still have scored. The standings
+    // feed lists them as unmatched, keyed by racing number, so their
+    // championship row is recovered here rather than left at zero.
+    const unknownStandings = new Map(
+      (live?.unknownDrivers ?? []).filter((u) => u.number != null).map((u) => [u.number, u]),
+    );
+
     (entry?.drivers ?? []).forEach((row) => {
       const teamId = resolveTeam(row.teamName);
       const known = byNumber.get(row.number);
@@ -150,6 +161,7 @@ export function LiveSeasonProvider({ children }) {
       }
       if (!teamId) return;
       const id = slugify(row.fullName || `${row.firstName} ${row.lastName}`);
+      const standing = unknownStandings.get(row.number) ?? null;
       newcomers.push({
         id,
         name: `${row.firstName} ${row.lastName}`.trim() || row.fullName,
@@ -165,18 +177,32 @@ export function LiveSeasonProvider({ children }) {
         // no races for this team yet, so no derived ratings exist
         ratings: {},
         ratingSamples: {},
-        points: 0, wins: 0, podiums: 0, poles: 0, fastestLaps: 0, dnfs: 0,
+        points: standing?.points ?? 0,
+        wins: standing?.wins ?? 0,
+        podiums: 0, poles: 0, fastestLaps: 0, dnfs: 0,
         starts: 0, sprintPoints: 0, form: [],
         avgFinish: null, avgGrid: null, bestFinish: null, finishRate: null,
-        position: null,
+        position: standing?.position ?? null,
         assetCode: deriveDriverCode(row.firstName, row.lastName),
         assetSource: 'formula1',
         isSubstitute: true,
       });
     });
 
-    // Contracted drivers the entry does not list — stood down for this round.
-    const absent = entry
+    // An entry list only describes the weekend it belongs to. Between races the
+    // most recent one is history, not a forecast: treating it as current would
+    // hide a driver who sat out the last round but is racing the next. So
+    // absences only apply while that weekend is still the live one.
+    // The weekend is live until its final session has run (plus enough time for
+    // that session to finish). After that the entry is a record of a race that
+    // has happened, not a description of who is racing next.
+    const RACE_LENGTH_MS = 3 * 3_600_000;
+    const weekendEnds = entry?.meetingEndsAt
+      ? new Date(entry.meetingEndsAt).getTime() + RACE_LENGTH_MS
+      : null;
+    const entryIsCurrent = weekendEnds != null && now < weekendEnds;
+
+    const absent = entryIsCurrent
       ? snapshotDrivers.filter((d) => !entered.has(d.id)).map((d) => d.id)
       : [];
 
@@ -252,6 +278,10 @@ export function LiveSeasonProvider({ children }) {
       fetchedAt: live?.fetchedAt ?? entry?.fetchedAt ?? null,
       driverOverrides: live?.drivers ?? null,
       constructorOverrides: live?.constructors ?? null,
+      /** The published order, authoritative when present. */
+      driverOrder: live?.driverOrder ?? null,
+      constructorOrder: live?.constructorOrder ?? null,
+      unmatchedConstructors: live?.unmatchedConstructors ?? [],
 
       /** This weekend's confirmed entry, or null before any session has run. */
       entry: entry
@@ -260,6 +290,8 @@ export function LiveSeasonProvider({ children }) {
             location: entry.location,
             startedAt: entry.startedAt,
             count: entry.drivers.length,
+            /** False once the weekend it describes has passed. */
+            current: entryIsCurrent,
           }
         : null,
       entryTeams,
@@ -289,11 +321,20 @@ export function LiveSeasonProvider({ children }) {
       driverStats(driverId) {
         const base = snapshotStandings[driverId] ?? null;
         const over = live?.drivers?.[driverId];
-        if (!base) return over ? { driverId, ...over } : null;
-        return over ? { ...base, ...over } : base;
+        if (base) return over ? { ...base, ...over } : base;
+        if (over) return { driverId, ...over };
+        // someone only the live feed knows about
+        const fresh = newcomers.find((n) => n.id === driverId);
+        return fresh
+          ? {
+              driverId, position: fresh.position, points: fresh.points, wins: fresh.wins,
+              podiums: 0, poles: 0, fastestLaps: 0, dnfs: 0, starts: 0,
+              avgFinish: null, avgGrid: null, bestFinish: null, finishRate: null,
+            }
+          : null;
       },
     };
-  }, [live, entry, rounds, schedule, status]);
+  }, [live, entry, rounds, schedule, status, now]);
 
   return <LiveSeasonContext.Provider value={value}>{children}</LiveSeasonContext.Provider>;
 }

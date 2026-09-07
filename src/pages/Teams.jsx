@@ -8,10 +8,10 @@ import Meter from '@/components/ui/Meter';
 import Button from '@/components/ui/Button';
 import TeamLogo from '@/components/teams/TeamLogo';
 import TeamComparison from '@/components/teams/TeamComparison';
-import { cx } from '@/lib/format';
+import { cx, numberWordUpper } from '@/lib/format';
 import { easeOut, spring } from '@/lib/motion';
 import { getTeam } from '@/data/teams';
-import { constructorStandings } from '@/data/results';
+import { useConstructorStandings } from '@/hooks/useLiveSeason';
 import Bloom from '@/components/ui/Bloom';
 
 /**
@@ -21,13 +21,15 @@ import Bloom from '@/components/ui/Bloom';
  * the right. Selecting a team cross-fades the stage and re-runs its counters,
  * so the page reads as one continuous surface rather than ten separate cards.
  */
-// Rail order follows the live constructors' table, not the order the teams
-// happen to be declared in.
-const ordered = constructorStandings.map((c) => getTeam(c.id));
-
 export default function Teams() {
-  const [selected, setSelected] = useState(ordered[0].id);
-  const team = getTeam(selected);
+  // Rail order and figures come from the live constructors' table, so a team
+  // whose points changed since the build sorts and reads correctly.
+  const ordered = useConstructorStandings();
+  const [selected, setSelected] = useState(null);
+  // `ordered` always has entries: it falls back to the bundled teams when the
+  // live table has not answered yet.
+  const current = ordered.find((t) => t.id === selected) ?? ordered[0];
+  const team = { ...getTeam(current.id), ...current };
   const stats = team;
 
   return (
@@ -36,7 +38,7 @@ export default function Teams() {
         <Reveal>
           <p className="mono-label mb-6">Constructors · 2026</p>
           <h1 className="font-display text-[clamp(2.6rem,8vw,6.5rem)] leading-[0.88] font-medium tracking-[-0.05em]">
-            TEN
+            {numberWordUpper(ordered.length)}
             <br />
             TEAMS.
           </h1>

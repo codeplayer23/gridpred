@@ -82,6 +82,62 @@ async function doGet(path) {
 }
 
 /**
+ * Constructor names differ between the results feed and the timing data — the
+ * feed calls Racing Bulls "RB F1 Team" and Red Bull Racing simply "Red Bull".
+ * A containment test is not safe here ("Red Bull" is a substring of nothing
+ * useful, and "Bulls" appears in two different teams), so known divergences are
+ * mapped explicitly and anything else falls back to distinctive-word matching.
+ */
+const CONSTRUCTOR_ALIASES = {
+  rbfteam: 'racing-bulls',
+  rb: 'racing-bulls',
+  racingbulls: 'racing-bulls',
+  redbull: 'red-bull-racing',
+  redbullracing: 'red-bull-racing',
+  alpinefteam: 'alpine',
+  cadillacfteam: 'cadillac',
+  haasfteam: 'haas-f1-team',
+  astonmartin: 'aston-martin',
+  kicksauber: 'audi',
+  sauber: 'audi',
+};
+
+const GENERIC_TEAM_WORDS = new Set(['team', 'racing', 'f1', 'formula', 'one', 'the']);
+
+const teamWords = (name) =>
+  String(name ?? '')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length > 1 && !GENERIC_TEAM_WORDS.has(w));
+
+/** Resolve a feed constructor name onto a GridPred team id. */
+export function resolveConstructorId(name, teams) {
+  const flat = String(name ?? '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!flat) return null;
+
+  const exact = teams.find((t) => t.name.toLowerCase().replace(/[^a-z]/g, '') === flat);
+  if (exact) return exact.id;
+
+  if (CONSTRUCTOR_ALIASES[flat] && teams.some((t) => t.id === CONSTRUCTOR_ALIASES[flat])) {
+    return CONSTRUCTOR_ALIASES[flat];
+  }
+
+  // distinctive-word overlap, ignoring "F1 Team" style filler
+  const words = teamWords(name);
+  let best = null;
+  let bestScore = 0;
+  teams.forEach((t) => {
+    const own = teamWords(t.name);
+    const score = words.filter((w) => own.includes(w)).length;
+    if (score > bestScore) {
+      best = t.id;
+      bestScore = score;
+    }
+  });
+  return bestScore > 0 ? best : null;
+}
+
+/**
  * The API identifies drivers by its own id and by surname. GridPred keys on a
  * slug of the full name, so matching is done on the permanent car number first
  * — which is stable and unique — then on surname as a fallback.
@@ -134,21 +190,22 @@ export async function fetchStandings(drivers, teams) {
   });
 
   const cList = cs?.MRData?.StandingsTable?.StandingsLists?.[0];
-  const norm = (s) => s.toLowerCase().replace(/[^a-z]/g, '');
-  const teamByName = new Map(teams.map((t) => [norm(t.name), t.id]));
   const constructorMap = {};
+  const constructorOrder = [];
+  const unmatchedConstructors = [];
   (cList?.ConstructorStandings ?? []).forEach((row) => {
-    const name = norm(row.Constructor?.name ?? '');
-    // the API uses short constructor names; match on containment both ways
-    const id =
-      teamByName.get(name) ??
-      teams.find((t) => norm(t.name).includes(name) || name.includes(norm(t.name)))?.id;
-    if (!id) return;
-    constructorMap[id] = {
+    const name = row.Constructor?.name ?? '';
+    const id = resolveConstructorId(name, teams);
+    const entry = {
+      teamId: id,
+      name,
       position: Number(row.position),
       points: Number(row.points),
       wins: Number(row.wins),
     };
+    constructorOrder.push(entry);
+    if (id) constructorMap[id] = entry;
+    else unmatchedConstructors.push(name);
   });
 
   // Anyone the feed knows about who is not in the bundled snapshot — a
@@ -168,10 +225,27 @@ export async function fetchStandings(drivers, teams) {
       wins: Number(row.wins),
     }));
 
+  // The published order, kept as a list. Building the table from this rather
+  // than re-sorting snapshot rows means a single unmatched name can no longer
+  // leave one row stale and scramble the standings around it.
+  const driverOrder = dList.DriverStandings.map((row) => ({
+    driverId: resolveDriver(row, index),
+    surname: row.Driver?.familyName ?? null,
+    firstName: row.Driver?.givenName ?? null,
+    number: row.Driver?.permanentNumber ? Number(row.Driver.permanentNumber) : null,
+    position: Number(row.position),
+    points: Number(row.points),
+    wins: Number(row.wins),
+    constructorName: row.Constructors?.[row.Constructors.length - 1]?.name ?? null,
+  }));
+
   return {
     round: Number(dList.round),
     drivers: driverMap,
     constructors: constructorMap,
+    driverOrder,
+    constructorOrder,
+    unmatchedConstructors,
     unknownDrivers: unknown,
     knownCount: known.size,
     fetchedAt: new Date().toISOString(),
@@ -250,6 +324,14 @@ export async function fetchEntryList(now = Date.now()) {
     : sessions.reduce((a, b) => (new Date(a.date_start) < new Date(b.date_start) ? a : b));
   if (!target?.session_key) return null;
 
+  // The last session of the meeting this entry belongs to. An entry list only
+  // describes its own weekend, so knowing when that weekend ends is what lets a
+  // caller tell a current field from a historical one.
+  const meetingSessions = sessions.filter((s) => s.meeting_key === target.meeting_key);
+  const lastSessionStart = meetingSessions
+    .map((s) => new Date(s.date_start).getTime())
+    .reduce((a, b) => Math.max(a, b), 0);
+
   const rows = await getTiming(`drivers?session_key=${target.session_key}`);
   if (!Array.isArray(rows) || !rows.length) return null;
 
@@ -273,6 +355,9 @@ export async function fetchEntryList(now = Date.now()) {
     sessionName: target.session_name ?? null,
     location: target.location ?? null,
     startedAt: target.date_start ?? null,
+    meetingKey: target.meeting_key ?? null,
+    /** When the final session of this weekend begins. */
+    meetingEndsAt: lastSessionStart ? new Date(lastSessionStart).toISOString() : null,
     drivers: [...byNumber.values()],
     fetchedAt: new Date().toISOString(),
   };

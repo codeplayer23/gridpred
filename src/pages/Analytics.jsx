@@ -16,7 +16,7 @@ import { races } from '@/data/races';
 import {
   standings, standingsById, standingsHistory, circuitPerformance,
 } from '@/data/results';
-import { useRoundsCompleted } from '@/hooks/useLiveSeason';
+import { useRoundsCompleted, useDriverStandings } from '@/hooks/useLiveSeason';
 
 const SCOPES = [
   { id: 'drivers', label: 'Drivers' },
@@ -105,10 +105,13 @@ export default function Analytics() {
 function DriverAnalytics() {
   const [metric, setMetric] = useState('points');
   const active = DRIVER_METRICS.find((m) => m.id === metric);
+  // Live championship where available, so the bars match the leaderboard.
+  const live = useDriverStandings();
 
   const data = useMemo(
     () =>
-      standings
+      live
+        .filter((s) => s.driverId && driverById[s.driverId])
         .map((s) => ({
           name: driverById[s.driverId].lastName,
           value: active.get(s),
@@ -116,7 +119,7 @@ function DriverAnalytics() {
           driverId: s.driverId,
         }))
         .sort((a, b) => (active.invert ? a.value - b.value : b.value - a.value)),
-    [active],
+    [active, live],
   );
 
   const scatter = useMemo(
