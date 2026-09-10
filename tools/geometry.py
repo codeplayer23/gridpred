@@ -89,3 +89,108 @@ def best_orientation(xy, step=5):
         if area > best_area:
             best_deg, best_area = deg, area
     return best_deg
+
+
+def resample(xy, spacing):
+    """
+    Re-space a closed ring's points evenly along its own length.
+
+    An OpenStreetMap way is digitised with whatever vertices a mapper placed:
+    hundreds of metres of straight with two points, then a corner described by
+    three. Sampling at a fixed interval gives the corners enough points to be
+    curves, which is what makes a surveyed centreline sit next to a
+    telemetry-derived racing line without looking like a floor plan.
+    """
+    pts = np.asarray(xy, dtype=float)
+    closed = np.vstack([pts, pts[:1]])
+    seg = np.hypot(*np.diff(closed, axis=0).T)
+    dist = np.concatenate([[0.0], np.cumsum(seg)])
+    total = dist[-1]
+    if total <= 0:
+        return pts
+    n = max(16, int(round(total / spacing)))
+    want = np.linspace(0.0, total, n, endpoint=False)
+    return np.column_stack([np.interp(want, dist, closed[:, 0]),
+                            np.interp(want, dist, closed[:, 1])])
+
+
+def smooth_ring(xy, window):
+    """
+    Round the digitisation off a closed ring with a circular moving average.
+
+    The angularity of a mapped centreline is an artefact of how many points the
+    mapper placed, not a feature of the track: no circuit turns through a right
+    angle. This averages each point against its neighbours, which recovers the
+    curve the corner actually is. `window` is in samples, so the caller sizes it
+    in metres via the resampling interval.
+    """
+    pts = np.asarray(xy, dtype=float)
+    n = len(pts)
+    if n < 8 or window < 1:
+        return pts
+    k = int(window) | 1  # odd, so the window is symmetric about each point
+    kernel = np.ones(k) / k
+    idx = (np.arange(n)[:, None] + np.arange(-(k // 2), k // 2 + 1)[None, :]) % n
+    return np.column_stack([(pts[idx, 0] * kernel).sum(axis=1),
+                            (pts[idx, 1] * kernel).sum(axis=1)])
+
+
+def detect_corners(xy, spacing, min_turn_rate=0.35, merge_within=90.0, min_total_turn=12.0):
+    """
+    Find the corners of a closed ring by where it actually bends.
+
+    A telemetry layout gets its corners from `session.get_circuit_info()`. A
+    surveyed centreline has no such list, but a corner is not an opinion: it is a
+    sustained change of heading, and that is measurable from the geometry itself.
+
+    A run of samples turning faster than `min_turn_rate` degrees per metre is one
+    corner; its apex is the sharpest sample in the run. Runs closer together than
+    `merge_within` metres are the same corner described twice, and a run that
+    turns through less than `min_total_turn` in total is a kink in the road
+    rather than a corner.
+
+    Returns indices into `xy`, in lap order, with the total turn at each.
+    """
+    pts = np.asarray(xy, dtype=float)
+    n = len(pts)
+    if n < 8:
+        return []
+
+    ahead = np.roll(pts, -1, axis=0) - pts
+    behind = pts - np.roll(pts, 1, axis=0)
+    turn = np.arctan2(ahead[:, 1], ahead[:, 0]) - np.arctan2(behind[:, 1], behind[:, 0])
+    turn = (turn + np.pi) % (2 * np.pi) - np.pi
+    hot = np.abs(np.degrees(turn)) / spacing > min_turn_rate
+
+    runs, i = [], 0
+    while i < n:
+        if hot[i]:
+            j = i
+            while j < n and hot[j]:
+                j += 1
+            runs.append((i, j - 1))
+            i = j
+        else:
+            i += 1
+    # a corner sitting on the wrap point arrives as two runs
+    if len(runs) > 1 and hot[0] and hot[-1]:
+        runs[0] = (runs[-1][0] - n, runs[0][1])
+        runs.pop()
+
+    found = []
+    for a, b in runs:
+        idx = [k % n for k in range(a, b + 1)]
+        total = abs(float(np.degrees(turn[idx]).sum()))
+        if total < min_total_turn:
+            continue
+        apex = idx[int(np.argmax(np.abs(turn[idx])))]
+        found.append({'index': apex, 'turn': total})
+
+    merged = []
+    for c in sorted(found, key=lambda c: c['index']):
+        if merged and (c['index'] - merged[-1]['index']) * spacing < merge_within:
+            if c['turn'] > merged[-1]['turn']:
+                merged[-1] = c
+        else:
+            merged.append(c)
+    return merged

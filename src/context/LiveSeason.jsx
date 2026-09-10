@@ -3,6 +3,7 @@ import {
   fetchStandings,
   fetchEntryList,
   fetchResultsSince,
+  fetchSeasonResults,
   fetchSchedule,
 } from '@/services/live';
 import { drivers as snapshotDrivers } from '@/data/drivers';
@@ -72,7 +73,7 @@ const slugify = (x) =>
 export function LiveSeasonProvider({ children }) {
   const [live, setLive] = useState(null);
   const [entry, setEntry] = useState(null);
-  const [rounds, setRounds] = useState(null); // rounds run since the snapshot
+  const [rounds, setRounds] = useState(null); // published rounds, newest data wins
   const [schedule, setSchedule] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | syncing | live | offline
   // A minute-resolution clock, so "is this weekend still live" re-evaluates as
@@ -81,6 +82,15 @@ export function LiveSeasonProvider({ children }) {
 
   useEffect(() => {
     let cancelled = false;
+
+    /** Fold newly fetched rounds in, letting the fresher copy of a round win. */
+    const mergeRounds = (incoming) => {
+      setRounds((prev) => {
+        const byRound = new Map((prev ?? []).map((r) => [r.round, r]));
+        for (const r of incoming) byRound.set(r.round, r);
+        return [...byRound.values()].sort((a, b) => a.round - b.round);
+      });
+    };
 
     const sync = async () => {
       if (!cancelled) setStatus((s) => (s === 'live' ? 'live' : 'syncing'));
@@ -97,18 +107,31 @@ export function LiveSeasonProvider({ children }) {
       if (published) setSchedule(published);
       setStatus(standings || entryList || published ? 'live' : 'offline');
 
-      // Only ask for rounds the snapshot does not already contain.
+      // The cheap path: only the rounds run since the snapshot was built.
       if (standings?.round > SNAPSHOT.roundsCompleted) {
         const fresh = await fetchResultsSince(
           SNAPSHOT.roundsCompleted,
           standings.round,
           snapshotDrivers,
         );
-        if (!cancelled && fresh.length) setRounds(fresh);
+        if (!cancelled && fresh.length) mergeRounds(fresh);
       }
     };
 
+    /**
+     * Re-read the whole season once, so a revised classification reaches the UI.
+     *
+     * The incremental sync above cannot: it only asks for rounds after the
+     * snapshot, and a steward's decision rewrites a round that is already in it.
+     * This costs a few requests, so it runs once rather than on the interval.
+     */
+    const revise = async () => {
+      const season = await fetchSeasonResults(snapshotDrivers);
+      if (!cancelled && season?.length) mergeRounds(season);
+    };
+
     sync();
+    revise();
     const timer = setInterval(sync, REFRESH_MS);
     const onFocus = () => sync();
     window.addEventListener('focus', onFocus);

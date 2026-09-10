@@ -61,6 +61,30 @@ export function weekendState(race, now = Date.now()) {
   };
 }
 
+/**
+ * The window in which a race weekend is actually happening.
+ *
+ * Runs from the first session on track — free practice 1 — to the end of the
+ * last, so "this weekend is under way" means a car could be running, not merely
+ * that the results feed answered. Everything outside it is between weekends.
+ */
+export function weekendWindow(race) {
+  const sessions = race?.sessions ?? [];
+  if (!sessions.length) return null;
+  const windows = sessions.map(sessionWindow).filter((w) => Number.isFinite(w.start));
+  if (!windows.length) return null;
+  return {
+    start: Math.min(...windows.map((w) => w.start)),
+    end: Math.max(...windows.map((w) => w.end)),
+  };
+}
+
+/** True once free practice 1 has started and until the last session ends. */
+export function weekendIsLive(race, now = Date.now()) {
+  const w = weekendWindow(race);
+  return Boolean(w) && now >= w.start && now <= w.end;
+}
+
 /** Short human label for how far away an instant is. */
 export function relativeTime(target, now = Date.now()) {
   const diff = target - now;

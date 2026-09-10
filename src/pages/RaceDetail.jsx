@@ -73,7 +73,15 @@ export default function RaceDetail() {
           ['Provider', layout.source?.provider ?? 'OpenStreetMap'],
           ['Licence', layout.source?.licence ?? 'ODbL 1.0'],
           ['Route relation', layout.source?.relation ? `#${layout.source.relation}` : '—'],
-          ['Corners marked', '—'],
+          [
+            'Corners detected',
+            layout.corners.length
+              ? `${layout.corners.length}${
+                  circuit?.officialCorners === layout.corners.length ? ' · matches official' : ''
+                }`
+              : '—',
+          ],
+          ['Start/finish', layout.source?.startFinishSource ?? 'not mapped'],
           ['Centreline', lapKm],
         ];
 
@@ -160,9 +168,10 @@ export default function RaceDetail() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             >
-              {telemetry && (
+              {(telemetry || layout.corners.length > 0) && (
                 <div className="mb-4 flex items-center justify-between gap-4">
-                  <div className="flex rounded-full border border-white/[0.08] p-1">
+                  {/* Only a telemetry layout has a speed trace to switch to. */}
+                  <div className={cx('flex rounded-full border border-white/[0.08] p-1', !telemetry && 'invisible')}>
                     {VIEW_MODES.map((m) => (
                       <button
                         key={m.id}
@@ -180,9 +189,11 @@ export default function RaceDetail() {
                       </button>
                     ))}
                   </div>
-                  <span className="mono-label hidden text-[0.55rem] sm:block">
-                    Hover the track
-                  </span>
+                  {layout.corners.length > 0 && (
+                    <span className="mono-label hidden text-[0.55rem] sm:block">
+                      Hover the track
+                    </span>
+                  )}
                 </div>
               )}
 
@@ -222,10 +233,17 @@ export default function RaceDetail() {
                   : 'No Formula 1 car has run here, so there is no telemetry to read. The outline is the circuit’s surveyed centreline; the figures telemetry would supply are left blank rather than guessed.'
               }
             />
-            <div className="mt-14 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-              <div className="flex flex-col gap-8">
-                {character ? (
-                  character.map((c) => (
+            <div
+              className={cx(
+                'mt-14 grid',
+                character
+                  ? 'gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16'
+                  : 'items-start gap-6 md:grid-cols-2 lg:grid-cols-3',
+              )}
+            >
+              {character && (
+                <div className="flex flex-col gap-8">
+                  {character.map((c) => (
                     <Meter
                       key={c.key}
                       label={c.label}
@@ -234,19 +252,10 @@ export default function RaceDetail() {
                       accent="#e10600"
                       readout={`${c.value}${c.suffix}`}
                     />
-                  ))
-                ) : (
-                  <div className="rounded-[24px] border border-dashed border-white/[0.1] p-7">
-                    <p className="mono-label mb-4">Not measured yet</p>
-                    <p className="text-[0.88rem] leading-relaxed text-ink-mute">
-                      Top speed, average speed, full-throttle and braking share are
-                      read from a car’s own telemetry. They appear here once the
-                      first session has run at this circuit.
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col gap-6">
+                  ))}
+                </div>
+              )}
+              <div className={character ? 'flex flex-col gap-6' : 'contents'}>
                 <div className="rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-7 backdrop-blur-xl">
                   <p className="mono-label mb-6 flex items-center gap-2">
                     <Radio size={13} aria-hidden />
@@ -263,9 +272,23 @@ export default function RaceDetail() {
                   <p className="mt-5 text-[0.76rem] leading-relaxed text-ink-faint">
                     {telemetry
                       ? "The outline is the path the car actually took, not an illustration. Corner positions come from FastF1's circuit data."
-                      : 'The outline is the circuit’s mapped centreline, not an illustration. Corner numbering and the start/finish line come from FastF1 once a session has run. Map data © OpenStreetMap contributors.'}
+                      : layout.source?.note ?? 'The outline is the circuit’s mapped centreline. Map data © OpenStreetMap contributors.'}
                   </p>
                 </div>
+
+                {!character && (
+                  <div className="rounded-[24px] border border-dashed border-white/[0.1] p-7">
+                    <p className="mono-label mb-4 flex items-center gap-2">
+                      <Gauge size={13} aria-hidden />
+                      Not measured yet
+                    </p>
+                    <p className="text-[0.85rem] leading-relaxed text-ink-mute">
+                      Top speed, average speed, full-throttle and braking share are
+                      read from a car’s own telemetry. They appear here once the
+                      first session has run at this circuit.
+                    </p>
+                  </div>
+                )}
 
                 <div className="rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-7 backdrop-blur-xl">
                   <p className="mono-label mb-4 flex items-center gap-2">

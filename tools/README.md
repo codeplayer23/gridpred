@@ -61,12 +61,28 @@ resolves driver headshots as part of that step.
   official 5416 m — 0.2% — and the script refuses to emit anything that disagrees
   with the official length by more than 5%.
 
-  What OSM cannot supply is left empty rather than invented: `corners` is `[]`
-  and every speed and throttle figure is `null`, as is `startFinish` unless the
-  relation marks the line with a node in the `start` role. The UI
-  reads those as "not measured yet" and says so on the race page. Once FP1 runs
-  at Madrid (2026-09-11 11:30 UTC), `extract_circuits.py` will produce a real
-  telemetry layout and it supersedes this one — `osm_fallback.py` writes into
+  **Corners** are measured, not copied. A telemetry layout gets its corners from
+  `session.get_circuit_info()`; a centreline has no such list, but a corner is a
+  sustained change of heading and that is readable from the geometry. The
+  detector walks the resampled centreline and marks each run of curvature above
+  `TURN_RATE`. The parameters are not tuned per circuit: one set recovers **22
+  corners at the Madring and 15 at Sepang**, each matching that circuit's
+  official published count — two independent checks the detector was not fitted
+  to individually.
+
+  **The start/finish** is taken from the relation's `start` node where a mapper
+  has placed one, which is the case at Sepang. The Madring's relation has none,
+  so it is placed on the main straight, identified by the pit lane running
+  alongside it — an *inference*, recorded as one in `startFinishSource` and shown
+  on the race page as "inferred from the pit lane". Corner numbering runs from
+  the start/finish in the lap's direction of travel, which the relation's member
+  roles establish.
+
+  **Speeds are still absent**, because nothing but telemetry can supply them:
+  `maxSpeed`, `avgSpeed`, `fullThrottlePct` and `brakingPct` stay `null` and the
+  race page says "not measured yet". Once FP1 runs at Madrid
+  (2026-09-11 11:30 UTC), `extract_circuits.py` produces a real telemetry layout
+  and it supersedes this one — `osm_fallback.py` writes into
   `out/circuits_geom.json` before `build_snapshot.py`, so re-running the pipeline
   in order does the right thing.
 

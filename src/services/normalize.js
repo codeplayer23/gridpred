@@ -118,6 +118,8 @@ export function normalizeCircuit(raw) {
     // Madring's centreline comes from OpenStreetMap, which has no corner
     // numbering — so an empty array must not read as "zero corners".
     corners: g?.corners?.length || raw.cornerCount || null,
+    /** The published turn count, kept separate so it can corroborate the markers. */
+    officialCorners: raw.cornerCount ?? null,
     /**
      * Real geometry, or null. Usually reconstructed from car position
      * telemetry; where no session has ever run, a surveyed centreline.

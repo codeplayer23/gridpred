@@ -46,12 +46,17 @@ and predates FastF1's telemetry era, measures 5549 m against an official 5543 m.
 The Madring in Madrid is new for 2026 and has never hosted a session; it measures
 5426 m against an official 5416 m.
 
-Where a layout is surveyed rather than driven, the things only telemetry can give
-are absent instead of invented — no corner markers, no top speed, average speed
-or throttle share. The race page says "not measured yet" and names the source.
-They fill in on their own once the first session runs. A start/finish line is
-drawn only where the OSM relation marks one, which Sepang's does and the
-Madring's does not.
+A surveyed layout still shows its corners, because a corner is measurable from
+the geometry: the detector finds each sustained change of heading in the
+centreline. The same settings return 22 corners at the Madring and 15 at Sepang,
+matching both official counts. Speeds are a different matter — nothing but
+telemetry can give top speed, average speed or throttle share, so those stay
+blank and the race page says "not measured yet" until the first session runs.
+
+Sepang's start/finish comes from the node its OSM relation marks. The Madring's
+relation marks none, so the line is placed on the main straight that the pit lane
+runs alongside. That one value is an inference rather than a measurement, and the
+race page labels it as such.
 
 ## Things the data says that you might not expect
 

@@ -209,28 +209,33 @@ export function useWeekendSessions() {
 export function useDriverForm(driverId, base = [], count = 10) {
   const { freshRounds } = useLiveSeason();
   return useMemo(() => {
-    const known = new Set(base.map((f) => f.round));
-    const extra = (freshRounds ?? [])
-      .filter((r) => !known.has(r.round))
-      .map((r) => {
-        const row = r.results.find((x) => x.driverId === driverId);
-        if (!row) return null;
-        return {
-          round: r.round,
+    const byRound = new Map(base.map((f) => [f.round, f]));
+
+    for (const r of freshRounds ?? []) {
+      const row = r.results.find((x) => x.driverId === driverId);
+      if (!row) continue;
+      const bundled = byRound.get(r.round);
+      // A round already in the snapshot still gets its published position and
+      // points applied — that is how a steward's revision shows up here — but
+      // the detail only the telemetry pipeline has is kept.
+      byRound.set(r.round, {
+        ...(bundled ?? {
           circuitId: String(r.event ?? '').toLowerCase().replace(/[^a-z]/g, '').slice(0, 12),
-          event: r.event,
-          position: row.position,
-          grid: row.grid,
-          points: row.points,
-          status: row.status,
-          finished: row.finished,
-          fastestLap: row.fastestLap,
           pitStops: null,
           compounds: [],
           wet: null,
-        };
-      })
-      .filter(Boolean);
-    return [...base, ...extra].sort((a, b) => a.round - b.round).slice(-count);
+        }),
+        round: r.round,
+        event: bundled?.event ?? r.event,
+        position: row.position,
+        grid: row.grid,
+        points: row.points,
+        status: row.status,
+        finished: row.finished,
+        fastestLap: row.fastestLap,
+      });
+    }
+
+    return [...byRound.values()].sort((a, b) => a.round - b.round).slice(-count);
   }, [driverId, base, freshRounds, count]);
 }

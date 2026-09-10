@@ -54,9 +54,13 @@ export default function CircuitCornerPanel({ circuit, corner }) {
           >
             {!layout
               ? null
-              : layout.corners.length
-                ? `${layout.corners.length} corners marked from FastF1 circuit data — hover one to read it.`
-                : 'Corner positions come from FastF1 circuit data, which needs a session to have run here. None yet for this circuit.'}
+              : !layout.corners.length
+                ? 'Corner positions come from FastF1 circuit data, which needs a session to have run here. None yet for this circuit.'
+                : `${layout.corners.length} corners ${
+                    layout.source?.cornerSource === 'centreline curvature'
+                      ? 'measured from the surveyed centreline'
+                      : 'marked from FastF1 circuit data'
+                  } — hover one to read it.`}
           </motion.p>
         )}
       </AnimatePresence>

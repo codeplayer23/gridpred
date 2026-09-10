@@ -66,7 +66,7 @@ async function doGet(path) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(`${BASE}/${SEASON}/${path}?format=json`, {
+    const res = await fetch(`${BASE}/${SEASON}/${path}${path.includes('?') ? '&' : '?'}format=json`, {
       signal: controller.signal,
       headers: { accept: 'application/json' },
     });
@@ -369,12 +369,7 @@ export async function fetchEntryList(now = Date.now()) {
  * Used to fill in rounds run since the snapshot was generated, so form strips
  * and race pages show the real result rather than a projection.
  */
-export async function fetchRoundResult(round, drivers) {
-  const data = await get(`${round}/results/`);
-  const race = data?.MRData?.RaceTable?.Races?.[0];
-  if (!race?.Results?.length) return null;
-
-  const index = indexDrivers(drivers);
+function normalizeRace(race, index) {
   return {
     round: Number(race.round),
     event: race.raceName,
@@ -399,6 +394,65 @@ export async function fetchRoundResult(round, drivers) {
       };
     }),
   };
+}
+
+export async function fetchRoundResult(round, drivers) {
+  const data = await get(`${round}/results/`);
+  const race = data?.MRData?.RaceTable?.Races?.[0];
+  if (!race?.Results?.length) return null;
+  return normalizeRace(race, indexDrivers(drivers));
+}
+
+/**
+ * Every classification published this season, including rounds the snapshot
+ * already contains.
+ *
+ * A result is not final when the flag falls: a steward's decision can rewrite a
+ * classification weeks later, as Gasly's Monaco penalty did. `fetchResultsSince`
+ * cannot see that, because it only ever asks for rounds after the snapshot — so
+ * this reads the whole season and lets a revision overwrite what was bundled.
+ *
+ * Deliberately not on the refresh interval: revisions are rare and this costs
+ * several requests, so it runs once when the app opens.
+ */
+export async function fetchSeasonResults(drivers, maxPages = 5) {
+  const index = indexDrivers(drivers);
+  const PAGE = 100;
+  // This endpoint pages by result row, not by race, so a classification is
+  // routinely split across two pages — 22 rows do not divide into 100. Rows are
+  // therefore accumulated per round and only assembled at the end; taking one
+  // page's copy of a race would silently drop half its field.
+  const byRound = new Map();
+
+  for (let page = 0; page < maxPages; page += 1) {
+    const data = await get(`results/?limit=${PAGE}&offset=${page * PAGE}`);
+    const table = data?.MRData;
+    const batch = table?.RaceTable?.Races;
+    if (!Array.isArray(batch) || !batch.length) break;
+
+    for (const race of batch) {
+      if (!race?.Results?.length) continue;
+      const normalized = normalizeRace(race, index);
+      const existing = byRound.get(normalized.round);
+      if (!existing) {
+        byRound.set(normalized.round, normalized);
+      } else {
+        const seen = new Set(existing.results.map((r) => r.position));
+        for (const row of normalized.results) {
+          if (!seen.has(row.position)) existing.results.push(row);
+        }
+      }
+    }
+
+    // `total` counts result rows, not races, so paging stops on it directly
+    if ((page + 1) * PAGE >= Number(table.total ?? 0)) break;
+  }
+
+  if (!byRound.size) return null;
+  for (const race of byRound.values()) {
+    race.results.sort((a, b) => a.position - b.position);
+  }
+  return [...byRound.values()].sort((a, b) => a.round - b.round);
 }
 
 /**
