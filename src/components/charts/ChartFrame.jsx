@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cx } from '@/lib/format';
 import { springSnappy } from '@/lib/motion';
+import { queueMount } from '@/lib/mountQueue';
 
 /**
  * Chart container with an optional segmented control.
@@ -18,6 +20,18 @@ export default function ChartFrame({
   className = '',
   layoutId = 'chart-tab',
 }) {
+  /**
+   * Charts mount one frame after their frame does.
+   *
+   * A Recharts tree measures its container and then builds a few hundred nodes,
+   * and doing that in the same commit as the click that asked for it meant the
+   * whole tab switch waited on every chart on the panel — the pill would not
+   * even move until the last plot was ready. The queue hands out one mount per
+   * frame, so the same total work stops landing on the interaction.
+   */
+  const [ready, setReady] = useState(false);
+  useEffect(() => queueMount(() => setReady(true)), []);
+
   return (
     <section className={cx('rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-5 backdrop-blur-xl md:p-7', className)}>
       <header className="mb-7 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
@@ -61,8 +75,10 @@ export default function ChartFrame({
         )}
       </header>
 
+      {/* The plot area is reserved at its final height before the chart exists,
+          so mounting it later costs no layout shift — see `ready` above. */}
       <div style={{ height }} className="w-full">
-        {children}
+        {ready ? children : null}
       </div>
 
       {legend && <footer className="mt-5 border-t border-white/[0.06] pt-4">{legend}</footer>}

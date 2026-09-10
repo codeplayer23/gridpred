@@ -1,0 +1,3198 @@
+{
+ "kimi-antonelli": {
+  "driverId": "kimi-antonelli",
+  "ergastId": "antonelli",
+  "dateOfBirth": "2006-08-25",
+  "nationality": "Italian",
+  "wikipedia": "https://en.wikipedia.org/wiki/Andrea_Kimi_Antonelli",
+  "debut": {
+   "season": 2025,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2025-03-16",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Mercedes",
+   "grid": 16,
+   "position": 4,
+   "status": "Finished",
+   "ageYears": 18
+  },
+  "starts": 37,
+  "wins": 7,
+  "podiums": 14,
+  "poles": 6,
+  "points": 417,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 150,
+    "wins": 0,
+    "podiums": 3,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 6,
+    "sprintPoints": 15
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 267,
+    "wins": 7,
+    "podiums": 11,
+    "poles": 6,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1,
+    "sprintPoints": 26
+   }
+  ]
+ },
+ "lewis-hamilton": {
+  "driverId": "lewis-hamilton",
+  "ergastId": "hamilton",
+  "dateOfBirth": "1985-01-07",
+  "nationality": "British",
+  "wikipedia": "http://en.wikipedia.org/wiki/Lewis_Hamilton",
+  "debut": {
+   "season": 2007,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2007-03-18",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "McLaren",
+   "grid": 4,
+   "position": 3,
+   "status": "Finished",
+   "ageYears": 22
+  },
+  "starts": 393,
+  "wins": 106,
+  "podiums": 207,
+  "poles": 104,
+  "points": 5209.5,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2007,
+    "races": 17,
+    "points": 109,
+    "wins": 4,
+    "podiums": 12,
+    "poles": 6,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2008,
+    "races": 18,
+    "points": 98,
+    "wins": 5,
+    "podiums": 10,
+    "poles": 7,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2009,
+    "races": 17,
+    "points": 49,
+    "wins": 2,
+    "podiums": 5,
+    "poles": 4,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2010,
+    "races": 19,
+    "points": 240,
+    "wins": 3,
+    "podiums": 9,
+    "poles": 1,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2011,
+    "races": 19,
+    "points": 227,
+    "wins": 3,
+    "podiums": 6,
+    "poles": 1,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2012,
+    "races": 20,
+    "points": 190,
+    "wins": 4,
+    "podiums": 7,
+    "poles": 7,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2013,
+    "races": 19,
+    "points": 189,
+    "wins": 1,
+    "podiums": 5,
+    "poles": 5,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2014,
+    "races": 19,
+    "points": 384,
+    "wins": 11,
+    "podiums": 16,
+    "poles": 7,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2015,
+    "races": 19,
+    "points": 381,
+    "wins": 10,
+    "podiums": 17,
+    "poles": 11,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2016,
+    "races": 21,
+    "points": 380,
+    "wins": 10,
+    "podiums": 17,
+    "poles": 12,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 363,
+    "wins": 9,
+    "podiums": 13,
+    "poles": 11,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 0
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 408,
+    "wins": 11,
+    "podiums": 17,
+    "poles": 11,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 413,
+    "wins": 11,
+    "podiums": 17,
+    "poles": 5,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 0
+   },
+   {
+    "season": 2020,
+    "races": 16,
+    "points": 347,
+    "wins": 11,
+    "podiums": 14,
+    "poles": 10,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 0
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 387.5,
+    "wins": 8,
+    "podiums": 17,
+    "poles": 5,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1,
+    "sprintPoints": 2
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 240,
+    "wins": 0,
+    "podiums": 9,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 2,
+    "sprintPoints": 7
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 234,
+    "wins": 0,
+    "podiums": 6,
+    "poles": 1,
+    "bestFinish": 2,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 2,
+    "sprintPoints": 17
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 223,
+    "wins": 2,
+    "podiums": 5,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 2,
+    "sprintPoints": 16
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 156,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 4,
+    "sprintPoints": 21
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 191,
+    "wins": 1,
+    "podiums": 5,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 0,
+    "sprintPoints": 20
+   }
+  ]
+ },
+ "george-russell": {
+  "driverId": "george-russell",
+  "ergastId": "russell",
+  "dateOfBirth": "1998-02-15",
+  "nationality": "British",
+  "wikipedia": "http://en.wikipedia.org/wiki/George_Russell_(racing_driver)",
+  "debut": {
+   "season": 2019,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2019-03-17",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Williams",
+   "grid": 19,
+   "position": 16,
+   "status": "+2 Laps",
+   "ageYears": 21
+  },
+  "starts": 165,
+  "wins": 7,
+  "podiums": 31,
+  "poles": 12,
+  "points": 1234,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 11,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 3,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 9,
+    "teams": [
+     "Williams",
+     "Mercedes"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 16,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 275,
+    "wins": 1,
+    "podiums": 8,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1,
+    "sprintPoints": 13
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 175,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 4,
+    "sprintPoints": 18
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 245,
+    "wins": 2,
+    "podiums": 4,
+    "poles": 4,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 3,
+    "sprintPoints": 19
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 319,
+    "wins": 2,
+    "podiums": 9,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1,
+    "sprintPoints": 30
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 201,
+    "wins": 2,
+    "podiums": 7,
+    "poles": 4,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 2,
+    "sprintPoints": 34
+   }
+  ]
+ },
+ "charles-leclerc": {
+  "driverId": "charles-leclerc",
+  "ergastId": "leclerc",
+  "dateOfBirth": "1997-10-16",
+  "nationality": "Monegasque",
+  "wikipedia": "http://en.wikipedia.org/wiki/Charles_Leclerc",
+  "debut": {
+   "season": 2018,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2018-03-25",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Sauber",
+   "grid": 18,
+   "position": 13,
+   "status": "Finished",
+   "ageYears": 20
+  },
+  "starts": 186,
+  "wins": 9,
+  "podiums": 54,
+  "poles": 27,
+  "points": 1827,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 39,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Sauber"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 264,
+    "wins": 2,
+    "podiums": 10,
+    "poles": 7,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 98,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 159,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 2,
+    "bestFinish": 2,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 308,
+    "wins": 3,
+    "podiums": 11,
+    "poles": 9,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 3,
+    "sprintPoints": 17
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 206,
+    "wins": 0,
+    "podiums": 6,
+    "poles": 5,
+    "bestFinish": 2,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 5,
+    "sprintPoints": 21
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 356,
+    "wins": 3,
+    "podiums": 13,
+    "poles": 3,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 2,
+    "sprintPoints": 29
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 242,
+    "wins": 0,
+    "podiums": 7,
+    "poles": 1,
+    "bestFinish": 2,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 3,
+    "sprintPoints": 17
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 155,
+    "wins": 1,
+    "podiums": 4,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 3,
+    "sprintPoints": 28
+   }
+  ]
+ },
+ "lando-norris": {
+  "driverId": "lando-norris",
+  "ergastId": "norris",
+  "dateOfBirth": "1999-11-13",
+  "nationality": "British",
+  "wikipedia": "http://en.wikipedia.org/wiki/Lando_Norris",
+  "debut": {
+   "season": 2019,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2019-03-17",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "McLaren",
+   "grid": 8,
+   "position": 12,
+   "status": "+1 Lap",
+   "ageYears": 19
+  },
+  "starts": 165,
+  "wins": 13,
+  "podiums": 48,
+  "poles": 18,
+  "points": 1601,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 49,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 97,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 160,
+    "wins": 0,
+    "podiums": 4,
+    "poles": 1,
+    "bestFinish": 2,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 122,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 2,
+    "sprintPoints": 6
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 205,
+    "wins": 0,
+    "podiums": 7,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 4,
+    "sprintPoints": 21
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 374,
+    "wins": 4,
+    "podiums": 13,
+    "poles": 8,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 1,
+    "sprintPoints": 30
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 423,
+    "wins": 7,
+    "podiums": 18,
+    "poles": 7,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 3,
+    "sprintPoints": 29
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 171,
+    "wins": 2,
+    "podiums": 4,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 3,
+    "sprintPoints": 32
+   }
+  ]
+ },
+ "max-verstappen": {
+  "driverId": "max-verstappen",
+  "ergastId": "max_verstappen",
+  "dateOfBirth": "1997-09-30",
+  "nationality": "Dutch",
+  "wikipedia": "http://en.wikipedia.org/wiki/Max_Verstappen",
+  "debut": {
+   "season": 2015,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2015-03-15",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Toro Rosso",
+   "grid": 11,
+   "position": 13,
+   "status": "Engine",
+   "ageYears": 17
+  },
+  "starts": 246,
+  "wins": 71,
+  "podiums": 132,
+  "poles": 48,
+  "points": 3571.5,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2015,
+    "races": 19,
+    "points": 49,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Toro Rosso"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2016,
+    "races": 21,
+    "points": 204,
+    "wins": 1,
+    "podiums": 7,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Toro Rosso",
+     "Red Bull"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 168,
+    "wins": 2,
+    "podiums": 4,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 7
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 249,
+    "wins": 2,
+    "podiums": 11,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 278,
+    "wins": 3,
+    "podiums": 9,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 214,
+    "wins": 2,
+    "podiums": 11,
+    "poles": 1,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 395.5,
+    "wins": 10,
+    "podiums": 18,
+    "poles": 10,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 3,
+    "sprintPoints": 7
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 454,
+    "wins": 15,
+    "podiums": 17,
+    "poles": 7,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 2,
+    "sprintPoints": 21
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 575,
+    "wins": 19,
+    "podiums": 21,
+    "poles": 12,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 0,
+    "sprintPoints": 45
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 437,
+    "wins": 9,
+    "podiums": 14,
+    "poles": 8,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 1,
+    "sprintPoints": 38
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 421,
+    "wins": 8,
+    "podiums": 15,
+    "poles": 8,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 1,
+    "sprintPoints": 32
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 127,
+    "wins": 0,
+    "podiums": 5,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 4,
+    "sprintPoints": 12
+   }
+  ]
+ },
+ "oscar-piastri": {
+  "driverId": "oscar-piastri",
+  "ergastId": "piastri",
+  "dateOfBirth": "2001-04-06",
+  "nationality": "Australian",
+  "wikipedia": "http://en.wikipedia.org/wiki/Oscar_Piastri",
+  "debut": {
+   "season": 2023,
+   "round": 1,
+   "race": "Bahrain Grand Prix",
+   "date": "2023-03-05",
+   "circuit": "Bahrain International Circuit",
+   "country": "Bahrain",
+   "team": "McLaren",
+   "grid": 18,
+   "position": 20,
+   "status": "Retired",
+   "ageYears": 21
+  },
+  "starts": 83,
+  "wins": 9,
+  "podiums": 28,
+  "poles": 6,
+  "points": 915,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 97,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 8,
+    "sprintPoints": 15
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 292,
+    "wins": 2,
+    "podiums": 8,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 0,
+    "sprintPoints": 27
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 410,
+    "wins": 7,
+    "podiums": 16,
+    "poles": 6,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 2,
+    "sprintPoints": 29
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 116,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 4,
+    "sprintPoints": 21
+   }
+  ]
+ },
+ "isack-hadjar": {
+  "driverId": "isack-hadjar",
+  "ergastId": "hadjar",
+  "dateOfBirth": "2004-09-28",
+  "nationality": "French",
+  "wikipedia": "https://en.wikipedia.org/wiki/Isack_Hadjar",
+  "debut": {
+   "season": 2025,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2025-03-16",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "RB F1 Team",
+   "grid": 11,
+   "position": 20,
+   "status": "Retired",
+   "ageYears": 20
+  },
+  "starts": 35,
+  "wins": 0,
+  "podiums": 2,
+  "poles": 0,
+  "points": 122,
+  "bestFinish": 3,
+  "seasons": [
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 51,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "RB F1 Team"
+    ],
+    "retirements": 11,
+    "sprintPoints": 1
+   },
+   {
+    "season": 2026,
+    "races": 11,
+    "points": 71,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 4
+   }
+  ]
+ },
+ "liam-lawson": {
+  "driverId": "liam-lawson",
+  "ergastId": "lawson",
+  "dateOfBirth": "2002-02-11",
+  "nationality": "New Zealander",
+  "wikipedia": "http://en.wikipedia.org/wiki/Liam_Lawson",
+  "debut": {
+   "season": 2023,
+   "round": 13,
+   "race": "Dutch Grand Prix",
+   "date": "2023-08-27",
+   "circuit": "Circuit Park Zandvoort",
+   "country": "Netherlands",
+   "team": "AlphaTauri",
+   "grid": 19,
+   "position": 13,
+   "status": "Finished",
+   "ageYears": 21
+  },
+  "starts": 48,
+  "wins": 0,
+  "podiums": 0,
+  "poles": 0,
+  "points": 95,
+  "bestFinish": 5,
+  "seasons": [
+   {
+    "season": 2023,
+    "races": 5,
+    "points": 2,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 9,
+    "teams": [
+     "AlphaTauri"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2024,
+    "races": 6,
+    "points": 4,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 9,
+    "teams": [
+     "RB F1 Team"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 38,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Red Bull",
+     "RB F1 Team"
+    ],
+    "retirements": 9
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 51,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "RB F1 Team",
+     "Red Bull"
+    ],
+    "retirements": 6,
+    "sprintPoints": 3
+   }
+  ]
+ },
+ "pierre-gasly": {
+  "driverId": "pierre-gasly",
+  "ergastId": "gasly",
+  "dateOfBirth": "1996-02-07",
+  "nationality": "French",
+  "wikipedia": "http://en.wikipedia.org/wiki/Pierre_Gasly",
+  "debut": {
+   "season": 2017,
+   "round": 15,
+   "race": "Malaysian Grand Prix",
+   "date": "2017-10-01",
+   "circuit": "Sepang International Circuit",
+   "country": "Malaysia",
+   "team": "Toro Rosso",
+   "grid": 15,
+   "position": 14,
+   "status": "+1 Lap",
+   "ageYears": 21
+  },
+  "starts": 191,
+  "wins": 1,
+  "podiums": 5,
+  "poles": 1,
+  "points": 499,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2017,
+    "races": 5,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 12,
+    "teams": [
+     "Toro Rosso"
+    ],
+    "retirements": 0
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 29,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Toro Rosso"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 95,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Red Bull",
+     "Toro Rosso"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 75,
+    "wins": 1,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "AlphaTauri"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 110,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "AlphaTauri"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 23,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "AlphaTauri"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 62,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 3,
+    "sprintPoints": 8
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 42,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 13,
+    "sprintPoints": 2
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 22,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 13,
+    "sprintPoints": 2
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 41,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 1,
+    "bestFinish": 6,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 7,
+    "sprintPoints": 2
+   }
+  ]
+ },
+ "arvid-lindblad": {
+  "driverId": "arvid-lindblad",
+  "ergastId": "arvid_lindblad",
+  "dateOfBirth": "2007-08-08",
+  "nationality": "British",
+  "wikipedia": "https://en.wikipedia.org/wiki/Arvid_Lindblad",
+  "debut": {
+   "season": 2026,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2026-03-08",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "RB F1 Team",
+   "grid": 9,
+   "position": 8,
+   "status": "Lapped",
+   "ageYears": 18
+  },
+  "starts": 13,
+  "wins": 0,
+  "podiums": 0,
+  "poles": 0,
+  "points": 29,
+  "bestFinish": 6,
+  "seasons": [
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 29,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "RB F1 Team"
+    ],
+    "retirements": 8,
+    "sprintPoints": 1
+   }
+  ]
+ },
+ "franco-colapinto": {
+  "driverId": "franco-colapinto",
+  "ergastId": "colapinto",
+  "dateOfBirth": "2003-05-27",
+  "nationality": "Argentine",
+  "wikipedia": "http://en.wikipedia.org/wiki/Franco_Colapinto",
+  "debut": {
+   "season": 2024,
+   "round": 16,
+   "race": "Italian Grand Prix",
+   "date": "2024-09-01",
+   "circuit": "Autodromo Nazionale di Monza",
+   "country": "Italy",
+   "team": "Williams",
+   "grid": 18,
+   "position": 12,
+   "status": "Finished",
+   "ageYears": 21
+  },
+  "starts": 40,
+  "wins": 0,
+  "podiums": 0,
+  "poles": 0,
+  "points": 26,
+  "bestFinish": 7,
+  "seasons": [
+   {
+    "season": 2024,
+    "races": 9,
+    "points": 5,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 8,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2025,
+    "races": 18,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 11,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 13
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 21,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 7
+   }
+  ]
+ },
+ "oliver-bearman": {
+  "driverId": "oliver-bearman",
+  "ergastId": "bearman",
+  "dateOfBirth": "2005-05-08",
+  "nationality": "British",
+  "wikipedia": "http://en.wikipedia.org/wiki/Oliver_Bearman",
+  "debut": {
+   "season": 2024,
+   "round": 2,
+   "race": "Saudi Arabian Grand Prix",
+   "date": "2024-03-09",
+   "circuit": "Jeddah Corniche Circuit",
+   "country": "Saudi Arabia",
+   "team": "Ferrari",
+   "grid": 11,
+   "position": 7,
+   "status": "Finished",
+   "ageYears": 18
+  },
+  "starts": 40,
+  "wins": 0,
+  "podiums": 0,
+  "poles": 0,
+  "points": 66,
+  "bestFinish": 4,
+  "seasons": [
+   {
+    "season": 2024,
+    "races": 3,
+    "points": 7,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Ferrari",
+     "Haas F1 Team"
+    ],
+    "retirements": 0
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 41,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Haas F1 Team"
+    ],
+    "retirements": 6,
+    "sprintPoints": 2
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 18,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Haas F1 Team"
+    ],
+    "retirements": 9,
+    "sprintPoints": 1
+   }
+  ]
+ },
+ "gabriel-bortoleto": {
+  "driverId": "gabriel-bortoleto",
+  "ergastId": "bortoleto",
+  "dateOfBirth": "2004-10-14",
+  "nationality": "Brazilian",
+  "wikipedia": "https://en.wikipedia.org/wiki/Gabriel_Bortoleto",
+  "debut": {
+   "season": 2025,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2025-03-16",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Sauber",
+   "grid": 15,
+   "position": 16,
+   "status": "Retired",
+   "ageYears": 20
+  },
+  "starts": 37,
+  "wins": 0,
+  "podiums": 0,
+  "poles": 0,
+  "points": 29,
+  "bestFinish": 6,
+  "seasons": [
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 19,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Sauber"
+    ],
+    "retirements": 12
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 10,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 8,
+    "teams": [
+     "Audi"
+    ],
+    "retirements": 8
+   }
+  ]
+ },
+ "carlos-sainz": {
+  "driverId": "carlos-sainz",
+  "ergastId": "sainz",
+  "dateOfBirth": "1994-09-01",
+  "nationality": "Spanish",
+  "wikipedia": "http://en.wikipedia.org/wiki/Carlos_Sainz_Jr.",
+  "debut": {
+   "season": 2015,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2015-03-15",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Toro Rosso",
+   "grid": 7,
+   "position": 9,
+   "status": "+1 Lap",
+   "ageYears": 20
+  },
+  "starts": 245,
+  "wins": 4,
+  "podiums": 29,
+  "poles": 6,
+  "points": 1342.5,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2015,
+    "races": 19,
+    "points": 18,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Toro Rosso"
+    ],
+    "retirements": 7
+   },
+   {
+    "season": 2016,
+    "races": 21,
+    "points": 46,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Toro Rosso"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 54,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Toro Rosso",
+     "Renault"
+    ],
+    "retirements": 8
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 53,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 96,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 105,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 164.5,
+    "wins": 0,
+    "podiums": 4,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 0,
+    "sprintPoints": 1
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 246,
+    "wins": 1,
+    "podiums": 9,
+    "poles": 3,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 6,
+    "sprintPoints": 18
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 200,
+    "wins": 1,
+    "podiums": 3,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 3,
+    "sprintPoints": 22
+   },
+   {
+    "season": 2024,
+    "races": 23,
+    "points": 290,
+    "wins": 2,
+    "podiums": 9,
+    "poles": 1,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 3,
+    "sprintPoints": 28
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 64,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 9,
+    "sprintPoints": 10
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 6,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 9,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 9
+   }
+  ]
+ },
+ "alexander-albon": {
+  "driverId": "alexander-albon",
+  "ergastId": "albon",
+  "dateOfBirth": "1996-03-23",
+  "nationality": "Thai",
+  "wikipedia": "http://en.wikipedia.org/wiki/Alexander_Albon",
+  "debut": {
+   "season": 2019,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2019-03-17",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Toro Rosso",
+   "grid": 13,
+   "position": 14,
+   "status": "+1 Lap",
+   "ageYears": 22
+  },
+  "starts": 142,
+  "wins": 0,
+  "podiums": 2,
+  "poles": 0,
+  "points": 318,
+  "bestFinish": 3,
+  "seasons": [
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 92,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Toro Rosso",
+     "Red Bull"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 105,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2022,
+    "races": 21,
+    "points": 4,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 9,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 27,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 7,
+    "sprintPoints": 2
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 12,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 17
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 73,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 8,
+    "sprintPoints": 3
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 5,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 8,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 10
+   }
+  ]
+ },
+ "esteban-ocon": {
+  "driverId": "esteban-ocon",
+  "ergastId": "ocon",
+  "dateOfBirth": "1996-09-17",
+  "nationality": "French",
+  "wikipedia": "http://en.wikipedia.org/wiki/Esteban_Ocon",
+  "debut": {
+   "season": 2016,
+   "round": 13,
+   "race": "Belgian Grand Prix",
+   "date": "2016-08-28",
+   "circuit": "Circuit de Spa-Francorchamps",
+   "country": "Belgium",
+   "team": "Manor Marussia",
+   "grid": 17,
+   "position": 16,
+   "status": "+1 Lap",
+   "ageYears": 19
+  },
+  "starts": 193,
+  "wins": 1,
+  "podiums": 4,
+  "poles": 0,
+  "points": 486,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2016,
+    "races": 9,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 12,
+    "teams": [
+     "Manor Marussia"
+    ],
+    "retirements": 0
+   },
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 87,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 49,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 62,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 74,
+    "wins": 1,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 92,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 2,
+    "sprintPoints": 3
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 58,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 9,
+    "sprintPoints": 2
+   },
+   {
+    "season": 2024,
+    "races": 23,
+    "points": 23,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 16
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 38,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Haas F1 Team"
+    ],
+    "retirements": 8,
+    "sprintPoints": 4
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 3,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 9,
+    "teams": [
+     "Haas F1 Team"
+    ],
+    "retirements": 9
+   }
+  ]
+ },
+ "nico-hulkenberg": {
+  "driverId": "nico-hulkenberg",
+  "ergastId": "hulkenberg",
+  "dateOfBirth": "1987-08-19",
+  "nationality": "German",
+  "wikipedia": "http://en.wikipedia.org/wiki/Nico_H%C3%BClkenberg",
+  "debut": {
+   "season": 2010,
+   "round": 1,
+   "race": "Bahrain Grand Prix",
+   "date": "2010-03-14",
+   "circuit": "Bahrain International Circuit",
+   "country": "Bahrain",
+   "team": "Williams",
+   "grid": 13,
+   "position": 14,
+   "status": "+1 Lap",
+   "ageYears": 22
+  },
+  "starts": 267,
+  "wins": 0,
+  "podiums": 1,
+  "poles": 1,
+  "points": 628,
+  "bestFinish": 3,
+  "seasons": [
+   {
+    "season": 2010,
+    "races": 19,
+    "points": 22,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 1,
+    "bestFinish": 6,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2012,
+    "races": 20,
+    "points": 63,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2013,
+    "races": 19,
+    "points": 51,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Sauber"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2014,
+    "races": 19,
+    "points": 96,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2015,
+    "races": 19,
+    "points": 58,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2016,
+    "races": 21,
+    "points": 72,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 43,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 7
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 69,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 7
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 37,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2020,
+    "races": 3,
+    "points": 10,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Racing Point"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2022,
+    "races": 2,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 12,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 0
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 9,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Haas F1 Team"
+    ],
+    "retirements": 12,
+    "sprintPoints": 3
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 41,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Haas F1 Team"
+    ],
+    "retirements": 11,
+    "sprintPoints": 5
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 51,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Sauber"
+    ],
+    "retirements": 11
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 6,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 11,
+    "teams": [
+     "Audi"
+    ],
+    "retirements": 9
+   }
+  ]
+ },
+ "fernando-alonso": {
+  "driverId": "fernando-alonso",
+  "ergastId": "alonso",
+  "dateOfBirth": "1981-07-29",
+  "nationality": "Spanish",
+  "wikipedia": "http://en.wikipedia.org/wiki/Fernando_Alonso",
+  "debut": {
+   "season": 2001,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2001-03-04",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Minardi",
+   "grid": 19,
+   "position": 12,
+   "status": "+2 Laps",
+   "ageYears": 19
+  },
+  "starts": 441,
+  "wins": 32,
+  "podiums": 106,
+  "poles": 22,
+  "points": 2396,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2001,
+    "races": 17,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 10,
+    "teams": [
+     "Minardi"
+    ],
+    "retirements": 9
+   },
+   {
+    "season": 2003,
+    "races": 16,
+    "points": 55,
+    "wins": 1,
+    "podiums": 4,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2004,
+    "races": 18,
+    "points": 59,
+    "wins": 0,
+    "podiums": 4,
+    "poles": 1,
+    "bestFinish": 2,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2005,
+    "races": 19,
+    "points": 133,
+    "wins": 7,
+    "podiums": 15,
+    "poles": 6,
+    "bestFinish": 1,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2006,
+    "races": 18,
+    "points": 134,
+    "wins": 7,
+    "podiums": 14,
+    "poles": 6,
+    "bestFinish": 1,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2007,
+    "races": 17,
+    "points": 109,
+    "wins": 4,
+    "podiums": 12,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2008,
+    "races": 18,
+    "points": 61,
+    "wins": 2,
+    "podiums": 3,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2009,
+    "races": 17,
+    "points": 26,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 1,
+    "bestFinish": 3,
+    "teams": [
+     "Renault"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2010,
+    "races": 19,
+    "points": 252,
+    "wins": 5,
+    "podiums": 10,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2011,
+    "races": 19,
+    "points": 257,
+    "wins": 1,
+    "podiums": 10,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2012,
+    "races": 20,
+    "points": 278,
+    "wins": 3,
+    "podiums": 13,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2013,
+    "races": 19,
+    "points": 242,
+    "wins": 2,
+    "podiums": 9,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2014,
+    "races": 19,
+    "points": 161,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Ferrari"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2015,
+    "races": 18,
+    "points": 11,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 7
+   },
+   {
+    "season": 2016,
+    "races": 20,
+    "points": 54,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2017,
+    "races": 19,
+    "points": 17,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 11
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 50,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 8
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 81,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 81,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Alpine F1 Team"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 206,
+    "wins": 0,
+    "podiums": 8,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 2,
+    "sprintPoints": 8
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 70,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 8
+   },
+   {
+    "season": 2025,
+    "races": 24,
+    "points": 56,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 7,
+    "sprintPoints": 5
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 3,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 10,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 12
+   }
+  ]
+ },
+ "sergio-perez": {
+  "driverId": "sergio-perez",
+  "ergastId": "perez",
+  "dateOfBirth": "1990-01-26",
+  "nationality": "Mexican",
+  "wikipedia": "http://en.wikipedia.org/wiki/Sergio_P%C3%A9rez",
+  "debut": {
+   "season": 2011,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2011-03-27",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Sauber",
+   "grid": 13,
+   "position": 22,
+   "status": "Disqualified",
+   "ageYears": 21
+  },
+  "starts": 296,
+  "wins": 6,
+  "podiums": 39,
+  "poles": 3,
+  "points": 1638,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2011,
+    "races": 18,
+    "points": 14,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 7,
+    "teams": [
+     "Sauber"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2012,
+    "races": 20,
+    "points": 66,
+    "wins": 0,
+    "podiums": 3,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Sauber"
+    ],
+    "retirements": 6
+   },
+   {
+    "season": 2013,
+    "races": 19,
+    "points": 49,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "McLaren"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2014,
+    "races": 19,
+    "points": 59,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2015,
+    "races": 19,
+    "points": 78,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2016,
+    "races": 21,
+    "points": 101,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 100,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 62,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Force India"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 52,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Racing Point"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2020,
+    "races": 15,
+    "points": 125,
+    "wins": 1,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Racing Point"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 190,
+    "wins": 1,
+    "podiums": 5,
+    "poles": 0,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 305,
+    "wins": 2,
+    "podiums": 11,
+    "poles": 1,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 3,
+    "sprintPoints": 14
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 285,
+    "wins": 2,
+    "podiums": 9,
+    "poles": 2,
+    "bestFinish": 1,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 3,
+    "sprintPoints": 25
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 152,
+    "wins": 0,
+    "podiums": 4,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Red Bull"
+    ],
+    "retirements": 8,
+    "sprintPoints": 14
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 14,
+    "teams": [
+     "Cadillac F1 Team"
+    ],
+    "retirements": 10
+   }
+  ]
+ },
+ "valtteri-bottas": {
+  "driverId": "valtteri-bottas",
+  "ergastId": "bottas",
+  "dateOfBirth": "1989-08-28",
+  "nationality": "Finnish",
+  "wikipedia": "http://en.wikipedia.org/wiki/Valtteri_Bottas",
+  "debut": {
+   "season": 2013,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2013-03-17",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Williams",
+   "grid": 16,
+   "position": 14,
+   "status": "+1 Lap",
+   "ageYears": 23
+  },
+  "starts": 260,
+  "wins": 10,
+  "podiums": 67,
+  "poles": 20,
+  "points": 1797,
+  "bestFinish": 1,
+  "seasons": [
+   {
+    "season": 2013,
+    "races": 19,
+    "points": 4,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 8,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2014,
+    "races": 19,
+    "points": 186,
+    "wins": 0,
+    "podiums": 6,
+    "poles": 0,
+    "bestFinish": 2,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2015,
+    "races": 19,
+    "points": 136,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 4
+   },
+   {
+    "season": 2016,
+    "races": 21,
+    "points": 85,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 305,
+    "wins": 3,
+    "podiums": 13,
+    "poles": 4,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 247,
+    "wins": 0,
+    "podiums": 8,
+    "poles": 2,
+    "bestFinish": 2,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 326,
+    "wins": 4,
+    "podiums": 15,
+    "poles": 5,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 2
+   },
+   {
+    "season": 2020,
+    "races": 17,
+    "points": 223,
+    "wins": 2,
+    "podiums": 11,
+    "poles": 5,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 1
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 226,
+    "wins": 1,
+    "podiums": 11,
+    "poles": 4,
+    "bestFinish": 1,
+    "teams": [
+     "Mercedes"
+    ],
+    "retirements": 4,
+    "sprintPoints": 7
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 49,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 5,
+    "teams": [
+     "Alfa Romeo"
+    ],
+    "retirements": 6,
+    "sprintPoints": 2
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 10,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 8,
+    "teams": [
+     "Alfa Romeo"
+    ],
+    "retirements": 10
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 11,
+    "teams": [
+     "Sauber"
+    ],
+    "retirements": 19
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 16,
+    "teams": [
+     "Cadillac F1 Team"
+    ],
+    "retirements": 12
+   }
+  ]
+ },
+ "lance-stroll": {
+  "driverId": "lance-stroll",
+  "ergastId": "stroll",
+  "dateOfBirth": "1998-10-29",
+  "nationality": "Canadian",
+  "wikipedia": "http://en.wikipedia.org/wiki/Lance_Stroll",
+  "debut": {
+   "season": 2017,
+   "round": 1,
+   "race": "Australian Grand Prix",
+   "date": "2017-03-26",
+   "circuit": "Albert Park Grand Prix Circuit",
+   "country": "Australia",
+   "team": "Williams",
+   "grid": 20,
+   "position": 16,
+   "status": "Brakes",
+   "ageYears": 18
+  },
+  "starts": 204,
+  "wins": 0,
+  "podiums": 3,
+  "poles": 1,
+  "points": 325,
+  "bestFinish": 3,
+  "seasons": [
+   {
+    "season": 2017,
+    "races": 20,
+    "points": 40,
+    "wins": 0,
+    "podiums": 1,
+    "poles": 0,
+    "bestFinish": 3,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2018,
+    "races": 21,
+    "points": 6,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 8,
+    "teams": [
+     "Williams"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2019,
+    "races": 21,
+    "points": 21,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Racing Point"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2020,
+    "races": 16,
+    "points": 75,
+    "wins": 0,
+    "podiums": 2,
+    "poles": 1,
+    "bestFinish": 3,
+    "teams": [
+     "Racing Point"
+    ],
+    "retirements": 5
+   },
+   {
+    "season": 2021,
+    "races": 22,
+    "points": 34,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2022,
+    "races": 22,
+    "points": 18,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 3
+   },
+   {
+    "season": 2023,
+    "races": 22,
+    "points": 74,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 4,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 6,
+    "sprintPoints": 6
+   },
+   {
+    "season": 2024,
+    "races": 24,
+    "points": 24,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 14
+   },
+   {
+    "season": 2025,
+    "races": 23,
+    "points": 33,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": 6,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 11,
+    "sprintPoints": 4
+   },
+   {
+    "season": 2026,
+    "races": 13,
+    "points": 0,
+    "wins": 0,
+    "podiums": 0,
+    "poles": 0,
+    "bestFinish": null,
+    "teams": [
+     "Aston Martin"
+    ],
+    "retirements": 13
+   }
+  ]
+ }
+}

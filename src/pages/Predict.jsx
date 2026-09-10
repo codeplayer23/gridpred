@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { RotateCcw, Sparkles } from 'lucide-react';
 import Reveal from '@/components/ui/Reveal';
@@ -43,13 +43,23 @@ export default function Predict() {
   const race = races.find((r) => r.id === raceId) ?? upcoming;
   const rainChance = rain ?? 0;
 
+  // Re-ranking the whole grid is far too much work to do between two frames of a
+  // slider drag, and doing it in the change handler pinned the thumb to the
+  // model instead of to the finger. The control keeps the immediate value so it
+  // stays live; the model reads the deferred one and catches up when React has
+  // spare time, which is what makes dragging feel free.
+  const modelWeights = useDeferredValue(weights);
+  const modelRain = useDeferredValue(rainChance);
+
   // Predict the field that is actually entered, so a stand-in is ranked and an
   // absent driver is not.
   const { drivers: grid } = useWeekendGrid();
   const prediction = useMemo(
-    () => predictRace(race, { weights, rainChance, grid }),
-    [race, weights, rainChance, grid],
+    () => predictRace(race, { weights: modelWeights, rainChance: modelRain, grid }),
+    [race, modelWeights, modelRain, grid],
   );
+  /** True while the ranking on screen is a frame or two behind the controls. */
+  const settling = modelWeights !== weights || modelRain !== rainChance;
 
   const modes = MODES.filter((m) => !m.sprintOnly || prediction.isSprint);
   // Fall back to the race if the user was on the sprint tab and switched to a
@@ -166,13 +176,22 @@ export default function Predict() {
 
             <LineupChanges className="mb-5" compact />
 
-            <PredictionGrid
-              rows={rows}
-              mode={activeMode}
-              onSelect={(id) => setSelected(id === selected ? null : id)}
-              selectedId={selected}
-              limit={12}
-            />
+            {/* A held slider can outrun the model by a frame or two; fading
+                rather than freezing says so without blocking the drag. */}
+            <div
+              className={cx(
+                'transition-opacity duration-200',
+                settling ? 'opacity-60' : 'opacity-100',
+              )}
+            >
+              <PredictionGrid
+                rows={rows}
+                mode={activeMode}
+                onSelect={(id) => setSelected(id === selected ? null : id)}
+                selectedId={selected}
+                limit={12}
+              />
+            </div>
           </div>
 
           {/* controls */}

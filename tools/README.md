@@ -19,9 +19,16 @@ python tools/repair_circuits.py        # re-extract circuits whose first pass wa
 python tools/fetch_circuit_specs.py    # official length / turn counts (Wikipedia)
 python tools/osm_fallback.py           # OpenStreetMap centreline where telemetry cannot reach
 python tools/extract_season.py         # results, standings, derived ratings
+python tools/fetch_careers.py          # career history + debut for the current grid
 python tools/build_snapshot.py         # assemble + verify headshots -> src/data/snapshot
 python tools/gen_assets.py             # canonical asset registry -> src/data/*Assets.js
+python tools/revise_results.py --apply # LAST: apply post-race classification changes
 ```
+
+`revise_results.py` reads and writes `src/data/snapshot/` directly rather than
+the `out/` intermediates, so it runs **after** `build_snapshot.py` — running it
+before would just have the rebuild overwrite it. It is also safe to run on its
+own at any time, and says so when nothing has changed.
 
 `build_snapshot.py` must run last: it writes every file the app imports, and it
 resolves driver headshots as part of that step.
@@ -38,6 +45,8 @@ resolves driver headshots as part of that step.
 | Driver identity, number, team colour, headshot | FastF1 session results |
 | Constructor entrant names and power units | 2026 published entry list |
 | Circuit length and official turn count | Wikipedia circuit infoboxes (CC BY-SA) |
+| Career history, debut, season-by-season | Jolpica (Ergast successor), aggregated from every classification |
+| Post-race classification revisions | Jolpica, reconciled by `revise_results.py` |
 | Sepang and Madring centrelines | OpenStreetMap (ODbL 1.0) |
 | Driver photographs (22) | Formula 1 official 2026 media library, referenced by URL |
 | Team logos (11) | Formula 1 official 2026 white variants, referenced by URL |

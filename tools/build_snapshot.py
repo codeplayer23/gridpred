@@ -12,6 +12,9 @@ teams    = json.load(open('out/teams.json'))
 results  = json.load(open('out/results.json'))
 standing = json.load(open('out/standings.json'))
 meta     = json.load(open('out/meta.json'))
+# Career history is optional: the pipeline still builds without it, the driver
+# pages just fall back to this season only.
+careers  = json.load(open('out/careers.json')) if os.path.exists('out/careers.json') else {}
 
 # Race length follows the sporting regulations: the fewest laps exceeding 305 km.
 # Monaco is the codified exception at ~260 km.
@@ -143,6 +146,8 @@ w('drivers.json', drivers)
 w('teams.json', teams)
 w('results.json', results)
 w('standings.json', standing)
+if careers:
+    w('careers.json', careers)
 w('meta.json', meta)
 tel_size = sum(os.path.getsize(f'{DEST}/telemetry/{f}') for f in os.listdir(f'{DEST}/telemetry'))
 print(f'  telemetry/         {tel_size/1024:8.1f} KB across {len(os.listdir(f"{DEST}/telemetry"))} files (lazy)')

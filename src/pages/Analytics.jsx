@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useDeferredValue, useMemo, useState } from 'react';
 import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, PolarAngleAxis, PolarGrid,
   Radar, RadarChart, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis,
@@ -47,6 +47,12 @@ const TEAM_METRICS = [
  */
 export default function Analytics() {
   const [scope, setScope] = useState('drivers');
+
+  // Switching scope tears down one chart tree and builds another, which is far
+  // more work than fits in the click. Deferring it lets the pill move under the
+  // finger immediately and the panel swap on the next idle slice, so the tab
+  // responds instantly instead of the whole page locking for a beat.
+  const shownScope = useDeferredValue(scope);
   const rounds = useRoundsCompleted();
 
   return (
@@ -91,10 +97,10 @@ export default function Analytics() {
         </div>
 
         <div className="mt-10 flex flex-col gap-6">
-          {scope === 'drivers' && <DriverAnalytics />}
-          {scope === 'teams' && <TeamAnalytics />}
-          {scope === 'circuits' && <CircuitAnalytics />}
-          {scope === 'season' && <SeasonAnalytics />}
+          {shownScope === 'drivers' && <DriverAnalytics />}
+          {shownScope === 'teams' && <TeamAnalytics />}
+          {shownScope === 'circuits' && <CircuitAnalytics />}
+          {shownScope === 'season' && <SeasonAnalytics />}
         </div>
       </div>
     </div>
@@ -102,7 +108,7 @@ export default function Analytics() {
 }
 
 /* ── Drivers ──────────────────────────────────────────────── */
-function DriverAnalytics() {
+const DriverAnalytics = memo(function DriverAnalytics() {
   const [metric, setMetric] = useState('points');
   const active = DRIVER_METRICS.find((m) => m.id === metric);
   // Live championship where available, so the bars match the leaderboard.
@@ -208,10 +214,10 @@ function DriverAnalytics() {
       </ChartFrame>
     </>
   );
-}
+});
 
 /* ── Teams ────────────────────────────────────────────────── */
-function TeamAnalytics() {
+const TeamAnalytics = memo(function TeamAnalytics() {
   const [metric, setMetric] = useState('points');
   const active = TEAM_METRICS.find((m) => m.id === metric);
 
@@ -300,10 +306,10 @@ function TeamAnalytics() {
       </ChartFrame>
     </>
   );
-}
+});
 
 /* ── Circuits ─────────────────────────────────────────────── */
-function CircuitAnalytics() {
+const CircuitAnalytics = memo(function CircuitAnalytics() {
   const [circuit, setCircuit] = useState(races[12]?.id ?? races[0].id);
   const race = races.find((r) => r.id === circuit);
 
@@ -382,18 +388,22 @@ function CircuitAnalytics() {
             <YAxis {...axis} width={52} />
             <Tooltip cursor={cursorProps} content={<ChartTooltip />} />
             <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v) => <span style={{ color: '#a2a9b4' }}>{v}</span>} />
-            <Line type="monotone" dataKey="topSpeed" name="Top speed" stroke="#e10600" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="avgSpeed" name="Avg speed" stroke="#ff8000" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="fullThrottle" name="Full throttle %" stroke="#00d7b6" strokeWidth={2} dot={false} />
+            {/* Three lines across every circuit on the calendar is the densest
+                plot in the app, and Recharts draws a line in by re-measuring its
+                path length every frame — that one animation cost more than the
+                rest of the tab switch put together. The lines simply appear. */}
+            <Line type="monotone" dataKey="topSpeed" name="Top speed" stroke="#e10600" strokeWidth={2} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="avgSpeed" name="Avg speed" stroke="#ff8000" strokeWidth={2} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="fullThrottle" name="Full throttle %" stroke="#00d7b6" strokeWidth={2} dot={false} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
       </ChartFrame>
     </>
   );
-}
+});
 
 /* ── Season ───────────────────────────────────────────────── */
-function SeasonAnalytics() {
+const SeasonAnalytics = memo(function SeasonAnalytics() {
   const top = standings.slice(0, 6);
 
   return (
@@ -492,4 +502,4 @@ function SeasonAnalytics() {
       </div>
     </>
   );
-}
+});

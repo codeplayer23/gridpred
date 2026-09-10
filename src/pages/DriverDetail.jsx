@@ -11,10 +11,11 @@ import RadialGauge from '@/components/ui/RadialGauge';
 import SectionHeader from '@/components/ui/SectionHeader';
 import FormStrip from '@/components/drivers/FormStrip';
 import AttributeProfile from '@/components/drivers/AttributeProfile';
+import DriverCareer from '@/components/drivers/DriverCareer';
 import PaceChart from '@/components/charts/PaceChart';
 import { cx, ordinal } from '@/lib/format';
 import { usePointerParallax } from '@/hooks';
-import { driverById, fullName, predictionScore } from '@/data/drivers';
+import { drivers, driverById, fullName, predictionScore } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
 import { seasonStats, standings } from '@/data/results';
 import { useDriverStats, useGridDriver } from '@/hooks/useLiveSeason';
@@ -289,6 +290,20 @@ export default function DriverDetail() {
           <Reveal delay={0.1} className="mt-14 rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-6 backdrop-blur-xl md:p-10">
             <AttributeProfile driver={driver} accent={accent} />
           </Reveal>
+        </div>
+      </section>
+
+      {/* ── Career ───────────────────────────────────────────── */}
+      <section className="px-6 py-20 md:px-10 md:py-28">
+        <div className="mx-auto max-w-7xl">
+          <SectionHeader
+            eyebrow="Career"
+            title="Before this season"
+            lede="Debut, career totals and every season since — aggregated from the published classification of every race, not copied from a summary."
+          />
+          <div className="mt-14">
+            <DriverCareer driver={driver} field={drivers} accent={accent} season={SEASON} />
+          </div>
         </div>
       </section>
 
