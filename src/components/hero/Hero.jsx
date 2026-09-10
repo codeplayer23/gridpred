@@ -14,13 +14,21 @@ const LINES = ['WHO WINS', 'NEXT?'];
 
 /** One live-ish telemetry readout in the hero footer strip. */
 function Readout({ label, base, spread, suffix, decimals = 0 }) {
-  const value = useLiveValue(base, { spread, decimals });
+  // The hook has to run unconditionally, so an unmeasured circuit feeds it zero
+  // and the dash is chosen at render time rather than showing a live 0.0.
+  const value = useLiveValue(base ?? 0, { spread, decimals });
   return (
     <div className="flex flex-col gap-1.5">
       <span className="mono-label text-[0.58rem]">{label}</span>
       <span className="tabular text-[0.95rem] font-medium">
-        {value.toFixed(decimals)}
-        <span className="ml-0.5 text-ink-mute">{suffix}</span>
+        {base == null ? (
+          <span className="text-ink-faint">—</span>
+        ) : (
+          <>
+            {value.toFixed(decimals)}
+            <span className="ml-0.5 text-ink-mute">{suffix}</span>
+          </>
+        )}
       </span>
     </div>
   );
@@ -143,10 +151,10 @@ export default function Hero() {
         transition={{ delay: 1.15, duration: 0.9 }}
       >
         <div className="grid flex-1 grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4 lg:max-w-3xl">
-          <Readout label="Top speed" base={m?.maxSpeed ?? 0} spread={3} suffix=" km/h" />
-          <Readout label="Average speed" base={m?.avgSpeed ?? 0} spread={2} suffix=" km/h" />
-          <Readout label="Full throttle" base={m?.fullThrottlePct ?? 0} spread={1} suffix="%" decimals={1} />
-          <Readout label="Corners" base={race.cornerCount ?? 0} spread={0} suffix="" />
+          <Readout label="Top speed" base={m?.maxSpeed} spread={3} suffix=" km/h" />
+          <Readout label="Average speed" base={m?.avgSpeed} spread={2} suffix=" km/h" />
+          <Readout label="Full throttle" base={m?.fullThrottlePct} spread={1} suffix="%" decimals={1} />
+          <Readout label="Corners" base={race.cornerCount} spread={0} suffix="" />
         </div>
         <span className="hidden shrink-0 items-center gap-2 text-[0.7rem] tracking-[0.18em] text-ink-faint uppercase md:flex">
           Scroll

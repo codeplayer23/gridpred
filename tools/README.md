@@ -17,7 +17,7 @@ pip install -r tools/requirements.txt
 python tools/extract_circuits.py       # calendar + circuit geometry from telemetry
 python tools/repair_circuits.py        # re-extract circuits whose first pass was poor
 python tools/fetch_circuit_specs.py    # official length / turn counts (Wikipedia)
-python tools/osm_fallback.py           # OpenStreetMap centreline where F1 has never run
+python tools/osm_fallback.py           # OpenStreetMap centreline where telemetry cannot reach
 python tools/extract_season.py         # results, standings, derived ratings
 python tools/build_snapshot.py         # assemble + verify headshots -> src/data/snapshot
 python tools/gen_assets.py             # canonical asset registry -> src/data/*Assets.js
@@ -38,7 +38,7 @@ resolves driver headshots as part of that step.
 | Driver identity, number, team colour, headshot | FastF1 session results |
 | Constructor entrant names and power units | 2026 published entry list |
 | Circuit length and official turn count | Wikipedia circuit infoboxes (CC BY-SA) |
-| Sepang centreline | OpenStreetMap (ODbL 1.0) |
+| Sepang and Madring centrelines | OpenStreetMap (ODbL 1.0) |
 | Driver photographs (22) | Formula 1 official 2026 media library, referenced by URL |
 | Team logos (11) | Formula 1 official 2026 white variants, referenced by URL |
 
@@ -47,10 +47,42 @@ resolves driver headshots as part of that step.
 * **DRS.** The 2026 regulations abolished DRS. The telemetry DRS channel reads
   zero at every circuit this season, so no DRS zones are emitted. The field is
   kept in the schema so a season that has them renders without code changes.
-* **Geometry gaps.** 22 of 23 circuits have real geometry. The Madring (Madrid,
-  round 14) is new for 2026, has never hosted a session, and is not mapped in
-  OpenStreetMap — it is emitted with `geometryUnavailable` and the UI says so
-  rather than drawing an invented shape.
+* **Geometry gaps.** All 23 circuits have real geometry, but not all of it is
+  telemetry. 21 outlines are reconstructed from the position telemetry of a real
+  lap; two are surveyed centrelines from OpenStreetMap. The Madring (Madrid, round 14) is new for 2026 and has never hosted a
+  session, so its outline is the surveyed centreline from OpenStreetMap route
+  relation [18813472](https://www.openstreetmap.org/relation/18813472), stitched
+  by `osm_fallback.py`.
+
+  A route relation is used rather than `highway=raceway` ways because the Madring
+  runs largely on public roads: the raceway-tagged ways cover only 2.7 km of the
+  5.4 km lap, while the relation lists every way of the circuit with a role
+  giving its direction of travel. The stitched ring measures 5426 m against the
+  official 5416 m — 0.2% — and the script refuses to emit anything that disagrees
+  with the official length by more than 5%.
+
+  What OSM cannot supply is left empty rather than invented: `corners` is `[]`
+  and every speed and throttle figure is `null`, as is `startFinish` unless the
+  relation marks the line with a node in the `start` role. The UI
+  reads those as "not measured yet" and says so on the race page. Once FP1 runs
+  at Madrid (2026-09-11 11:30 UTC), `extract_circuits.py` will produce a real
+  telemetry layout and it supersedes this one — `osm_fallback.py` writes into
+  `out/circuits_geom.json` before `build_snapshot.py`, so re-running the pipeline
+  in order does the right thing.
+
+  Sepang (round 16, the relocated Bahrain Grand Prix) comes from the same script
+  and the same principle — it predates FastF1's telemetry era — via relation
+  [284496](https://www.openstreetmap.org/relation/284496), measuring 5549 m
+  against an official 5543 m. That relation marks its start/finish as a node with
+  role `start`, so Sepang gets a real start/finish line; the Madring's relation
+  does not, so it gets none rather than a guessed one.
+
+  `osm_fallback.py` validates what it emits: it rejects any ring whose length
+  disagrees with the official figure by more than 5%, and prints the worst join
+  and the closing gap so a bad stitch is visible rather than silent.
+
+  ODbL 1.0 requires attribution wherever the data is shown, which the footer and
+  the race page's geometry-source card both carry.
 * **Ratings.** Capability scores are arithmetic over real classifications, and
   each carries a sample count. The UI hides any rating with fewer than three
   races behind it.

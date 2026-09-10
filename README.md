@@ -38,11 +38,20 @@ each corner marker sits at the coordinate FastF1 reports for that corner. Every
 layout records its provenance — which session, which driver, which lap time —
 and the race page shows it.
 
-**22 of 23 circuits have real geometry.** The one that does not is the Madring
-in Madrid: it is new for 2026, has never hosted a session, and is not yet mapped
-in OpenStreetMap. It is surfaced as unavailable rather than filled with an
-invented shape. Sepang, which hosts the relocated Bahrain Grand Prix and predates
-FastF1's telemetry era, uses an OpenStreetMap centreline (ODbL).
+**All 23 circuits have real geometry, 21 of them from telemetry.**
+The other two are surveyed rather than driven, and both use an OpenStreetMap
+centreline (ODbL), stitched from the circuit's own OSM relation and checked
+against its official length. Sepang, which hosts the relocated Bahrain Grand Prix
+and predates FastF1's telemetry era, measures 5549 m against an official 5543 m.
+The Madring in Madrid is new for 2026 and has never hosted a session; it measures
+5426 m against an official 5416 m.
+
+Where a layout is surveyed rather than driven, the things only telemetry can give
+are absent instead of invented — no corner markers, no top speed, average speed
+or throttle share. The race page says "not measured yet" and names the source.
+They fill in on their own once the first session runs. A start/finish line is
+drawn only where the OSM relation marks one, which Sepang's does and the
+Madring's does not.
 
 ## Things the data says that you might not expect
 

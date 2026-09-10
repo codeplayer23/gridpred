@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button';
 import { countdownParts, dateParts, pad2 } from '@/lib/format';
 import { useCountdown } from '@/hooks';
 import { nextRace } from '@/data/races';
+import { layoutProvenance } from '@/data/circuits';
 import SessionStatus from './SessionStatus';
 import LineupChanges from '@/components/drivers/LineupChanges';
 import Bloom from '@/components/ui/Bloom';
@@ -27,8 +28,16 @@ function TrackTrait({ label, value, suffix = '', decimals = 0 }) {
     <div className="group flex flex-col gap-2 border-t border-white/[0.07] pt-4 transition-colors duration-500 hover:border-white/25">
       <span className="mono-label text-[0.58rem]">{label}</span>
       <span className="tabular text-[1.55rem] leading-none font-medium tracking-[-0.04em]">
-        <Counter value={value} decimals={decimals} />
-        <span className="text-[0.9rem] text-ink-mute">{suffix}</span>
+        {/* A circuit with no telemetry has no speed figures, and a counter
+            ticking up to zero would read as a measurement. */}
+        {value == null ? (
+          <span className="text-ink-faint">—</span>
+        ) : (
+          <>
+            <Counter value={value} decimals={decimals} />
+            <span className="text-[0.9rem] text-ink-mute">{suffix}</span>
+          </>
+        )}
       </span>
     </div>
   );
@@ -119,12 +128,12 @@ export default function NextRaceSection() {
               </motion.div>
 
               <div className="grid grid-cols-2 gap-x-8 gap-y-6 border-t border-white/[0.07] p-7 sm:grid-cols-3 md:p-10">
-                <TrackTrait label="Top speed" value={m?.maxSpeed ?? 0} suffix=" km/h" />
-                <TrackTrait label="Avg speed" value={m?.avgSpeed ?? 0} suffix=" km/h" />
-                <TrackTrait label="Full throttle" value={m?.fullThrottlePct ?? 0} suffix="%" decimals={1} />
-                <TrackTrait label="Corners" value={race.cornerCount ?? 0} />
-                <TrackTrait label="Laps" value={race.laps ?? 0} />
-                <TrackTrait label="Distance" value={race.raceDistance ?? 0} suffix=" km" decimals={1} />
+                <TrackTrait label="Top speed" value={m?.maxSpeed} suffix=" km/h" />
+                <TrackTrait label="Avg speed" value={m?.avgSpeed} suffix=" km/h" />
+                <TrackTrait label="Full throttle" value={m?.fullThrottlePct} suffix="%" decimals={1} />
+                <TrackTrait label="Corners" value={race.cornerCount} />
+                <TrackTrait label="Laps" value={race.laps} />
+                <TrackTrait label="Distance" value={race.raceDistance} suffix=" km" decimals={1} />
               </div>
             </div>
           </div>
@@ -132,9 +141,7 @@ export default function NextRaceSection() {
           <div className="relative flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.07] px-7 py-5 md:px-10">
             <span className="flex items-center gap-2.5 text-[0.82rem] text-ink-mute">
               <Flag size={14} className="text-ink-faint" aria-hidden />
-              {race.circuit?.layout
-                ? `Layout measured from ${race.circuit.layout.source?.driver ?? 'a race lap'} at the ${race.circuit.layout.source?.year} race`
-                : 'Circuit layout not yet available'}
+              {layoutProvenance(race.circuit)}
             </span>
             <div className="flex flex-wrap gap-2.5">
               <Button to={`/races/${race.id}`} variant="ghost" size="sm">

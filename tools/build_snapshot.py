@@ -45,9 +45,6 @@ for ev in cal:
             'outline': g['outline'],
             'corners': g['corners'],
             'startFinish': g['startFinish'],
-            'drsZones': g['drsZones'],
-            'fullThrottleZones': g['fullThrottleZones'],
-            'brakingZones': g['brakingZones'],
             'rotation': g['rotation'],
             'maxSpeed': g['maxSpeed'],
             'avgSpeed': g['avgSpeed'],
@@ -63,6 +60,9 @@ for ev in cal:
     if g and (g.get('speedTrace') or g.get('racingLine')):
         json.dump({'speedTrace': g.get('speedTrace', []),
                    'racingLine': g.get('racingLine', []),
+                   'drsZones': g.get('drsZones', []),
+                   'fullThrottleZones': g.get('fullThrottleZones', []),
+                   'brakingZones': g.get('brakingZones', []),
                    'source': g.get('geometrySource')},
                   open(f'{DEST}/telemetry/{cid}.json', 'w'), separators=(',', ':'))
 

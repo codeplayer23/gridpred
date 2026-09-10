@@ -31,8 +31,11 @@ const HALO_STACK = [
  * The outline is a real racing line reconstructed from position telemetry; the
  * corner markers are FastF1's real corner coordinates.
  *
- * When a circuit has no geometry — the Madring has never hosted a session —
- * this renders an explicit unavailable state instead of inventing a shape.
+ * When a circuit has no geometry at all, this renders an explicit unavailable
+ * state instead of inventing a shape. A circuit can also have an outline but no
+ * corner markers or start/finish line — the Madring is drawn from a surveyed
+ * centreline because no session has run there — so both are drawn only when the
+ * layout actually carries them.
  */
 function CircuitMap({
   circuit,
@@ -118,7 +121,7 @@ function CircuitMap({
         viewBox={VIEW_BOX}
         className="h-full w-full overflow-visible"
         role="img"
-        aria-label={`${circuit.name} circuit layout, ${corners.length} corners`}
+        aria-label={`${circuit.name} circuit layout, ${circuit.corners ?? corners.length} corners`}
         onMouseMove={handleMove}
         onMouseLeave={() => {
           setPointer(null);

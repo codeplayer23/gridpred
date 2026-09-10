@@ -14,7 +14,7 @@ import { parseUtc } from '@/lib/session';
 import { spring, springSnappy } from '@/lib/motion';
 import { useCountdown } from '@/hooks';
 import { raceById } from '@/data/races';
-import { circuitCharacter } from '@/data/circuits';
+import { circuitCharacter, isTelemetryLayout } from '@/data/circuits';
 import { circuitPerformance, getResult } from '@/data/results';
 import { useRoundResult } from '@/hooks/useLiveSeason';
 import SessionResults from '@/components/races/SessionResults';
@@ -54,12 +54,34 @@ export default function RaceDetail() {
   const { days, hours, minutes } = countdownParts(ms);
   const character = circuitCharacter(circuit);
   const layout = circuit?.layout;
+  // Every layout is real, but only a telemetry layout can name a lap and a
+  // driver. A surveyed centreline is described by its survey instead.
+  const telemetry = isTelemetryLayout(circuit);
+  const lapKm =
+    layout?.lapDistance != null ? `${(layout.lapDistance / 1000).toFixed(3)} km` : '—';
+  const sourceRows = !layout
+    ? []
+    : telemetry
+      ? [
+          ['Session', `${layout.source?.year} ${layout.source?.session ?? 'Race'}`],
+          ['Reference lap', layout.source?.driver ?? '—'],
+          ['Lap time', layout.source?.lapTime?.replace('0 days ', '') ?? '—'],
+          ['Corners marked', layout.corners.length],
+          ['Measured lap', lapKm],
+        ]
+      : [
+          ['Provider', layout.source?.provider ?? 'OpenStreetMap'],
+          ['Licence', layout.source?.licence ?? 'ODbL 1.0'],
+          ['Route relation', layout.source?.relation ? `#${layout.source.relation}` : '—'],
+          ['Corners marked', '—'],
+          ['Centreline', lapKm],
+        ];
 
   const headline = [
     ['Track length', circuit?.trackLength, ' km', 3],
     ['Laps', circuit?.laps, '', 0],
     ['Race distance', circuit?.raceDistance, ' km', 1],
-    ['Corners', layout?.corners?.length ?? circuit?.corners, '', 0],
+    ['Corners', circuit?.corners, '', 0],
   ];
 
   return (
@@ -138,7 +160,7 @@ export default function RaceDetail() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             >
-              {layout && (
+              {telemetry && (
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div className="flex rounded-full border border-white/[0.08] p-1">
                     {VIEW_MODES.map((m) => (
@@ -188,26 +210,41 @@ export default function RaceDetail() {
       </header>
 
       {/* ── Measured character ─────────────────────────────── */}
-      {character && (
+      {layout && (
         <section className="px-6 py-20 md:px-10 md:py-28">
           <div className="mx-auto max-w-7xl">
             <SectionHeader
               eyebrow="Track characteristics"
-              title="Measured, not estimated"
-              lede={`Every figure below was read from the telemetry of a real lap here — ${layout.source?.driver ?? 'a race lap'} at the ${layout.source?.year} race.`}
+              title={telemetry ? 'Measured, not estimated' : 'Surveyed, not estimated'}
+              lede={
+                telemetry
+                  ? `Every figure below was read from the telemetry of a real lap here — ${layout.source?.driver ?? 'a race lap'} at the ${layout.source?.year} race.`
+                  : 'No Formula 1 car has run here, so there is no telemetry to read. The outline is the circuit’s surveyed centreline; the figures telemetry would supply are left blank rather than guessed.'
+              }
             />
             <div className="mt-14 grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
               <div className="flex flex-col gap-8">
-                {character.map((c) => (
-                  <Meter
-                    key={c.key}
-                    label={c.label}
-                    value={c.value}
-                    max={c.max}
-                    accent="#e10600"
-                    readout={`${c.value}${c.suffix}`}
-                  />
-                ))}
+                {character ? (
+                  character.map((c) => (
+                    <Meter
+                      key={c.key}
+                      label={c.label}
+                      value={c.value}
+                      max={c.max}
+                      accent="#e10600"
+                      readout={`${c.value}${c.suffix}`}
+                    />
+                  ))
+                ) : (
+                  <div className="rounded-[24px] border border-dashed border-white/[0.1] p-7">
+                    <p className="mono-label mb-4">Not measured yet</p>
+                    <p className="text-[0.88rem] leading-relaxed text-ink-mute">
+                      Top speed, average speed, full-throttle and braking share are
+                      read from a car’s own telemetry. They appear here once the
+                      first session has run at this circuit.
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="flex flex-col gap-6">
                 <div className="rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-7 backdrop-blur-xl">
@@ -216,13 +253,7 @@ export default function RaceDetail() {
                     Geometry source
                   </p>
                   <dl className="flex flex-col gap-3.5 text-[0.9rem]">
-                    {[
-                      ['Session', `${layout.source?.year} ${layout.source?.session ?? 'Race'}`],
-                      ['Reference lap', layout.source?.driver ?? '—'],
-                      ['Lap time', layout.source?.lapTime?.replace('0 days ', '') ?? '—'],
-                      ['Corners marked', layout.corners.length],
-                      ['Measured lap', `${(layout.lapDistance / 1000).toFixed(3)} km`],
-                    ].map(([k, v]) => (
+                    {sourceRows.map(([k, v]) => (
                       <div key={k} className="flex items-baseline justify-between gap-4 border-b border-white/[0.05] pb-3.5">
                         <dt className="text-ink-mute">{k}</dt>
                         <dd className="tabular font-medium">{v}</dd>
@@ -230,8 +261,9 @@ export default function RaceDetail() {
                     ))}
                   </dl>
                   <p className="mt-5 text-[0.76rem] leading-relaxed text-ink-faint">
-                    The outline is the path the car actually took, not an
-                    illustration. Corner positions come from FastF1's circuit data.
+                    {telemetry
+                      ? "The outline is the path the car actually took, not an illustration. Corner positions come from FastF1's circuit data."
+                      : 'The outline is the circuit’s mapped centreline, not an illustration. Corner numbering and the start/finish line come from FastF1 once a session has run. Map data © OpenStreetMap contributors.'}
                   </p>
                 </div>
 
@@ -243,8 +275,10 @@ export default function RaceDetail() {
                   <p className="text-[0.85rem] leading-relaxed text-ink-mute">
                     The 2026 regulations replaced DRS with active aerodynamics and
                     an overtake boost. The DRS channel reads zero at every circuit
-                    this season, so GridPred shows measured full-throttle and
-                    braking zones instead of inventing zones that no longer exist.
+                    this season, so no DRS zones are drawn
+                    {telemetry
+                      ? ' — GridPred shows measured full-throttle and braking zones instead.'
+                      : ' here or anywhere else this season.'}
                   </p>
                 </div>
               </div>

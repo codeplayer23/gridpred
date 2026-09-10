@@ -52,9 +52,11 @@ export default function CircuitCornerPanel({ circuit, corner }) {
             exit={{ opacity: 0 }}
             className="px-1 py-4 text-[0.8rem] text-ink-faint"
           >
-            {layout
-              ? `${layout.corners.length} corners marked from FastF1 circuit data — hover one to read it.`
-              : null}
+            {!layout
+              ? null
+              : layout.corners.length
+                ? `${layout.corners.length} corners marked from FastF1 circuit data — hover one to read it.`
+                : 'Corner positions come from FastF1 circuit data, which needs a session to have run here. None yet for this circuit.'}
           </motion.p>
         )}
       </AnimatePresence>

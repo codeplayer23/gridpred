@@ -18,51 +18,11 @@ fastf1.Cache.enable_cache('f1cache')
 OUT = 'out'
 os.makedirs(OUT, exist_ok=True)
 SEASON = 2026
-VW, VH, PAD = 1000.0, 620.0, 64.0
 
 def log(*a): print(*a, file=sys.stderr, flush=True)
 
 # ── geometry helpers ──────────────────────────────────────────────────────
-def rotate(xy, deg):
-    r = math.radians(deg); c, s = math.cos(r), math.sin(r)
-    return np.column_stack([xy[:, 0]*c - xy[:, 1]*s, xy[:, 0]*s + xy[:, 1]*c])
-
-def rdp(pts, eps):
-    if len(pts) < 3: return pts
-    start, end = pts[0], pts[-1]
-    d = end - start; n = math.hypot(*d)
-    if n == 0:
-        dist = np.hypot(pts[:, 0]-start[0], pts[:, 1]-start[1])
-    else:
-        dist = np.abs(d[0]*(start[1]-pts[:, 1]) - (start[0]-pts[:, 0])*d[1]) / n
-    i = int(np.argmax(dist))
-    if dist[i] > eps:
-        return np.vstack([rdp(pts[:i+1], eps)[:-1], rdp(pts[i:], eps)])
-    return np.vstack([start, end])
-
-def smooth_path(pts, closed=True):
-    """Catmull-Rom through the points -> cubic bezier path data."""
-    n = len(pts)
-    at = lambda i: pts[i % n] if closed else pts[max(0, min(n-1, i))]
-    d = f"M {pts[0][0]:.1f} {pts[0][1]:.1f}"
-    last = n if closed else n-1
-    for i in range(last):
-        p0, p1, p2, p3 = at(i-1), at(i), at(i+1), at(i+2)
-        c1 = p1 + (p2 - p0) / 6.0
-        c2 = p2 - (p3 - p1) / 6.0
-        d += f" C {c1[0]:.1f} {c1[1]:.1f} {c2[0]:.1f} {c2[1]:.1f} {p2[0]:.1f} {p2[1]:.1f}"
-    return d + (" Z" if closed else "")
-
-def make_transform(xy):
-    minx, maxx = float(xy[:, 0].min()), float(xy[:, 0].max())
-    miny, maxy = float(xy[:, 1].min()), float(xy[:, 1].max())
-    scale = min((VW-2*PAD)/max(maxx-minx, 1e-6), (VH-2*PAD)/max(maxy-miny, 1e-6))
-    ox = (VW - (maxx-minx)*scale)/2 - minx*scale
-    oy = (VH - (maxy-miny)*scale)/2 - miny*scale
-    def tf(p):
-        p = np.asarray(p, dtype=float)
-        return np.column_stack([p[:, 0]*scale+ox, VH - (p[:, 1]*scale+oy)])
-    return tf
+from geometry import VIEW, rotate, rdp, smooth_path, make_transform  # noqa: E402
 
 def contiguous(mask, dist, min_len):
     """Ranges where mask is true and the covered distance exceeds min_len."""

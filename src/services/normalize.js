@@ -101,6 +101,9 @@ export function normalizeRace(raw) {
 
 export function normalizeCircuit(raw) {
   const g = raw.geometry ?? null;
+  const measured =
+    g != null &&
+    [g.maxSpeed, g.avgSpeed, g.fullThrottlePct, g.brakingPct].some((v) => v != null);
   return {
     id: raw.id,
     name: raw.name ?? raw.location,
@@ -110,10 +113,14 @@ export function normalizeCircuit(raw) {
     trackLength: raw.trackLength ?? null,
     laps: raw.laps ?? null,
     raceDistance: raw.raceDistance ?? null,
-    corners: g?.corners?.length ?? raw.cornerCount ?? null,
-    /** Real geometry measured from car position telemetry, or null. */
+    // Marked corners when the geometry carries them, otherwise the official
+    // count. A layout can have an outline and an empty corner list — the
+    // Madring's centreline comes from OpenStreetMap, which has no corner
+    // numbering — so an empty array must not read as "zero corners".
+    corners: g?.corners?.length || raw.cornerCount || null,
     /**
-     * Real geometry measured from car position telemetry, or null.
+     * Real geometry, or null. Usually reconstructed from car position
+     * telemetry; where no session has ever run, a surveyed centreline.
      * Zone overlays (full throttle, braking, DRS) are NOT here — they ship with
      * the lazily-loaded telemetry payload, see services/telemetry.js.
      */
@@ -123,11 +130,18 @@ export function normalizeCircuit(raw) {
           corners: g.corners,
           startFinish: g.startFinish,
           rotation: g.rotation,
+          lapDistance: g.lapDistance,
           source: g.geometrySource,
         }
       : null,
     unavailableReason: raw.geometryUnavailable ?? null,
-    measurements: g
+    /**
+     * Speed and throttle figures, which only telemetry can supply. Having an
+     * outline does not imply having these: a circuit drawn from a centreline
+     * has every figure null, and null here is what makes the UI say "not
+     * measured" instead of showing a confident zero.
+     */
+    measurements: measured
       ? {
           maxSpeed: g.maxSpeed,
           avgSpeed: g.avgSpeed,

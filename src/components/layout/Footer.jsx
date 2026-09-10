@@ -13,7 +13,9 @@ export default function Footer() {
             <p className="mt-5 text-sm leading-relaxed text-ink-mute">
               A Formula 1 race-prediction interface built on real {SEASON} season
               data from FastF1 — real results, real circuit geometry measured
-              from car telemetry, real corner positions.
+              from car telemetry, real corner positions. The Madring has not been
+              raced yet, so its outline is the surveyed centreline from
+              OpenStreetMap.
             </p>
           </div>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-12 gap-y-8">
@@ -41,7 +43,22 @@ export default function Footer() {
         </div>
         <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-8 text-[0.72rem] text-ink-faint sm:flex-row sm:items-center sm:justify-between">
           <span>© {SEASON} GridPred — an independent project, not affiliated with Formula 1.</span>
-          <span className="mono-label text-[0.6rem]">Data via FastF1</span>
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="mono-label text-[0.6rem]">Data via FastF1</span>
+            {/* ODbL 1.0 requires the source to be credited wherever the data is shown. */}
+            <span className="mono-label text-[0.6rem]">
+              Map data ©{' '}
+              <a
+                href="https://www.openstreetmap.org/copyright"
+                target="_blank"
+                rel="noreferrer"
+                className="underline decoration-white/20 underline-offset-2 transition-colors hover:text-ink-dim"
+              >
+                OpenStreetMap
+              </a>{' '}
+              contributors
+            </span>
+          </span>
         </div>
       </div>
     </footer>
