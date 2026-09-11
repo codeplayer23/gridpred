@@ -380,6 +380,8 @@ export function LiveSeasonProvider({ children }) {
       freshRounds,
       resultsByRound,
       resultsByCircuit,
+      /** Per-driver season counts, recomputed from the rounds actually run. */
+      seasonCounts,
       /** Published-schedule differences against the bundled calendar. */
       scheduleChanges,
       schedule,

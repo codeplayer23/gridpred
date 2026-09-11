@@ -110,11 +110,14 @@ export function useDriverStats(driverId) {
  * it updates, so the fallback to the snapshot is all-or-nothing.
  */
 export function useDriverStandings() {
-  const { driverOrder } = useLiveSeason();
+  const { driverOrder, seasonCounts } = useLiveSeason();
   return useMemo(() => {
+    // The snapshot's counted stats stop at the round it was built on, so the
+    // recomputed ones are laid over them wherever the table shows a count.
+    const counted = (id) => (id && seasonCounts?.[id]) || null;
     if (!driverOrder?.length) {
       return snapshotDrivers
-        .map((d) => ({ ...snapshotStandings[d.id], driverId: d.id, teamId: d.team }))
+        .map((d) => ({ ...snapshotStandings[d.id], ...counted(d.id), driverId: d.id, teamId: d.team }))
         .sort((a, b) => a.position - b.position);
     }
     const byId = Object.fromEntries(snapshotDrivers.map((d) => [d.id, d]));
@@ -122,6 +125,7 @@ export function useDriverStandings() {
       const known = row.driverId ? byId[row.driverId] : null;
       return {
         ...(row.driverId ? snapshotStandings[row.driverId] : null),
+        ...counted(row.driverId),
         driverId: row.driverId,
         teamId: known?.team ?? null,
         position: row.position,
@@ -133,7 +137,7 @@ export function useDriverStandings() {
           : { firstName: row.firstName, surname: row.surname, number: row.number },
       };
     });
-  }, [driverOrder]);
+  }, [driverOrder, seasonCounts]);
 }
 
 /** Constructors' championship, built the same way. */
