@@ -289,6 +289,59 @@ export function LiveSeasonProvider({ children }) {
     const roundByCircuit = Object.fromEntries(
       snapshotRaces.map((r) => [r.round, r.circuitId ?? r.id]),
     );
+    /**
+     * Season counts recomputed from the rounds actually run.
+     *
+     * The snapshot's per-driver aggregates are frozen at the round it was built
+     * on, and the standings feed only corrects points, position and wins. That
+     * left everything else — podiums, starts, poles, retirements — two rounds
+     * behind, so a driver who stood on the podium last Sunday still showed the
+     * count from a fortnight ago. These are counted from each driver's bundled
+     * form with the published rounds laid over it, so they move with the season
+     * instead of with the build.
+     */
+    const seasonCounts = {};
+    for (const d of snapshotDrivers) {
+      const byRound = new Map((d.form ?? []).map((f) => [f.round, f]));
+      for (const r of freshRounds) {
+        const row = r.results.find((x) => x.driverId === d.id);
+        if (!row) continue;
+        byRound.set(r.round, {
+          round: r.round,
+          position: row.position,
+          grid: row.grid,
+          points: row.points,
+          finished: row.finished,
+          fastestLap: row.fastestLap,
+        });
+      }
+
+      const rounds = [...byRound.values()];
+      const scored = rounds.filter((f) => f.finished && f.position);
+      const positions = scored.map((f) => f.position);
+      const grids = rounds.map((f) => f.grid).filter(Boolean);
+      const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+      const gained = rounds
+        .filter((f) => f.finished && f.grid && f.position)
+        .map((f) => f.grid - f.position);
+
+      seasonCounts[d.id] = {
+        starts: rounds.length,
+        wins: positions.filter((p) => p === 1).length,
+        podiums: positions.filter((p) => p <= 3).length,
+        poles: rounds.filter((f) => f.grid === 1).length,
+        fastestLaps: rounds.filter((f) => f.fastestLap).length,
+        dnfs: rounds.filter((f) => !(f.finished && f.position)).length,
+        bestFinish: positions.length ? Math.min(...positions) : null,
+        avgFinish: positions.length ? Number(mean(positions).toFixed(2)) : null,
+        avgGrid: grids.length ? Number(mean(grids).toFixed(2)) : null,
+        finishRate: rounds.length
+          ? Math.round((100 * scored.length) / rounds.length)
+          : null,
+        avgPositionsGained: gained.length ? Number(mean(gained).toFixed(2)) : null,
+      };
+    }
+
     const resultsByCircuit = Object.fromEntries(
       freshRounds.map((r) => [roundByCircuit[r.round] ?? String(r.round), r]),
     );
@@ -344,7 +397,10 @@ export function LiveSeasonProvider({ children }) {
       driverStats(driverId) {
         const base = snapshotStandings[driverId] ?? null;
         const over = live?.drivers?.[driverId];
-        if (base) return over ? { ...base, ...over } : base;
+        // Counted stats come from the rounds run; the championship feed stays
+        // authoritative for points, position and wins.
+        const counted = seasonCounts[driverId] ?? null;
+        if (base) return { ...base, ...counted, ...over };
         if (over) return { driverId, ...over };
         // someone only the live feed knows about
         const fresh = newcomers.find((n) => n.id === driverId);
