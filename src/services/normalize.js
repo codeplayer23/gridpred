@@ -6,6 +6,8 @@
  * snapshot and a future live GridPred API pass through them, so a component can
  * never depend on where its data came from.
  */
+import { parseUtc } from '@/lib/session';
+
 
 export const slug = (s) =>
   String(s ?? '')
@@ -81,6 +83,7 @@ export function normalizeTeam(raw) {
 }
 
 export function normalizeRace(raw) {
+  const startsAt = raw.raceSessionUtc ?? `${raw.eventDate}T13:00:00Z`;
   return {
     id: raw.id,
     round: raw.round,
@@ -90,12 +93,20 @@ export function normalizeRace(raw) {
     country: raw.country,
     city: raw.location,
     date: raw.eventDate,
-    startsAt: raw.raceSessionUtc ?? `${raw.eventDate}T13:00:00Z`,
+    startsAt,
     format: raw.format,
     isSprint: raw.isSprint,
     sessions: raw.sessions ?? [],
     circuitId: raw.circuitId ?? raw.id,
-    completed: raw.raced,
+    /**
+     * Whether this race has happened.
+     *
+     * `raced` is written when the snapshot is built, so every round run since
+     * then still reads false — which is how finished races came to be labelled
+     * upcoming on the calendar. The clock is the honest answer; the flag only
+     * ever raises it, never lowers it.
+     */
+    completed: Boolean(raw.raced) || parseUtc(startsAt) < Date.now(),
   };
 }
 

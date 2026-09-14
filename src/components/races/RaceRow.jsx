@@ -8,6 +8,7 @@ import { dateParts } from '@/lib/format';
 import { parseUtc } from '@/lib/session';
 import { easeOut, spring } from '@/lib/motion';
 import { getResult } from '@/data/results';
+import { useRoundResult } from '@/hooks/useLiveSeason';
 import { driverById } from '@/data/drivers';
 import { getTeam } from '@/data/teams';
 
@@ -23,8 +24,13 @@ export default function RaceRow({ race, isNext = false, index = 0 }) {
   const [now] = useState(() => Date.now());
   const date = dateParts(race.startsAt);
   const done = parseUtc(race.startsAt) < now;
-  const result = done ? getResult(race.circuitId) : null;
-  const winner = result ? driverById[result.winner] : null;
+  // The bundled results stop at the round the snapshot was built on, so a race
+  // run since then had no winner to show and the row fell through to the
+  // "Upcoming" label — describing a race that had already happened.
+  const liveResult = useRoundResult(race.circuitId);
+  const result = done ? (liveResult ?? getResult(race.circuitId)) : null;
+  const winnerId = result?.winner ?? result?.results?.find((r) => r.position === 1)?.driverId;
+  const winner = winnerId ? driverById[winnerId] : null;
   const accent = winner ? getTeam(winner.team).accent : '#e10600';
 
   return (
@@ -105,7 +111,11 @@ export default function RaceRow({ race, isNext = false, index = 0 }) {
                   </span>
                 </span>
               ) : (
-                <span className="mono-label text-[0.55rem]">Upcoming</span>
+                // A race that has been run is never "upcoming"; if its result
+                // has not reached us yet, say that instead.
+                <span className="mono-label text-[0.55rem]">
+                  {done ? 'Result pending' : 'Upcoming'}
+                </span>
               )}
             </span>
 
