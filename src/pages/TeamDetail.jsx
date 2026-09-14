@@ -10,7 +10,7 @@ import TeamLogo from '@/components/teams/TeamLogo';
 import TeamComparison from '@/components/teams/TeamComparison';
 import { teamById } from '@/data/teams';
 import { getDriver } from '@/data/drivers';
-import { useTeamDrivers } from '@/hooks/useLiveSeason';
+import { useConstructorStats, useTeamDrivers } from '@/hooks/useLiveSeason';
 import { constructorById } from '@/data/results';
 import NotFound from './NotFound';
 import Bloom from '@/components/ui/Bloom';
@@ -19,9 +19,11 @@ export default function TeamDetail() {
   const { id } = useParams();
   const team = teamById[id];
   const entered = useTeamDrivers(id);
+  // Hooks run before the not-found return, so this is keyed off the route param.
+  const liveStats = useConstructorStats(id);
   if (!team) return <NotFound label="Team not found" />;
 
-  const stats = constructorById[team.id];
+  const stats = liveStats ?? constructorById[team.id];
   const drivers = entered.length ? entered : team.drivers.map(getDriver);
   const accent = team.accent;
 

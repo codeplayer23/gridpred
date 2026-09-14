@@ -142,16 +142,22 @@ export function useDriverStandings() {
 
 /** Constructors' championship, built the same way. */
 export function useConstructorStandings() {
-  const { constructorOrder } = useLiveSeason();
+  const { constructorOrder, constructorCounts } = useLiveSeason();
   return useMemo(() => {
+    // Counted stats are recomputed from the rounds run, so a team's podiums sit
+    // on the same round as its points rather than on the snapshot's.
+    const counted = (id) => (id && constructorCounts?.[id]) || null;
     if (!constructorOrder?.length) {
-      return [...snapshotTeams].sort((a, b) => a.position - b.position);
+      return [...snapshotTeams]
+        .map((t) => ({ ...t, ...counted(t.id) }))
+        .sort((a, b) => a.position - b.position);
     }
     const byId = Object.fromEntries(snapshotTeams.map((t) => [t.id, t]));
     return constructorOrder.map((row) => {
       const known = row.teamId ? byId[row.teamId] : null;
       return {
         ...(known ?? {}),
+        ...counted(row.teamId),
         id: row.teamId ?? row.name,
         name: known?.name ?? row.name,
         position: row.position,
@@ -160,9 +166,25 @@ export function useConstructorStandings() {
         unresolved: !known,
       };
     });
-  }, [constructorOrder]);
+  }, [constructorOrder, constructorCounts]);
 }
 
+
+/**
+ * One constructor's championship row, live.
+ *
+ * The team pages used to read the bundled table directly, which is how a team
+ * ended up showing this week's points beside a podium count from the round the
+ * snapshot was built on. Going through the live table keeps the whole row on
+ * the same set of races.
+ */
+export function useConstructorStats(teamId) {
+  const table = useConstructorStandings();
+  return useMemo(
+    () => table.find((t) => t.id === teamId) ?? null,
+    [table, teamId],
+  );
+}
 
 /**
  * Classification for a round, preferring a result that has come in since the

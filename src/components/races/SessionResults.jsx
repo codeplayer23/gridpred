@@ -15,6 +15,22 @@ import { useWeekendSessions, useWeekendGrid } from '@/hooks/useLiveSeason';
  * qualifying come from the timing API instead. Renders nothing until at least
  * one session of the weekend has been timed.
  */
+/**
+ * A gap is seconds behind the leader — except for a car that has been lapped,
+ * where the timing feed sends text instead ("+1 LAP"). Running that through
+ * Number() yields NaN, which is how "+NaN" ended up next to every lapped
+ * finisher. Numeric gaps are formatted; anything else is shown as it came.
+ */
+function formatGap(gap) {
+  // Number('') and Number(null) are both 0, so an empty gap would otherwise
+  // read as a dead heat with the leader.
+  const text = String(gap ?? '').trim();
+  if (!text) return '—';
+  const seconds = Number(text);
+  if (Number.isFinite(seconds)) return `+${seconds.toFixed(3)}`;
+  return text.startsWith('+') ? text : `+${text}`;
+}
+
 function formatDuration(seconds) {
   if (seconds == null || Number.isNaN(seconds)) return '—';
   const m = Math.floor(seconds / 60);
@@ -98,7 +114,7 @@ export default function SessionResults({ className = '' }) {
                   ) : row.position === 1 ? (
                     formatDuration(row.duration)
                   ) : row.gap != null ? (
-                    <span className="text-ink-mute">+{Number(row.gap).toFixed(3)}</span>
+                    <span className="text-ink-mute">{formatGap(row.gap)}</span>
                   ) : (
                     formatDuration(row.duration)
                   )}

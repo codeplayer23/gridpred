@@ -18,11 +18,11 @@
    "status": "Finished",
    "ageYears": 18
   },
-  "starts": 37,
-  "wins": 7,
-  "podiums": 14,
+  "starts": 38,
+  "wins": 8,
+  "podiums": 15,
   "poles": 6,
-  "points": 417,
+  "points": 442,
   "bestFinish": 1,
   "seasons": [
    {
@@ -41,10 +41,10 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 267,
-    "wins": 7,
-    "podiums": 11,
+    "races": 14,
+    "points": 292,
+    "wins": 8,
+    "podiums": 12,
     "poles": 6,
     "bestFinish": 1,
     "teams": [
@@ -74,7 +74,7 @@
    "status": "Finished",
    "ageYears": 22
   },
-  "starts": 393,
+  "starts": 394,
   "wins": 106,
   "podiums": 207,
   "poles": 104,
@@ -335,7 +335,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 191,
     "wins": 1,
     "podiums": 5,
@@ -344,7 +344,7 @@
     "teams": [
      "Ferrari"
     ],
-    "retirements": 0,
+    "retirements": 1,
     "sprintPoints": 20
    }
   ]
@@ -368,11 +368,11 @@
    "status": "+2 Laps",
    "ageYears": 21
   },
-  "starts": 165,
+  "starts": 166,
   "wins": 7,
   "podiums": 31,
   "poles": 12,
-  "points": 1234,
+  "points": 1244,
   "bestFinish": 1,
   "seasons": [
    {
@@ -473,8 +473,8 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 201,
+    "races": 14,
+    "points": 211,
     "wins": 2,
     "podiums": 7,
     "poles": 4,
@@ -506,11 +506,11 @@
    "status": "Finished",
    "ageYears": 20
   },
-  "starts": 186,
+  "starts": 187,
   "wins": 9,
   "podiums": 54,
   "poles": 27,
-  "points": 1827,
+  "points": 1839,
   "bestFinish": 1,
   "seasons": [
    {
@@ -623,8 +623,8 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 155,
+    "races": 14,
+    "points": 167,
     "wins": 1,
     "podiums": 4,
     "poles": 0,
@@ -656,11 +656,11 @@
    "status": "+1 Lap",
    "ageYears": 19
   },
-  "starts": 165,
+  "starts": 166,
   "wins": 13,
-  "podiums": 48,
-  "poles": 18,
-  "points": 1601,
+  "podiums": 49,
+  "poles": 19,
+  "points": 1616,
   "bestFinish": 1,
   "seasons": [
    {
@@ -760,11 +760,11 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 171,
+    "races": 14,
+    "points": 186,
     "wins": 2,
-    "podiums": 4,
-    "poles": 2,
+    "podiums": 5,
+    "poles": 3,
     "bestFinish": 1,
     "teams": [
      "McLaren"
@@ -793,11 +793,11 @@
    "status": "Engine",
    "ageYears": 17
   },
-  "starts": 246,
+  "starts": 247,
   "wins": 71,
-  "podiums": 132,
+  "podiums": 133,
   "poles": 48,
-  "points": 3571.5,
+  "points": 3589.5,
   "bestFinish": 1,
   "seasons": [
    {
@@ -951,10 +951,10 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 127,
+    "races": 14,
+    "points": 145,
     "wins": 0,
-    "podiums": 5,
+    "podiums": 6,
     "poles": 0,
     "bestFinish": 2,
     "teams": [
@@ -984,11 +984,11 @@
    "status": "Retired",
    "ageYears": 21
   },
-  "starts": 83,
+  "starts": 84,
   "wins": 9,
   "podiums": 28,
   "poles": 6,
-  "points": 915,
+  "points": 919,
   "bestFinish": 1,
   "seasons": [
    {
@@ -1035,8 +1035,8 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 116,
+    "races": 14,
+    "points": 120,
     "wins": 0,
     "podiums": 2,
     "poles": 0,
@@ -1123,11 +1123,11 @@
    "status": "Finished",
    "ageYears": 21
   },
-  "starts": 48,
+  "starts": 49,
   "wins": 0,
   "podiums": 0,
   "poles": 0,
-  "points": 95,
+  "points": 103,
   "bestFinish": 5,
   "seasons": [
    {
@@ -1172,8 +1172,8 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 51,
+    "races": 14,
+    "points": 59,
     "wins": 0,
     "podiums": 0,
     "poles": 0,
@@ -1206,7 +1206,7 @@
    "status": "+1 Lap",
    "ageYears": 21
   },
-  "starts": 191,
+  "starts": 192,
   "wins": 1,
   "podiums": 5,
   "poles": 1,
@@ -1336,7 +1336,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 41,
     "wins": 0,
     "podiums": 0,
@@ -1345,7 +1345,7 @@
     "teams": [
      "Alpine F1 Team"
     ],
-    "retirements": 7,
+    "retirements": 8,
     "sprintPoints": 2
    }
   ]
@@ -1369,17 +1369,17 @@
    "status": "Lapped",
    "ageYears": 18
   },
-  "starts": 13,
+  "starts": 14,
   "wins": 0,
   "podiums": 0,
   "poles": 0,
-  "points": 29,
+  "points": 31,
   "bestFinish": 6,
   "seasons": [
    {
     "season": 2026,
-    "races": 13,
-    "points": 29,
+    "races": 14,
+    "points": 31,
     "wins": 0,
     "podiums": 0,
     "poles": 0,
@@ -1387,7 +1387,7 @@
     "teams": [
      "RB F1 Team"
     ],
-    "retirements": 8,
+    "retirements": 9,
     "sprintPoints": 1
    }
   ]
@@ -1411,11 +1411,11 @@
    "status": "Finished",
    "ageYears": 21
   },
-  "starts": 40,
+  "starts": 41,
   "wins": 0,
   "podiums": 0,
   "poles": 0,
-  "points": 26,
+  "points": 32,
   "bestFinish": 7,
   "seasons": [
    {
@@ -1446,8 +1446,8 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 21,
+    "races": 14,
+    "points": 27,
     "wins": 0,
     "podiums": 0,
     "poles": 0,
@@ -1478,7 +1478,7 @@
    "status": "Finished",
    "ageYears": 18
   },
-  "starts": 40,
+  "starts": 41,
   "wins": 0,
   "podiums": 0,
   "poles": 0,
@@ -1515,7 +1515,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 18,
     "wins": 0,
     "podiums": 0,
@@ -1524,7 +1524,7 @@
     "teams": [
      "Haas F1 Team"
     ],
-    "retirements": 9,
+    "retirements": 10,
     "sprintPoints": 1
    }
   ]
@@ -1548,7 +1548,7 @@
    "status": "Retired",
    "ageYears": 20
   },
-  "starts": 37,
+  "starts": 38,
   "wins": 0,
   "podiums": 0,
   "poles": 0,
@@ -1570,7 +1570,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 10,
     "wins": 0,
     "podiums": 0,
@@ -1579,7 +1579,7 @@
     "teams": [
      "Audi"
     ],
-    "retirements": 8
+    "retirements": 9
    }
   ]
  },
@@ -1602,7 +1602,7 @@
    "status": "+1 Lap",
    "ageYears": 20
   },
-  "starts": 245,
+  "starts": 246,
   "wins": 4,
   "podiums": 29,
   "poles": 6,
@@ -1760,7 +1760,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 6,
     "wins": 0,
     "podiums": 0,
@@ -1769,7 +1769,7 @@
     "teams": [
      "Williams"
     ],
-    "retirements": 9
+    "retirements": 10
    }
   ]
  },
@@ -1792,7 +1792,7 @@
    "status": "+1 Lap",
    "ageYears": 22
   },
-  "starts": 142,
+  "starts": 143,
   "wins": 0,
   "podiums": 2,
   "poles": 0,
@@ -1882,7 +1882,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 5,
     "wins": 0,
     "podiums": 0,
@@ -1891,7 +1891,7 @@
     "teams": [
      "Williams"
     ],
-    "retirements": 10
+    "retirements": 11
    }
   ]
  },
@@ -1914,7 +1914,7 @@
    "status": "+1 Lap",
    "ageYears": 19
   },
-  "starts": 193,
+  "starts": 194,
   "wins": 1,
   "podiums": 4,
   "poles": 0,
@@ -2043,7 +2043,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 3,
     "wins": 0,
     "podiums": 0,
@@ -2052,7 +2052,7 @@
     "teams": [
      "Haas F1 Team"
     ],
-    "retirements": 9
+    "retirements": 10
    }
   ]
  },
@@ -2075,11 +2075,11 @@
    "status": "+1 Lap",
    "ageYears": 22
   },
-  "starts": 267,
+  "starts": 268,
   "wins": 0,
   "podiums": 1,
   "poles": 1,
-  "points": 628,
+  "points": 629,
   "bestFinish": 3,
   "seasons": [
    {
@@ -2268,8 +2268,8 @@
    },
    {
     "season": 2026,
-    "races": 13,
-    "points": 6,
+    "races": 14,
+    "points": 7,
     "wins": 0,
     "podiums": 0,
     "poles": 0,
@@ -2277,7 +2277,7 @@
     "teams": [
      "Audi"
     ],
-    "retirements": 9
+    "retirements": 10
    }
   ]
  },
@@ -2300,7 +2300,7 @@
    "status": "+2 Laps",
    "ageYears": 19
   },
-  "starts": 441,
+  "starts": 442,
   "wins": 32,
   "podiums": 106,
   "poles": 22,
@@ -2597,7 +2597,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 3,
     "wins": 0,
     "podiums": 0,
@@ -2606,7 +2606,7 @@
     "teams": [
      "Aston Martin"
     ],
-    "retirements": 12
+    "retirements": 13
    }
   ]
  },
@@ -2629,7 +2629,7 @@
    "status": "Disqualified",
    "ageYears": 21
   },
-  "starts": 296,
+  "starts": 297,
   "wins": 6,
   "podiums": 39,
   "poles": 3,
@@ -2823,7 +2823,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 0,
     "wins": 0,
     "podiums": 0,
@@ -2832,7 +2832,7 @@
     "teams": [
      "Cadillac F1 Team"
     ],
-    "retirements": 10
+    "retirements": 11
    }
   ]
  },
@@ -2855,7 +2855,7 @@
    "status": "+1 Lap",
    "ageYears": 23
   },
-  "starts": 260,
+  "starts": 261,
   "wins": 10,
   "podiums": 67,
   "poles": 20,
@@ -3022,7 +3022,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 0,
     "wins": 0,
     "podiums": 0,
@@ -3031,7 +3031,7 @@
     "teams": [
      "Cadillac F1 Team"
     ],
-    "retirements": 12
+    "retirements": 13
    }
   ]
  },
@@ -3054,7 +3054,7 @@
    "status": "Brakes",
    "ageYears": 18
   },
-  "starts": 204,
+  "starts": 205,
   "wins": 0,
   "podiums": 3,
   "poles": 1,
@@ -3182,7 +3182,7 @@
    },
    {
     "season": 2026,
-    "races": 13,
+    "races": 14,
     "points": 0,
     "wins": 0,
     "podiums": 0,
@@ -3191,7 +3191,7 @@
     "teams": [
      "Aston Martin"
     ],
-    "retirements": 13
+    "retirements": 14
    }
   ]
  }

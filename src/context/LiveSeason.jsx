@@ -5,10 +5,11 @@ import {
   fetchResultsSince,
   fetchSeasonResults,
   fetchSchedule,
+  resolveConstructorId,
 } from '@/services/live';
 import { drivers as snapshotDrivers } from '@/data/drivers';
 import { teams as snapshotTeams } from '@/data/teams';
-import { standingsById as snapshotStandings } from '@/data/results';
+import { standingsById as snapshotStandings, results as snapshotResults } from '@/data/results';
 import { SNAPSHOT, races as snapshotRaces } from '@/data/races';
 import { deriveDriverCode } from '@/data/driverAssets';
 import { LiveSeasonContext } from './liveSeasonContext';
@@ -342,6 +343,76 @@ export function LiveSeasonProvider({ children }) {
       };
     }
 
+    /**
+     * Constructor counts, on the same footing as the driver ones.
+     *
+     * Team points came from the championship feed while podiums, poles and the
+     * rest came from the snapshot, so a constructor row showed this week's
+     * points beside a fortnight-old podium count. Counting both from the rounds
+     * run keeps the row internally consistent.
+     *
+     * A result is credited to the constructor it was actually scored for, not
+     * to the driver's current team — a driver who has moved mid-season leaves
+     * his earlier points where he earned them.
+     */
+    const constructorCounts = {};
+    {
+      const merged = new Map(snapshotResults.map((r) => [r.round, {
+        round: r.round,
+        rows: r.results.map((x) => ({
+          teamId: x.teamId,
+          position: x.position,
+          grid: x.grid,
+          finished: x.status === 'Finished' || String(x.status ?? '').startsWith('+'),
+          fastestLap: x.fastestLap,
+        })),
+      }]));
+      for (const r of freshRounds) {
+        merged.set(r.round, {
+          round: r.round,
+          rows: r.results.map((x) => ({
+            teamId: resolveConstructorId(x.constructorName, snapshotTeams),
+            position: x.position,
+            grid: x.grid,
+            finished: x.finished,
+            fastestLap: x.fastestLap,
+          })),
+        });
+      }
+
+      for (const t of snapshotTeams) {
+        constructorCounts[t.id] = {
+          wins: 0, podiums: 0, poles: 0, fastestLaps: 0, dnfs: 0, entries: 0,
+        };
+      }
+      const finishes = {};
+      const gridSlots = {};
+      for (const round of merged.values()) {
+        for (const row of round.rows) {
+          const c = row.teamId && constructorCounts[row.teamId];
+          if (!c) continue;
+          c.entries += 1;
+          if (row.grid === 1) c.poles += 1;
+          if (row.fastestLap) c.fastestLaps += 1;
+          if (row.finished && row.position) {
+            if (row.position === 1) c.wins += 1;
+            if (row.position <= 3) c.podiums += 1;
+            (finishes[row.teamId] ??= []).push(row.position);
+          } else {
+            c.dnfs += 1;
+          }
+          if (row.grid) (gridSlots[row.teamId] ??= []).push(row.grid);
+        }
+      }
+      const mean = (xs) => (xs?.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+      for (const [id, c] of Object.entries(constructorCounts)) {
+        const f = mean(finishes[id]);
+        const g = mean(gridSlots[id]);
+        c.avgFinish = f == null ? null : Number(f.toFixed(2));
+        c.avgGrid = g == null ? null : Number(g.toFixed(2));
+      }
+    }
+
     const resultsByCircuit = Object.fromEntries(
       freshRounds.map((r) => [roundByCircuit[r.round] ?? String(r.round), r]),
     );
@@ -382,6 +453,8 @@ export function LiveSeasonProvider({ children }) {
       resultsByCircuit,
       /** Per-driver season counts, recomputed from the rounds actually run. */
       seasonCounts,
+      /** Per-constructor counts, recomputed the same way. */
+      constructorCounts,
       /** Published-schedule differences against the bundled calendar. */
       scheduleChanges,
       schedule,
