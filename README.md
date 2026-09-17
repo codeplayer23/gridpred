@@ -109,12 +109,15 @@ GridPred UI → GridPred API → FastF1 → F1 session data → prediction model
 ranked race order, per-driver factor attributions and a confidence figure. On a
 sprint weekend it also returns a ranked **sprint** with the top-eight scoring
 applied; the Predict page grows a Sprint tab only for rounds that have one. The
-sprint model leans about twice as hard on grid position and damps the random
-element, because a sprint is a third of the distance with no mandatory stop —
-which is why its order sits closer to qualifying than the race order does.
+sprint re-weights the race model's own score toward grid position, because a
+sprint is a third of the distance with no mandatory stop — which is why its
+order sits closer to qualifying than the race order does. There is no separate
+sprint model: the corpus holds too few sprints to fit one honestly.
 
-Replace the body of `predictRace` with a call to a served model and no component
-changes.
+The ordering itself comes from two trained XGBoost rankers rather than a
+weighting anyone chose — see [The prediction model](#the-prediction-model). The
+attributions are read out of the trees each driver's features actually fell
+through, so they sum to the score rather than describing it.
 
 Per-circuit telemetry (speed trace, racing line) is the one genuinely lazy path:
 it is fetched only when a circuit appears in telemetry mode, keeping ~300 KB out
@@ -271,3 +274,91 @@ GridPred is an independent project and is not affiliated with Formula 1.
 
 See `tools/README.md`. Scripts must run in the documented order;
 `build_snapshot.py` writes every file the app imports and must run last.
+
+## The prediction model
+
+`src/data/predictions.js` does not hand-weight anything. The ordering comes from
+two XGBoost rankers (`rank:pairwise`) trained by `tools/train_model.py`, and
+**they are retrained on every Vercel deploy** — see "Retraining" below.
+
+| | |
+| --- | --- |
+| Corpus | 106 races, 2146 classifications, 2022–2026 |
+| Source | Jolpica (Ergast successor) — every row a real classification |
+| Validation | 4-fold expanding window, chronological |
+| Race model | 31 trees, depth 2 |
+| Qualifying model | 55 trees |
+
+### Why two models
+
+An upcoming race has no grid, and grid position is the single strongest
+predictor of a finishing position. So the qualifying model orders the field
+without one, and the race model orders the field *from* it. They compose, and
+that composition is measured as its own thing, because it is a harder problem
+than it looks:
+
+| Predicting | winner called | podium recall | rank correlation | position MAE |
+| --- | --- | --- | --- | --- |
+| Race, grid known | **0.588** | 0.657 | **0.6813** | 3.22 |
+| Grid as-is (baseline) | 0.574 | 0.672 | 0.6624 | 3.29 |
+| Race, no grid yet | 0.338 | 0.569 | 0.5975 | 3.85 |
+
+The baseline is "everyone finishes where they started", which on an F1 grid is
+a genuinely strong predictor and the one worth beating. The model beats it on
+winner, rank correlation and MAE; podium recall is a shade behind.
+
+Predicting a race *before* qualifying is markedly weaker, and the interface says
+so rather than averaging the two away — an upcoming race quotes the lower figure
+as its confidence and gets flatter win probabilities, from a softmax temperature
+fitted separately for each case on held-out races.
+
+Most important features, by gain: gridPct (20.0%), teamSeasonAvgGrid (11.72%), careerAvgFinish (9.56%), seasonAvgGrid (9.49%), grid (9.25%).
+
+### What is not learned
+
+* **Weather.** The corpus carries none, so rain is applied on top of the model:
+  it flattens the probabilities and tilts toward drivers with a measured wet
+  record. It is labelled in the interface as an adjustment, not a prediction.
+* **The Predict page sliders.** The model's weights are fixed and were learned.
+  The sliders scale each factor's own attributed contribution *after* the model
+  runs — a what-if tilt. Left alone they sit at neutral and the page shows the
+  model untouched.
+
+### Retraining
+
+`tools/vercel-build.sh` is the Vercel build command. Every deploy:
+
+1. installs `tools/requirements-model.txt` into a virtualenv,
+2. re-fetches the corpus from the published record — so any race run since the
+   last deploy is in the training set,
+3. retrains both models and rewrites `src/data/model/`,
+4. **verifies train/serve parity**, then builds the site.
+
+Each step degrades rather than fails: no Python, no network or a failed fit all
+fall back to the committed model, because a slightly stale model beats a broken
+deploy. The parity check is the exception — it is fatal on purpose.
+
+Locally the same thing is `npm run model:refresh`.
+
+Note this ties retraining to *deploys*, not to the race calendar. A deploy
+happens when something is pushed; to pick up a race without a push, point a
+scheduled job at a Vercel Deploy Hook.
+
+### Train/serve parity
+
+The model is fitted in Python and evaluated in JavaScript (`src/lib/xgboost.js`,
+a tree walker — no runtime dependency, the race model is 6 KB). Two
+implementations of the same arithmetic can disagree silently, so
+`tools/verify_model.mjs` scores 184 vectors through both and diffs them.
+It runs on every build and on `npm run build`.
+
+The vectors are real rows plus synthetic ones, and the synthetic ones are not
+decoration. With real rows alone the check passed a model whose missing-value
+directions had all been flipped, and one with a split moved by a whole position;
+both were introduced deliberately to find that out. The synthetic vectors cover
+the default branches and the thresholds, and catch both.
+
+Browser-side features are not recomputed from this season's snapshot either —
+they span five seasons and the app holds one. `tools/model_state.py` exports
+each driver's feature vector from the same code that built the training set, and
+the browser fills in only the grid-dependent part.

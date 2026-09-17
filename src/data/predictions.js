@@ -1,30 +1,87 @@
 /**
  * Prediction engine.
  *
- * Every feature below is computed from real 2026 session data: championship
- * ratings derived from actual grid slots and classifications, recent form from
- * the last five real results, and track suitability from the circuit's own
- * telemetry-measured speed and throttle profile.
+ * The ordering is produced by two gradient-boosted rankers (XGBoost,
+ * `rank:pairwise`) trained in `tools/train_model.py` on every real Formula 1
+ * classification since the 2022 regulation reset — 106 races, 2,146 starts,
+ * fetched from the published record. The qualifying model predicts a grid; the
+ * race model orders the field from it. Neither was hand-weighted: every
+ * threshold in them was learned, and `src/data/model/meta.json` records how
+ * they were validated and against what.
  *
- * The weighting and the softmax that turns scores into win probabilities are
- * GridPred's own model, and it is deliberately simple and legible. It is shaped
- * like a real model client: hand it a race and a weight vector, receive a ranked
- * grid plus per-driver factor attributions. Replacing the body of `predictRace`
- * with a call to a served model leaves every component untouched.
+ * What is NOT learned, and is not pretended to be:
+ *
+ *  - Weather. The corpus carries no weather, so rain is applied on top of the
+ *    model: it flattens the probability distribution and tilts toward drivers
+ *    with a measured wet record. The interface labels it as an adjustment.
+ *  - The factor weights on the Predict page. The model has its own weights and
+ *    they are fixed. The sliders are a what-if tilt applied AFTER it, scaling
+ *    each factor's own attributed contribution. Left alone they sit at neutral
+ *    and the page shows the model untouched.
+ *
+ * The six factors below are the vocabulary the interface speaks. Each one maps
+ * onto the model features that carry that meaning, so a contribution shown
+ * against "Recent Form" is the sum of what the model actually attributed to the
+ * recent-form features for this driver — not a restatement of an input.
  */
 import { drivers, driverById, hasRating } from './drivers';
 import { getTeam } from './teams';
 import { circuitById } from './circuits';
 import { recentForm, resultsByRace } from './results';
+import {
+  CIRCUIT_FIELD, beatsBaseline, meta, runModel, unmodelled, validatedFor, winProbabilities,
+} from './model';
 
-/** Model feature weights, in percent. Editable from the prediction page. */
+/**
+ * Display factors, and the model features each one speaks for.
+ *
+ * `weight` is the slider's neutral position, not a model coefficient — the
+ * model's own weighting is in meta.race.importance, which the Predict page
+ * shows separately.
+ */
 export const FACTORS = [
-  { key: 'qualifyingPace', label: 'Qualifying Pace', weight: 30, hint: 'Average grid position across the season so far.' },
-  { key: 'racePace', label: 'Race Pace', weight: 25, hint: 'Average finishing position across the season so far.' },
-  { key: 'recentForm', label: 'Recent Form', weight: 15, hint: 'Results trend across the last five rounds.' },
-  { key: 'trackSuitability', label: 'Track Suitability', weight: 15, hint: 'Driver record at circuits with this speed profile.' },
-  { key: 'weather', label: 'Weather', weight: 10, hint: 'Wet-weather record weighed against the forecast.' },
-  { key: 'historical', label: 'Historical Performance', weight: 5, hint: 'This driver’s prior result at this circuit.' },
+  {
+    key: 'qualifyingPace',
+    label: 'Qualifying Pace',
+    weight: 30,
+    hint: 'Where this driver starts, and where they usually start.',
+    features: ['grid', 'gridPct', 'seasonAvgGrid', 'last5Grid', 'teamSeasonAvgGrid', 'gridVsSeasonGrid'],
+  },
+  {
+    key: 'racePace',
+    label: 'Race Pace',
+    weight: 25,
+    hint: 'Finishing positions across the season and the career.',
+    features: ['seasonAvgFinish', 'careerAvgFinish', 'teamSeasonAvgFinish'],
+  },
+  {
+    key: 'recentForm',
+    label: 'Recent Form',
+    weight: 15,
+    hint: 'The last five rounds, for the driver and the team.',
+    features: ['last5Finish', 'last5Gained', 'teamLast5Finish'],
+  },
+  {
+    key: 'trackSuitability',
+    label: 'Track Record',
+    weight: 15,
+    hint: 'What this driver has done at this circuit before.',
+    features: ['circuitAvgFinish', 'circuitAvgGrid', 'circuitAvgGained'],
+  },
+  {
+    key: 'weather',
+    label: 'Weather',
+    weight: 10,
+    hint: 'Wet-weather record against the forecast. Applied on top of the model.',
+    features: [],
+  },
+  {
+    key: 'historical',
+    label: 'Racecraft',
+    weight: 5,
+    hint: 'Places gained from grid to flag, reliability and experience.',
+    features: ['avgGained', 'teamAvgGained', 'dnfRate', 'starts'],
+  },
 ];
 
 export const defaultWeights = Object.fromEntries(FACTORS.map((f) => [f.key, f.weight]));
@@ -32,20 +89,26 @@ export const defaultWeights = Object.fromEntries(FACTORS.map((f) => [f.key, f.we
 /** Sprint scoring: the top eight only. */
 export const SPRINT_POINTS = { 1: 8, 2: 7, 3: 6, 4: 5, 5: 4, 6: 3, 7: 2, 8: 1 };
 
-function hash(str) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i += 1) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
-}
+/** model feature name -> display factor key */
+const FEATURE_FACTOR = Object.fromEntries(
+  FACTORS.flatMap((f) => f.features.map((name) => [name, f.key])),
+);
 
 const clamp = (v, lo = 0, hi = 100) => Math.min(hi, Math.max(lo, v));
 
 /**
- * Feature vector for one driver at one circuit. Each component is 0-100 and
- * each is traceable to a real measurement.
+ * Weather is applied outside the model, so it needs a scale comparable to one.
+ * Model scores span a few tenths across a field; a fully wet race moves a
+ * driver by at most this much, which is a few places and not a reordering.
+ */
+const WEATHER_SCALE = 0.09;
+
+/**
+ * The driver's measured profile, 0-100 per display factor.
+ *
+ * This is what the radar shows. It is a description of the driver, taken from
+ * the season's own derived ratings — not the model's internal features, which
+ * are raw positions and averages and do not share a scale.
  */
 export function featureVector(driver, race, rainChance) {
   const r = driver.ratings ?? {};
@@ -58,14 +121,11 @@ export function featureVector(driver, race, rainChance) {
     ? finished.reduce((s, f) => s + f.position, 0) / finished.length
     : 11;
 
-  // Track suitability blends the driver's record at fast and slow venues by how
-  // much of this circuit is actually taken at full throttle.
   const throttle = circuit?.measurements?.fullThrottlePct;
   const fastBias = throttle != null ? clamp((throttle - 40) / 40, 0, 1) : 0.5;
   const fast = r.highSpeedCircuits ?? r.racePace ?? 50;
   const slow = r.lowSpeedCircuits ?? r.racePace ?? 50;
 
-  // Prior result at this exact circuit, when the season has already been here.
   const prior = resultsByRace[race?.circuitId]?.results.find((x) => x.driverId === driver.id);
 
   return {
@@ -80,130 +140,196 @@ export function featureVector(driver, race, rainChance) {
   };
 }
 
-function weightedScore(vector, weights) {
-  const total = Object.values(weights).reduce((s, w) => s + w, 0) || 1;
-  return FACTORS.reduce((s, f) => s + vector[f.key] * (weights[f.key] ?? 0), 0) / total;
+/**
+ * How far a driver's wet record sits from the field's, as a score adjustment.
+ * Zero unless it is actually forecast to rain and the driver has enough wet
+ * races behind them to have a record worth using.
+ */
+function weatherTerm(driver, rain, fieldWetAverage) {
+  if (rain <= 0 || !hasRating(driver, 'wetWeather')) return 0;
+  return ((driver.ratings.wetWeather - fieldWetAverage) / 100) * rain * WEATHER_SCALE;
 }
 
 /**
  * Rank the field for a race.
+ *
+ * @param {object} race
+ * @param {object} [opts]
+ * @param {Record<string,number>} [opts.weights]    what-if tilt, neutral at defaults
+ * @param {number} [opts.rainChance]                0-100
+ * @param {object[]} [opts.grid]                    the field actually entered
  * @returns {{qualifying:object[], race:object[], confidence:number, byId:object}}
  */
 export function predictRace(race, opts = {}) {
-  // `grid` lets a caller predict the field that is actually entered this
-  // weekend — with stand-ins in place and absentees removed — rather than the
-  // contracted lineup the snapshot describes.
   const { weights = defaultWeights, rainChance = 0, grid = drivers } = opts;
-  if (!race) return { qualifying: [], race: [], byId: {}, confidence: 0, factors: FACTORS, fieldAverage: {} };
+  if (!race) {
+    return {
+      qualifying: [], race: [], byId: {}, confidence: 0,
+      factors: FACTORS, fieldAverage: {}, model: meta,
+    };
+  }
 
   const circuit = race.circuit ?? circuitById[race.circuitId];
+  const rain = clamp(rainChance, 0, 100) / 100;
 
-  const rows = grid.map((driver) => {
-    const vector = featureVector(driver, race, rainChance);
-    const team = getTeam(driver.team);
-    const score = weightedScore(vector, weights);
-    const jitter = (hash(`${race.id}:${driver.id}`) - 0.5) * 1.2;
-    return { driver, team, vector, score: score + jitter };
-  });
+  // A race already run has a real grid; the model was validated both ways.
+  const run = resultsByRace[race.circuitId];
+  const knownGrid = run
+    ? Object.fromEntries(run.results.filter((r) => r.grid != null).map((r) => [r.driverId, r.grid]))
+    : null;
 
-  const fieldAverage = Object.fromEntries(
-    FACTORS.map((f) => [f.key, rows.reduce((s, x) => s + x.vector[f.key], 0) / rows.length]),
+  const model = runModel(grid, race.circuitId, { knownGrid });
+  const { rows, attribution, featureNames } = model;
+
+  const wetRated = grid.filter((d) => hasRating(d, 'wetWeather'));
+  const fieldWetAverage = wetRated.length
+    ? wetRated.reduce((s, d) => s + d.ratings.wetWeather, 0) / wetRated.length
+    : 50;
+
+  // -- the what-if tilt ---------------------------------------------------
+  // Each slider scales its factor's own attributed contribution. At the neutral
+  // position every multiplier is 1 and the adjusted score is the model's.
+  const multiplier = Object.fromEntries(
+    FACTORS.map((f) => [f.key, (weights[f.key] ?? f.weight) / (f.weight || 1)]),
   );
 
-  const qualiOrder = [...rows]
-    .map((x) => ({ ...x, qScore: x.score * 0.7 + x.vector.qualifyingPace * 0.3 }))
-    .sort((a, b) => b.qScore - a.qScore)
-    .map((x, i) => ({ ...x, position: i + 1 }));
+  const scored = rows.map((row, i) => {
+    const attributed = attribution[i];
+    const byFactor = Object.fromEntries(FACTORS.map((f) => [f.key, 0]));
 
-  // A circuit where little of the lap is spent at full throttle offers fewer
-  // passing chances, so grid position carries further into the result.
-  const throttle = circuit?.measurements?.fullThrottlePct ?? 55;
-  const overtakeEase = clamp((throttle - 35) / 45, 0, 1);
-  const rain = rainChance / 100;
-  const chaos = 2.6 + rain * 14;
+    let tilt = 0;
+    attributed.contributions.forEach((value, featureIndex) => {
+      const factor = FEATURE_FACTOR[featureNames[featureIndex]];
+      if (!factor) return;
+      byFactor[factor] += value;
+      tilt += value * (multiplier[factor] - 1);
+    });
 
-  const raceOrder = [...qualiOrder]
-    .map((x) => ({
-      ...x,
-      rScore:
-        x.score * 0.72 +
-        x.vector.racePace * 0.16 +
-        (21 - x.position) * (1 - overtakeEase) * 0.85 +
-        (hash(`race:${race.id}:${x.driver.id}:${Math.round(rain * 8)}`) - 0.5) * chaos,
-    }))
-    .sort((a, b) => b.rScore - a.rScore)
+    const weather = weatherTerm(row.driver, rain, fieldWetAverage) * multiplier.weather;
+    byFactor.weather += weather;
+
+    return {
+      ...row,
+      contributionsByFactor: byFactor,
+      score: attributed.total + tilt + weather,
+      vector: featureVector(row.driver, race, rainChance),
+    };
+  });
+
+  // -- ordering -----------------------------------------------------------
+  const raceOrder = [...scored]
+    .sort((a, b) => b.score - a.score)
     .map((x, i) => ({ ...x, racePosition: i + 1 }));
 
-  const temp = 5.2 + rain * 3;
-  const exps = raceOrder.map((x) => Math.exp((x.rScore - raceOrder[0].rScore) / temp));
-  const expSum = exps.reduce((s, e) => s + e, 0);
-  const qualiPos = Object.fromEntries(qualiOrder.map((x) => [x.driver.id, x.position]));
+  const qualiPos = {};
+  model.qualifyingOrder.forEach((rowIndex, i) => {
+    qualiPos[rows[rowIndex].driver.id] = i + 1;
+  });
+  // Where the grid is already known, it is the grid — not a prediction of one.
+  if (knownGrid) Object.assign(qualiPos, knownGrid);
+
+  const probabilities = winProbabilities(
+    raceOrder.map((x) => x.score), rainChance, Boolean(knownGrid),
+  );
+
+  const fieldAverage = Object.fromEntries(
+    FACTORS.map((f) => [
+      f.key,
+      scored.reduce((s, x) => s + x.vector[f.key], 0) / (scored.length || 1),
+    ]),
+  );
 
   const decorate = (x, i) => ({
     driverId: x.driver.id,
     driver: x.driver,
-    teamId: x.team.id,
-    team: x.team,
+    teamId: getTeam(x.driver.team).id,
+    team: getTeam(x.driver.team),
     position: x.racePosition,
     gridPosition: qualiPos[x.driver.id],
     delta: qualiPos[x.driver.id] - x.racePosition,
-    score: Number(x.score.toFixed(1)),
+    score: Number((x.score * 100).toFixed(1)),
     vector: x.vector,
-    winProbability: Number(((exps[i] / expSum) * 100).toFixed(1)),
+    winProbability: Number((probabilities[i] * 100).toFixed(1)),
+    /** True when the corpus holds no history for this driver. */
+    unmodelled: unmodelled.has(x.driver.id) || model.missing.includes(x.driver.id),
+    /**
+     * What the model attributed to each factor, in points of score. These come
+     * from walking the trees this driver's features actually fell through, so
+     * they sum to the score rather than describing it.
+     */
     contributions: FACTORS.map((f) => ({
       key: f.key,
       label: f.label,
-      value: Number((((x.vector[f.key] - fieldAverage[f.key]) * (weights[f.key] ?? 0)) / 100).toFixed(1)),
+      value: Number((x.contributionsByFactor[f.key] * 100).toFixed(1)),
       raw: Math.round(x.vector[f.key]),
     })).sort((a, b) => Math.abs(b.value) - Math.abs(a.value)),
   });
 
   const raceRows = raceOrder.map(decorate);
   const byId = Object.fromEntries(raceRows.map((x) => [x.driverId, x]));
-  const qualifying = qualiOrder.map((x) => ({ ...byId[x.driver.id], position: x.position }));
+
+  const qualifying = [...raceRows]
+    .sort((a, b) => a.gridPosition - b.gridPosition)
+    .map((x, i) => ({ ...x, position: i + 1 }));
 
   /*
    * Sprint.
    *
    * A sprint is about a third of a Grand Prix with no mandatory stop, so there
-   * is far less time to recover from a poor start slot and tyre management
-   * barely matters. The model reflects that by leaning much harder on grid
-   * position and damping the random element, which is why a sprint order is
-   * usually closer to the grid than the race order is.
+   * is far less time to recover from a poor start slot. There is no separate
+   * sprint model — the corpus does not hold enough sprints to train one
+   * honestly — so the race model's own score is re-weighted toward the grid,
+   * which is why a sprint order sits closer to the grid than the race order.
    */
+  const throttle = circuit?.measurements?.fullThrottlePct ?? 55;
+  const overtakeEase = clamp((throttle - 35) / 45, 0, 1);
+
   const sprint = race.isSprint
     ? (() => {
-        const rows = [...qualiOrder]
+        const ordered = [...scored]
           .map((x) => ({
             ...x,
-            sScore:
-              x.score * 0.7 +
-              x.vector.racePace * 0.1 +
-              // grid weighs roughly twice what it does over a full race
-              (21 - x.position) * (1 - overtakeEase) * 1.7 +
-              (hash(`sprint:${race.id}:${x.driver.id}:${Math.round(rain * 8)}`) - 0.5) *
-                (chaos * 0.6),
+            sScore: x.score + (CIRCUIT_FIELD - qualiPos[x.driver.id])
+              * (1 - overtakeEase) * 0.012,
           }))
           .sort((a, b) => b.sScore - a.sScore)
           .map((x, i) => ({ ...x, sprintPosition: i + 1 }));
 
-        const sExps = rows.map((x) => Math.exp((x.sScore - rows[0].sScore) / (temp * 0.85)));
-        const sSum = sExps.reduce((acc, e) => acc + e, 0);
+        const sprintProbabilities = winProbabilities(
+          ordered.map((x) => x.sScore), rainChance, Boolean(knownGrid),
+        );
 
-        return rows.map((x, i) => ({
+        return ordered.map((x, i) => ({
           ...byId[x.driver.id],
           position: x.sprintPosition,
           gridPosition: qualiPos[x.driver.id],
           delta: qualiPos[x.driver.id] - x.sprintPosition,
-          winProbability: Number(((sExps[i] / sSum) * 100).toFixed(1)),
+          winProbability: Number((sprintProbabilities[i] * 100).toFixed(1)),
           /** Sprint scores the top eight only. */
           points: SPRINT_POINTS[x.sprintPosition] ?? 0,
         }));
       })()
     : null;
 
-  const gap = raceOrder[0].rScore - raceOrder[1].rScore;
-  const confidence = clamp(Math.round(61 + Math.min(gap, 6) * 3.4 + (1 - rain) * 15), 36, 94);
+  /*
+   * Confidence.
+   *
+   * Anchored on the model's measured out-of-fold rank correlation — how much of
+   * a field's order it actually got right on races it had never seen — then
+   * moved by how clear-cut this particular race looks and how wet it is.
+   *
+   * Which record applies depends on the question. Ordering a field that has
+   * already qualified is a different and easier problem than ordering one whose
+   * grid is itself a prediction, so an upcoming race is anchored on the lower,
+   * chained figure. Quoting the qualified-race number for a race nobody has
+   * qualified for would be claiming an accuracy this model does not have.
+   */
+  const validated = validatedFor(Boolean(knownGrid));
+  const margin = raceOrder.length > 1 ? raceOrder[0].score - raceOrder[1].score : 0;
+  const confidence = clamp(
+    Math.round(100 * validated.spearman + Math.min(margin * 100, 6) * 1.6 - rain * 18),
+    35, 92,
+  );
 
   return {
     raceId: race.id,
@@ -217,6 +343,13 @@ export function predictRace(race, opts = {}) {
     factors: FACTORS,
     weights,
     rainChance,
+    /** Provenance for the interface: what this model is and how it did. */
+    model: meta,
+    /** The out-of-fold record for this kind of prediction specifically. */
+    validated,
+    beatsBaseline,
+    gridIsKnown: Boolean(knownGrid),
+    tilted: FACTORS.some((f) => (weights[f.key] ?? f.weight) !== f.weight),
     generatedAt: new Date().toISOString(),
   };
 }

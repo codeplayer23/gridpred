@@ -242,8 +242,8 @@ export default function Predict() {
             </div>
 
             <div className="rounded-[24px] border border-white/[0.07] bg-white/[0.02] p-6 backdrop-blur-xl">
-              <div className="mb-6 flex items-center justify-between gap-3">
-                <p className="mono-label">Feature weights</p>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <p className="mono-label">What-if tilt</p>
                 {dirty && (
                   <button
                     type="button"
@@ -255,6 +255,12 @@ export default function Predict() {
                   </button>
                 )}
               </div>
+              <p className="mb-6 text-[0.78rem] leading-relaxed text-ink-mute">
+                The model's own weights are fixed — they were learned, not set.
+                These scale what it attributed to each factor, so you can ask
+                what the order would look like if something mattered more.
+                {dirty ? ' Reset to see the model untouched.' : ' At rest, this is the model untouched.'}
+              </p>
               <ul className="flex flex-col gap-5">
                 {FACTORS.map((f) => (
                   <li
@@ -265,7 +271,11 @@ export default function Predict() {
                     <label className="flex flex-col gap-2">
                       <span className="flex items-baseline justify-between gap-3">
                         <span className="text-[0.84rem] text-ink-dim">{f.label}</span>
-                        <span className="tabular text-[0.82rem] font-medium">{weights[f.key]}%</span>
+                        <span className="tabular text-[0.82rem] font-medium">
+                          {weights[f.key] === f.weight
+                            ? 'neutral'
+                            : `${weights[f.key] > f.weight ? '+' : ''}${Math.round((weights[f.key] / f.weight - 1) * 100)}%`}
+                        </span>
                       </span>
                       <input
                         type="range"
@@ -288,7 +298,7 @@ export default function Predict() {
           <SectionHeader
             eyebrow="Prediction confidence"
             title="What the model weighs"
-            lede="Six features, one composition. Hover a slice or a row to isolate it."
+            lede="Six factors, one composition. Hover a slice or a row to isolate it."
           />
 
           <div className="mt-14 grid items-center gap-12 lg:grid-cols-[auto_1fr] lg:gap-20">

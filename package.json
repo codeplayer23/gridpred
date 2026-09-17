@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "model:fetch": "python3 tools/fetch_training_data.py",
+    "model:train": "python3 tools/train_model.py",
+    "model:verify": "node tools/verify_model.mjs",
+    "model:refresh": "npm run model:fetch && npm run model:train && npm run model:verify",
+    "prebuild": "node tools/verify_model.mjs"
   },
   "dependencies": {
     "framer-motion": "^13.1.0",

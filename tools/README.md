@@ -11,6 +11,17 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r tools/requirements.txt
 ```
 
+To train the prediction model as well:
+
+```bash
+pip install -r tools/requirements-model.txt
+```
+
+On macOS that also needs the OpenMP runtime, which XGBoost links against and
+Apple does not ship: `brew install libomp`. Without it the import fails with
+"Library not loaded: @rpath/libomp.dylib". Linux builders, Vercel's included,
+already have `libgomp`.
+
 ## Run, in this order
 
 ```bash
@@ -24,6 +35,24 @@ python tools/build_snapshot.py         # assemble + verify headshots -> src/data
 python tools/gen_assets.py             # canonical asset registry -> src/data/*Assets.js
 python tools/revise_results.py --apply # LAST: apply post-race classification changes
 ```
+
+The prediction model is a separate pipeline with its own corpus, and does not
+need the steps above to have run:
+
+```bash
+python tools/fetch_training_data.py    # 2022- classifications -> src/data/model/training_set.json
+python tools/train_model.py            # XGBoost rankers + state -> src/data/model/
+node   tools/verify_model.mjs          # train/serve parity check
+```
+
+or `npm run model:refresh` for all three. Vercel runs the same sequence on every
+deploy via `tools/vercel-build.sh`, so the model is retrained with whatever
+races have happened since the last one. See the README for what it trains and
+how it validates.
+
+Note these write into `src/data/model/`, not `out/`: the corpus and the trained
+model are inputs to the Vercel build, which has no network budget for a full
+pipeline run and must be able to train from what is committed.
 
 `revise_results.py` reads and writes `src/data/snapshot/` directly rather than
 the `out/` intermediates, so it runs **after** `build_snapshot.py` — running it
@@ -47,6 +76,7 @@ resolves driver headshots as part of that step.
 | Circuit length and official turn count | Wikipedia circuit infoboxes (CC BY-SA) |
 | Career history, debut, season-by-season | Jolpica (Ergast successor), aggregated from every classification |
 | Post-race classification revisions | Jolpica, reconciled by `revise_results.py` |
+| Prediction model training corpus | Jolpica, every classification since 2022 |
 | Sepang and Madring centrelines | OpenStreetMap (ODbL 1.0) |
 | Driver photographs (22) | Formula 1 official 2026 media library, referenced by URL |
 | Team logos (11) | Formula 1 official 2026 white variants, referenced by URL |

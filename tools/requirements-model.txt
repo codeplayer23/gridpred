@@ -1,0 +1,5 @@
+# Training only. Deliberately separate from requirements.txt: the Vercel build
+# installs these on every deploy, and it has no use for FastF1 or pandas — the
+# corpus it trains on comes from the published record as plain JSON.
+xgboost>=2.1
+numpy
